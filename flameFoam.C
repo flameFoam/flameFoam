@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Copyright (C) 2011-2020 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2022 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,20 +25,22 @@ Application
     flameFoam
 
 Description
-    Premixed turbulent combustion simulation using progress variable model
+    Premixed turbulent combustion solver using progress variable model
+    for OpenFOAM-9
 
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
-#include "turbulentFluidThermoModel.H"
-#include "rhoReactionThermo.H"
+#include "dynamicMomentumTransportModel.H"
+#include "fluidReactionThermophysicalTransportModel.H"
+#include "fluidReactionThermo.H"
 #include "fixedGradientFvPatchFields.H"
 #include "regionProperties.H"
 #include "compressibleCourantNo.H"
 #include "solidRegionDiffNo.H"
 #include "solidThermo.H"
-#include "radiationModel.H"
-#include "fvOptions.H"
+#include "fvModels.H"
+#include "fvConstraints.H"
 #include "coordinateSystem.H"
 #include "pimpleMultiRegionControl.H"
 
@@ -49,7 +51,7 @@ Description
 int main(int argc, char *argv[])
 {
 
-    string VERSION = "0.8";
+    string VERSION = "0.12.2";
 
     #define NO_CONTROL
     #define CREATE_MESH createMeshesPostProcess.H
