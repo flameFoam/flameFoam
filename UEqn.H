@@ -6,15 +6,15 @@
     (
         fvm::ddt(rho, U) + fvm::div(phi, U)
       + MRF.DDt(rho, U)
-      + turbulence.divDevRhoReff(U)
+      + turbulence.divDevTau(U)
      ==
-        fvOptions(rho, U)
+        fvModels.source(rho, U)
     );
     fvVectorMatrix& UEqn = tUEqn.ref();
 
     UEqn.relax();
 
-    fvOptions.constrain(UEqn);
+    fvConstraints.constrain(UEqn);
 
     if (pimple.momentumPredictor())
     {
@@ -31,7 +31,7 @@
             )
         );
 
-        fvOptions.correct(U);
+        fvConstraints.constrain(U);
         K = 0.5*magSqr(U);
     }
-    fvOptions.correct(U);
+    fvConstraints.constrain(U);

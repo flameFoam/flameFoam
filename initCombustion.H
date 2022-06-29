@@ -15,15 +15,14 @@ IOdictionary combustionProperties
     )
 );
 
-ScT[i] = readScalar(combustionProperties.lookup("ScT"));
-X_H2_0[i] = readScalar(combustionProperties.lookup("X_H2_0"));
+X_H2_0[i] = combustionProperties.lookup<scalar>("X_H2_0");
 run_info << "Initial hydrogen concentration: " << X_H2_0[i] << endl;
 
 Y_H2_0[i] = dimensionedScalar("Y_H2_0", molarH2*X_H2_0[i]*thermoFluid[i].p().average()/(rhoFluid[i].average()*constant::physicoChemical::R*thermoFluid[i].T().average()));
 Y_H2_99[i] = 0;
 run_info << "Initial hydrogen mass fraction: " << Y_H2_0[i] << endl;
 
-X_H2O[i] = readScalar(combustionProperties.lookup("X_H2O"));
+X_H2O[i] = combustionProperties.lookup<scalar>("X_H2O");
 run_info << "Initial steam concentration: " << X_H2O[i] << endl;
 
 if ((X_H2_0_c>1) || (X_H2O_c>1))
@@ -43,27 +42,49 @@ else
     }
 }
 
-dimensionedScalar S_L0(combustionProperties.lookup("S_L0"));
-S_L0_value[i] = S_L0.value();
-CorrelationL[i] = "none";
-if (S_L0_value[i] == 0)
+model[i] = combustionProperties.lookup<word>("model");
+run_info << "Model: " << model[i] << endl;
+
+CorrelationL[i] = combustionProperties.lookup<word>("LBV_prediction");
+if (CorrelationL[i] == "none")
 {
-    CorrelationL[i] = "Malet";
-    const scalar ER = 0.705*X_H2_0[i]/(0.295*(1-X_H2_0[i]-X_H2O[i]));
-    S_L0 = dimensionedScalar("S_L0", dimVelocity,1.44*ER*ER+1.07*ER-0.29);
-    Info << "Malet's correlation used for the referential laminar velocity. Calculated equivalence ratio: " << ER << ", calculated S_L0: " << S_L0 << endl;
-    run_info << "Malet's correlation used, calculated equivalence ratio: " << ER << endl;
-    S_L0_value[i] = S_L0.value();
+    LBV_param_value[i] = combustionProperties.lookup<scalar>("S_L0");
+    run_info << "Constant LBV used: " << LBV_param_value[i] << endl;
 }
+else
+{
+    const scalar ER = 0.705*X_H2_0[i]/(0.295*(1-X_H2_0[i]-X_H2O[i]));
+    if (CorrelationL[i] == "ANN")
+    {
+        Info << "ANN used, calculated equivalence ratio: " << ER << endl;
+        run_info << "ANN predicted LBV used, calculated equivalence ratio: " << ER << endl;
+        LBV_param_value[i] = ER;
+    }
+    else if (CorrelationL[i] == "Malet")
+    {
+        LBV_param_value[i] = 1.44*ER*ER+1.07*ER-0.29;
+        Info << "Malet's correlation used for the referential laminar velocity. Calculated equivalence ratio: " << ER << ", calculated S_L0: " << LBV_param_value[i] << " m/s" << endl;
+        run_info << "Malet predicted LBV used, calculated equivalence ratio: " << ER << ", calculated S_L0: " << LBV_param_value[i] << " m/s" << endl;
+    }
+    else
+    {
+        FatalErrorInFunction << "Unknown LBV prediction method" << endl << exit(FatalError);
+    }
+}
+
 Tref_value[i] = Tref.value();
 pref_value[i] = pref.value();
-run_info << "Reference laminar flame speed: " << S_L0 << endl;
 
-Le[i] = readScalar(combustionProperties.lookup("Le"));
+Le[i] = combustionProperties.lookup<scalar>("Le");
 run_info << "Le: " << Le[i] << endl;
 
 Switch ignition(combustionProperties.lookup("ignite"));
 ignite[i] = ignition;
+ignX[i] = combustionProperties.lookup<scalar>("ignX");
+ignY[i] = combustionProperties.lookup<scalar>("ignY");
+ignZ[i] = combustionProperties.lookup<scalar>("ignZ");
+ignR2[i] = pow(combustionProperties.lookup<scalar>("ignitionRadius"), 2);
+
 
 S_LFluid.set
 (
@@ -78,7 +99,8 @@ S_LFluid.set
             IOobject::NO_READ,
             IOobject::AUTO_WRITE
         ),
-        S_L0*pow(1-X_H2O[i],4)*pow(thermoFluid[i].T()/Tref,2.2)*pow(thermoFluid[i].p()/pref,-0.5)
+        fluidRegions[i],
+        dimensionedScalar(dimVelocity, 0)
     )
 );
 
@@ -99,6 +121,24 @@ S_TFluid.set
     )
 );
 
+XiFluid.set
+(
+    i,
+    new volScalarField
+    (
+        IOobject
+        (
+            "Xi",
+            runTime.timeName(),
+            fluidRegions[i],
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        fluidRegions[i],
+        scalar(0)
+    )
+);
+
 cSourceFluid.set
 (
     i,
@@ -116,21 +156,33 @@ cSourceFluid.set
     )
 );
 
-Correlation[i] = combustionProperties.lookup("correlation");
-Info << "Correlation: " << Correlation[i] << endl;
-run_info << "Correlation: " << Correlation[i] << endl;
+turbulenceType[i] = turbulenceFluid[i].lookup<word>("simulationType");
+Correlation[i] = combustionProperties.lookup<word>("correlation");
 
-dimensionedScalar alpha_u = dimensionedScalar("alpha_u", dimensionSet(0,-0.5,0.25,0,0,0,0), 0);
+if (((turbulenceType[i] == "RAS") && ((Correlation[i] == "Zimont") || (Correlation[i] == "Bradley") || (Correlation[i] == "Bray"))) || ((turbulenceType[i] == "LES") && ((Correlation[i] == "PitschDuchamp") || (Correlation[i] == "Charlette") )) || (turbulenceType[i] == "laminar"))
+{
+    Info << "Turbulence model: " << turbulenceType[i] << " " << turbulenceFluid[i].type() << endl;
+    run_info << "Turbulence model: " << turbulenceType[i] << " " << turbulenceFluid[i].type() << endl;
+    Info << "Correlation: " << Correlation[i] << endl;
+    run_info << "Correlation: " << Correlation[i] << endl;
+}
+else
+{
+    FatalErrorInFunction << "Incompatible turbulence model " << turbulenceType[i]  << " and turbulent flame speed model " << Correlation[i] << " used." << endl << exit(FatalError);
+}
+
+
+ScT[i] = thermophysicalTransportFluid[i].subDict(turbulenceType[i]).lookup<scalar>("Sct");
+run_info << "Sc_T: " << ScT[i] << endl;
+
+alpha_u_value[i] = combustionProperties.lookup<scalar>("alpha");
+run_info << "\tUnburned alpha: " << alpha_u_value[i] << endl;
 if (Correlation[i] == "Zimont")
 {
-    const scalar ZimontA = readScalar(combustionProperties.lookup("ZimontA"));
-    const dimensionedScalar alpha_read(combustionProperties.lookup("alpha"));
+    const scalar ZimontA = combustionProperties.lookup<scalar>("ZimontA");
     run_info << "\tZimont coefficient: " << ZimontA << endl;
-    run_info << "\tUnburned alpha: " << alpha_read << endl;
-    AC[i] = ZimontA*Foam::pow(0.37, 0.25);
-    alpha_u = pow(alpha_read, -0.25);
+    ACalpha_value[i] = ZimontA*Foam::pow(0.37, 0.25)*Foam::pow(alpha_u_value[i], -0.25);
 }
-alpha_u_value[i] = alpha_u.value();
 
 Switch visc_switch(combustionProperties.lookup("visciousDis"));
 visciousDis[i] = visc_switch;

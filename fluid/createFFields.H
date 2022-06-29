@@ -1,5 +1,5 @@
 // Initialise fluid field pointer lists
-PtrList<rhoReactionThermo> thermoFluid(fluidRegions.size());
+PtrList<fluidReactionThermo> thermoFluid(fluidRegions.size());
 PtrList<volScalarField> rhoFluid(fluidRegions.size());
 PtrList<volVectorField> UFluid(fluidRegions.size());
 PtrList<surfaceScalarField> phiFluid(fluidRegions.size());
@@ -7,12 +7,16 @@ PtrList<uniformDimensionedVectorField> gFluid(fluidRegions.size());
 PtrList<uniformDimensionedScalarField> hRefFluid(fluidRegions.size());
 PtrList<volScalarField> ghFluid(fluidRegions.size());
 PtrList<surfaceScalarField> ghfFluid(fluidRegions.size());
-PtrList<compressible::turbulenceModel> turbulenceFluid(fluidRegions.size());
+PtrList<compressible::momentumTransportModel>
+    turbulenceFluid(fluidRegions.size());
+PtrList<fluidReactionThermophysicalTransportModel>
+    thermophysicalTransportFluid(fluidRegions.size());
 PtrList<volScalarField> cFluid(fluidRegions.size());
 PtrList<volScalarField> p_rghFluid(fluidRegions.size());
-PtrList<radiationModel> radiation(fluidRegions.size());
 PtrList<volScalarField> KFluid(fluidRegions.size());
 PtrList<volScalarField> dpdtFluid(fluidRegions.size());
+PtrList<multivariateSurfaceInterpolationScheme<scalar>::fieldTable>
+    fieldsFluid(fluidRegions.size());
 List<scalar> rho0_value(fluidRegions.size());
 List<scalar> mu_u_value(fluidRegions.size());
 List<scalar> Tref_value(fluidRegions.size());
@@ -23,17 +27,24 @@ List<scalar> X_H2_99(fluidRegions.size());
 List<dimensionedScalar> Y_H2_0(fluidRegions.size());
 List<dimensionedScalar> Y_H2_99(fluidRegions.size());
 List<scalar> X_H2O(fluidRegions.size());
-List<scalar> S_L0_value(fluidRegions.size());
+List<scalar> LBV_param_value(fluidRegions.size());
 List<scalar> Le(fluidRegions.size());
 List<Switch> ignite(fluidRegions.size());
 List<Switch> visciousDis(fluidRegions.size());
 PtrList<volScalarField> S_LFluid(fluidRegions.size());
 PtrList<volScalarField> S_TFluid(fluidRegions.size());
 PtrList<volScalarField> cSourceFluid(fluidRegions.size());
-List<string> Correlation(fluidRegions.size());
-List<string> CorrelationL(fluidRegions.size());
-List<scalar> AC(fluidRegions.size());
+PtrList<volScalarField> XiFluid(fluidRegions.size());
+List<word> Correlation(fluidRegions.size());
+List<word> CorrelationL(fluidRegions.size());
+List<word> turbulenceType(fluidRegions.size());
+List<word> model(fluidRegions.size());
+List<scalar> ACalpha_value(fluidRegions.size());
 List<scalar> alpha_u_value(fluidRegions.size());
+List<scalar> ignX(fluidRegions.size());
+List<scalar> ignY(fluidRegions.size());
+List<scalar> ignZ(fluidRegions.size());
+List<scalar> ignR2(fluidRegions.size());
 
 #include <ctime>
 std::time_t t = std::time(nullptr);
@@ -43,7 +54,9 @@ OFstream run_info(runTime.rootPath()/runTime.globalCaseName()/"run_info."+mbstr+
 run_info << "flameFoam-"+VERSION << endl;
 
 PtrList<IOMRFZoneList> MRFfluid(fluidRegions.size());
-PtrList<fv::options> fluidFvOptions(fluidRegions.size());
+PtrList<Foam::fvModels> fvModelsFluid(fluidRegions.size());
+PtrList<fvConstraints> fvConstraintsFluid(fluidRegions.size());
+
 
 // Populate fluid field pointer lists
 forAll(fluidRegions, i)
@@ -54,11 +67,11 @@ forAll(fluidRegions, i)
         << fluidRegions[i].name() << nl << endl;
 
     Info<< "    Adding to thermoFluid\n" << endl;
-    thermoFluid.set(i, rhoReactionThermo::New(fluidRegions[i]).ptr());
+    thermoFluid.set(i, fluidReactionThermo::New(fluidRegions[i]).ptr());
 
     thermoFluid[i].validate(args.executable(), "h", "e");
-    const scalar X_H2_0_c(thermoFluid[i].lookupOrDefault<scalar>("X_H2_0", 2));
-    const scalar X_H2O_c(thermoFluid[i].lookupOrDefault<scalar>("X_H2O", 2));
+    const scalar X_H2_0_c(thermoFluid[i].properties().lookupOrDefault<scalar>("X_H2_0", 2));
+    const scalar X_H2O_c(thermoFluid[i].properties().lookupOrDefault<scalar>("X_H2O", 2));
 
     Info<< "    Adding to cFluid\n" << endl;
     cFluid.set
@@ -212,7 +225,7 @@ forAll(fluidRegions, i)
     turbulenceFluid.set
     (
         i,
-        compressible::turbulenceModel::New
+        compressible::momentumTransportModel::New
         (
             rhoFluid[i],
             UFluid[i],
@@ -221,7 +234,16 @@ forAll(fluidRegions, i)
         ).ptr()
     );
 
-    run_info << "Turbulence model: " << turbulenceFluid[i].type() << endl;
+    Info<< "    Adding to thermophysicalTransport\n" << endl;
+    thermophysicalTransportFluid.set
+    (
+        i,
+        fluidReactionThermophysicalTransportModel::New
+        (
+            turbulenceFluid[i],
+            thermoFluid[i]
+        ).ptr()
+    );
 
     p_rghFluid.set
     (
@@ -244,13 +266,6 @@ forAll(fluidRegions, i)
     p_rghFluid[i] = thermoFluid[i].p() - rhoFluid[i]*ghFluid[i];
 
     fluidRegions[i].setFluxRequired(p_rghFluid[i].name());
-
-    Info<< "    Adding to radiationFluid\n" << endl;
-    radiation.set
-    (
-        i,
-        radiationModel::New(thermoFluid[i].T())
-    );
 
     Info<< "    Adding to KFluid\n" << endl;
     KFluid.set
@@ -284,6 +299,18 @@ forAll(fluidRegions, i)
         )
     );
 
+    Info<< "    Adding to fieldsFluid\n" << endl;
+    fieldsFluid.set
+    (
+        i,
+        new multivariateSurfaceInterpolationScheme<scalar>::fieldTable
+    );
+    forAll(thermoFluid[i].composition().Y(), j)
+    {
+        fieldsFluid[i].add(thermoFluid[i].composition().Y()[j]);
+    }
+    fieldsFluid[i].add(thermoFluid[i].he());
+
     Info<< "    Adding MRF\n" << endl;
     MRFfluid.set
     (
@@ -291,11 +318,18 @@ forAll(fluidRegions, i)
         new IOMRFZoneList(fluidRegions[i])
     );
 
-    Info<< "    Adding fvOptions\n" << endl;
-    fluidFvOptions.set
+    Info<< "    Adding fvModelsFluid\n" << endl;
+    fvModelsFluid.set
     (
         i,
-        new fv::options(fluidRegions[i])
+        new Foam::fvModels(fluidRegions[i])
+    );
+
+    Info<< "    Adding fvConstraintsFluid\n" << endl;
+    fvConstraintsFluid.set
+    (
+        i,
+        new fvConstraints(fluidRegions[i])
     );
 
     turbulenceFluid[i].validate();
