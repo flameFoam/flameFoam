@@ -1,3 +1,5 @@
+# flameFoam
+
 Hydrogen-air premixed turbulent combustion solver for OpenFOAM
 
 - Progress variable approach
@@ -5,13 +7,14 @@ Hydrogen-air premixed turbulent combustion solver for OpenFOAM
 - Laminar burning velocity can be set by user (constant value) or estimated using Malet correlation (for lean mixtures only) or custom DNN model (for dry mixtures only)
 - Charlette model for LES
 
-General paper on in initial version:
-flameFoam: An open source CFD solver for turbulent premixed combustion
-https://www.sciencedirect.com/science/article/pii/S0029549321003137
+Corresponding developer: mantas.povilaitis@lei.lt
 
-Experiment simulations:
-Simulation of Hydrogen-Air-Diluents Mixture Combustion in an Acceleration Tube with FlameFoam Solver
-https://www.mdpi.com/1996-1073/14/17/5504
+## Publications
 
-RANS- and TFC-Based Simulation of Turbulent Combustion in a Small-Scale Venting Chamber
-https://www.mdpi.com/1996-1073/14/18/5710
+- General paper on the initial version (Elsevier paywall):
+  - flameFoam: An open source CFD solver for turbulent premixed combustion https://www.sciencedirect.com/science/article/pii/S0029549321003137
+- Presentation of the deep neural network developed for the estimation of laminar burning velocity (Open access):
+  - Development of a CFD-Suitable Deep Neural Network Model for Laminar Burning Velocity https://www.mdpi.com/2076-3417/12/15/7460
+- Experiment simulations (Open access):
+  - Simulation of Hydrogen-Air-Diluents Mixture Combustion in an Acceleration Tube with FlameFoam Solver https://www.mdpi.com/1996-1073/14/17/5504
+  - RANS- and TFC-Based Simulation of Turbulent Combustion in a Small-Scale Venting Chamber https://www.mdpi.com/1996-1073/14/18/5710
