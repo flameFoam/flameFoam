@@ -1,9 +1,13 @@
 # flameFoam
-Hydrogen-air premixed turbulent combustion solver for OpenFOAM
+
+Hydrogen-air premixed turbulent combustion solver for OpenFOAM v9:
 - Progress variable approach
 - TFC and ETFC models for RANS with Zimont, Bradley and Bray correlations
 - Laminar burning velocity can be set by user (constant value) or estimated using Malet correlation (for lean mixtures only) or custom DNN model (for dry mixtures only)
 - FSD model for LES with Charlette correlation
+
+## Compilation
+Solver is compiled using **wmake** command. [OpenFOAM v9](https://openfoam.org/release/9/) needs to be installed.
 
 ## Contributors
 - Lead developer: Mantas Povilaitis, 2019 - current, mantas.povilaitis@lei.lt
