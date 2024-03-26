@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Copyright (C) 2011-2022 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2023 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -21,107 +21,160 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
-Application
-    flameFoam
-
-Description
-    Premixed turbulent combustion solver using progress variable model
-    for OpenFOAM-9
-
 \*---------------------------------------------------------------------------*/
 
-#include "fvCFD.H"
-#include "dynamicMomentumTransportModel.H"
-#include "fluidReactionThermophysicalTransportModel.H"
-#include "fluidReactionThermo.H"
-#include "fixedGradientFvPatchFields.H"
-#include "regionProperties.H"
-#include "compressibleCourantNo.H"
-#include "solidRegionDiffNo.H"
-#include "solidThermo.H"
-#include "fvModels.H"
-#include "fvConstraints.H"
-#include "coordinateSystem.H"
-#include "pimpleMultiRegionControl.H"
+#include "flameFoam.H"
 
-#include "physicoChemicalConstants.H"
+#include "addToRunTimeSelectionTable.H"
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
-int main(int argc, char *argv[])
+namespace Foam
 {
+namespace combustionModels
+{
+    defineTypeNameAndDebug(flameFoam, 0);
+    addToRunTimeSelectionTable(combustionModel, flameFoam, dictionary);
+}
+}
 
-    string VERSION = "0.12.2";
 
-    #define NO_CONTROL
-    #define CREATE_MESH createMeshesPostProcess.H
-    #include "postProcess.H"
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-    #include "setRootCaseLists.H"
+Foam::combustionModels::flameFoam::flameFoam
+(
+    const word& modelType,
+    const fluidMulticomponentThermo& thermo,
+    const compressibleMomentumTransportModel& turb,
+    const word& combustionProperties
+)
+:
+    combustionModel(modelType, thermo, turb, combustionProperties),
+    reactionRate_(
+        reactionRate::New
+        (
+            this->coeffs(),
+            this->mesh(),
+            *this
+        )
+    ),
+    mixture_(dynamic_cast<const basicSpecieMixture&>(this->thermo().composition())),
+    cIndex_(mixture_.index(mixture_.Y("c"))),
+    runInfo_("flameFoam." + this->mesh().name() + ".combustionInfo"),
+    debug_(this->coeffs().lookupOrDefault("debug", false))
+{
+    // Log flameFoam combustion model information
+    runInfo_ << "flameFoam combustion model selected" << endl;
 
-    #include "createTime.H"
-    #include "createMeshes.H"
-    #include "createFields.H"
+    #include "../version.H"
+    runInfo_ << "flameFoam library version: " << flameFoamVersion << endl;
 
-    #include "initContinuityErrs.H"
+    runInfo_ << "\nMesh size: " << returnReduce(this->mesh().cells().size(), sumOp<label>()) << endl;
 
-    pimpleMultiRegionControl pimples(fluidRegions, solidRegions);
+    runInfo_ << "\nAverage initial values:" << endl;
+    runInfo_ << "\tp_rgh: " << average(db().lookupObject<volScalarField>("p_rgh")).value() << endl;
+    runInfo_ << "\tT: "     << average(thermo.T()).value() << endl;
+    runInfo_ << "\trho: "   << average(thermo.rho()).value() << endl;
+    runInfo_ << "\tmu: "    << average(thermo.mu()).value() << endl;
+    runInfo_ << "\tc: "     << average(mixture_.Y("c")).value() << endl;
 
-    #include "createControl.H"
-    #include "createTimeControls.H"
-    #include "readSolidTimeControls.H"
-    #include "compressibleMultiRegionCourantNo.H"
-    #include "solidRegionDiffusionNo.H"
-    #include "setInitialMultiRegionDeltaT.H"
+    outputSubInfo();
+}
 
-    Info<< "\nStarting time loop\n" << endl;
 
-    while (pimples.run(runTime))
+// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
+
+Foam::combustionModels::flameFoam::~flameFoam()
+{}
+
+
+// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+
+void Foam::combustionModels::flameFoam::correct()
+{
+    if (debug_)
     {
-
-        #include "readTimeControls.H"
-        #include "readSolidTimeControls.H"
-
-        #include "compressibleMultiRegionCourantNo.H"
-        #include "solidRegionDiffusionNo.H"
-        #include "setMultiRegionDeltaT.H"
-
-        runTime++;
-
-        Info<< "Time = " << runTime.timeName() << nl << endl;
-
-        // --- PIMPLE loop
-        while (pimples.loop())
-        {
-            forAll(fluidRegions, i)
-            {
-                Info<< "\nSolving for fluid region "
-                    << fluidRegions[i].name() << endl;
-                #include "setRegionFFields.H"
-                #include "solveFluid.H"
-            }
-
-            forAll(solidRegions, i)
-            {
-                Info<< "\nSolving for solid region "
-                    << solidRegions[i].name() << endl;
-                #include "setRegionSolidFields.H"
-                #include "solveSolid.H"
-            }
-        }
-
-        runTime.write();
-
-        Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
-            << "  ClockTime = " << runTime.elapsedClockTime() << " s"
-            << nl << endl;
-
+        Info << "flameFoam correct: " << endl;
     }
+    reactionRate_->correct();
+    if (debug_)
+    {
+        Info << "\tflameFoam correct finished" << endl;
+    }
+}
 
-    Pout<< "End\n" << endl;
+
+Foam::tmp<Foam::volScalarField::Internal>
+Foam::combustionModels::flameFoam::R(const label speciei) const
+{
+    if (debug_)
+    {
+        Info << "flameFoam R(" << speciei << "): " << endl;
+    }
+    if (speciei == cIndex_)
+    {
+        return reactionRate_->R(cIndex_);
+    }
+    else
+    {
+        return
+        volScalarField::Internal::New
+        (
+            typedName("R_" + mixture_.Y()[speciei].name()),
+            this->mesh(),
+            dimensionedScalar(dimDensity/dimTime, 0)
+        );
+    }
+}
 
 
-    return 0;
+Foam::tmp<Foam::fvScalarMatrix>
+Foam::combustionModels::flameFoam::R(volScalarField& Y) const
+{
+    if (debug_)
+    {
+        Info << "flameFoam R(" << Y.name() << "): " << endl;
+    }
+    if (mixture_.index(Y) == cIndex_)
+    {
+        return reactionRate_->R(Y);
+    }
+    else
+    {
+        return tmp<fvScalarMatrix>(new fvScalarMatrix(Y, dimMass/dimTime));
+    }
+}
+
+
+Foam::tmp<Foam::volScalarField>
+Foam::combustionModels::flameFoam::Qdot() const
+{
+    if (debug_)
+    {
+        Info << "flameFoam Qdot: " << endl;
+    }
+    return reactionRate_->Qdot();
+}
+
+void Foam::combustionModels::flameFoam::outputSubInfo()
+{
+    if (strcmp(reactionRate_().getInfo(), "") != 0)
+    {
+        runInfo_ << reactionRate_().getInfo() << endl;
+        reactionRate_().clearInfo();
+    }
+}
+
+bool Foam::combustionModels::flameFoam::read()
+{
+    if (combustionModel::read())
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 
