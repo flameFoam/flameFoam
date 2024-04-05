@@ -58,8 +58,6 @@ class Bradley
         //- Molecular Lewis number of fresh mixture
         scalar Le_;
 
-        autoPtr<laminarBurningVelocity> laminarCorrelation_;
-
 public:
 
     //- Runtime type information

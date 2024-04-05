@@ -22,19 +22,20 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::turbulentBurningVelocityModels::Zimont
+    Foam::reactionRateModels::ETFC
 
 Description
-    Zimont correlation of turbulent burning velocity
+    ETFC model for combustion progress variable equation closure
 
 SourceFiles
-    Zimont.C
+    ETFC.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef Zimont_H
-#define Zimont_H
+#ifndef TFC_H
+#define TFC_H
 
+#include "reactionRate.H"
 #include "turbulentBurningVelocity.H"
 #include "laminarBurningVelocity.H"
 
@@ -42,70 +43,87 @@ SourceFiles
 
 namespace Foam
 {
-namespace turbulentBurningVelocityModels
+namespace reactionRateModels
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class Zimont Declaration
+                         Class ETFC Declaration
 \*---------------------------------------------------------------------------*/
 
-class Zimont
+class ETFC
 :
-    public turbulentBurningVelocity
+    public reactionRate
 {
     // Private Data
 
-        //- Molecular Lewis number of fresh mixture
-        const scalar ZimontA_;
+        //- Auto pointer to reaction rate model
+        autoPtr<turbulentBurningVelocity> turbulentCorrelation_;
 
-        const dimensionedScalar alpha_u_;
+        autoPtr<laminarBurningVelocity> laminarCorrelation_;
 
-        const scalar Le_;
 
-        const dimensionedScalar ACalpha_;
+protected:
 
+    // Protected data
+
+        // Model coefficients
+
+            //- Turbulent Schmidt number []
+            dimensionedScalar Sct_;
+
+            dimensionedScalar alpha_u_;
+
+            dimensionedScalar Le_;
 public:
 
     //- Runtime type information
-    TypeName("Zimont");
+    TypeName("ETFC");
 
 
     // Constructors
 
         //- Construct from dictionary, mesh and combustion model
-        Zimont
+        ETFC
         (
             const word modelType,
-            const reactionRate& reactRate,
-            const dictionary& dict
+            const dictionary& dictCoeffs,
+            const fvMesh& mesh,
+            const combustionModel& combModel
         );
 
         //- Disallow default bitwise copy construction
-        Zimont(const Zimont&) = delete;
+        ETFC(const ETFC&) = delete;
 
 
     // Destructor
 
-        virtual ~Zimont();
+        virtual ~ETFC();
 
 
     // Member Functions
 
-        //- Correct TBV
+        //- Correct combustion source
         virtual void correct();
+
+    // IO
+
+        //- Update properties from given dictionary
+        // virtual bool read(const dictionary& dictProperties);
+
+        //- Return infoString_
+        virtual char const *getInfo();
+
 
     // Member Operators
 
         //- Disallow default bitwise assignment
-        void operator=(const Zimont&) = delete;
-        //- Return infoString_
-        virtual char const *getInfo();
+        void operator=(const ETFC&) = delete;
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End turbulentBurningVelocityModels
+} // End reactionRateFlameAreaModels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

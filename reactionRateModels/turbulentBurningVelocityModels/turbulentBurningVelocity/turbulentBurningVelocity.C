@@ -24,6 +24,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "turbulentBurningVelocity.H"
+using namespace Foam;
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -60,6 +61,14 @@ Foam::turbulentBurningVelocity::turbulentBurningVelocity
         mesh_,
         dimensionedScalar("TBV", dimVelocity, Zero)
     ),
+    laminarCorrelation_(
+        laminarBurningVelocity::New
+        (
+            combModel_.coeffs(),
+            this->mesh_,
+            combModel_
+        )
+    ),
     debug_(dict.lookupOrDefault("debug", false))
 {
     Info << "flameFoam turbulentBurningVelocity object initialized" << endl;
@@ -77,6 +86,11 @@ Foam::turbulentBurningVelocity::~turbulentBurningVelocity()
 Foam::tmp<Foam::volScalarField> Foam::turbulentBurningVelocity::saneEpsilon()
 {
     return max(combModel_.turbulence().epsilon(), dimensionedScalar(dimVelocity*dimAcceleration, SMALL));
+}
+
+laminarBurningVelocity& turbulentBurningVelocity::laminarCorrelation()
+{
+    return laminarCorrelation_();
 }
 
 
