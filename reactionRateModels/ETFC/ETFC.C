@@ -86,18 +86,9 @@ void Foam::reactionRateModels::ETFC::correct
     {
         Info << "\tETFC correct:" << endl;
         Info << "\t\tInitial min/avg/max cSource: " << min(cSource_).value() << " " << average(cSource_).value() << " " << max(cSource_).value() << endl;
-        //Info << "\tLaminar Pointer Validity: " <<  turbulentCorrelation_->laminarCorrelation().valid() << endl;
     }
 
     turbulentCorrelation_->correct();
-    // cSource_ = rhoU()*turbulentCorrelation_->burningVelocity()*mag(fvc::grad(combModel_.thermo().composition().Y("c")));
-    // tmp<volScalarField> Dt_inf = 0.09*pocombModel_.turbulence().k(), 2)/(turbulentCorrelation_->saneEpsilon()*Sct_);
-    // OR
-    // tmp<volScalarField> Dt_inf = volScalarField::New
-    // (
-    //     "Dt_inf",
-    //     0.09*pow(combModel_.turbulence().k(), 2)/(turbulentCorrelation_->saneEpsilon()*Sct_);
-    // );
 
     volScalarField Dt_inf = combModel_.turbulence().nut()/Sct_;
 
