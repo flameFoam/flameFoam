@@ -44,6 +44,7 @@ SourceFiles
 #include "fvmSup.H"
 #include "infoPass.H"
 #include "reactionRate.H"
+#include "laminarBurningVelocity.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -76,6 +77,9 @@ protected:
 
         //- Turbulent burning velocity
         volScalarField sTurbulent_;
+
+        //- Laminar corrrelation
+        autoPtr<laminarBurningVelocity> laminarCorrelation_;
 
         bool debug_;
 
@@ -143,6 +147,8 @@ public:
                 return sTurbulent_;
             }
 
+            //- Return laminar correlation
+            laminarBurningVelocity& laminarCorrelation();
 
         //- Correct progress variable source
         // virtual void correct() = 0;

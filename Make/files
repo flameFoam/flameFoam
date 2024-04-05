@@ -15,6 +15,7 @@ reactionRateModels/laminarBurningVelocityModels/Malet/Malet.C
 reactionRateModels/reactionRate/reactionRate.C
 reactionRateModels/reactionRate/reactionRateNew.C
 reactionRateModels/TFC/TFC.C
+reactionRateModels/ETFC/ETFC.C
 reactionRateModels/FSD/FSD.C
 flameFoam.C
 
