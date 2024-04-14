@@ -88,9 +88,9 @@ Foam::tmp<Foam::volScalarField> Foam::turbulentBurningVelocity::saneEpsilon()
     return max(combModel_.turbulence().epsilon(), dimensionedScalar(dimVelocity*dimAcceleration, SMALL));
 }
 
-laminarBurningVelocity& turbulentBurningVelocity::laminarCorrelation()
+const Foam::volScalarField& Foam::turbulentBurningVelocity::getLaminarBurningVelocity()
 {
-    return laminarCorrelation_();
+    return laminarCorrelation_().burningVelocity();
 }
 
 

@@ -61,7 +61,7 @@ Foam::reactionRateModels::ETFC::ETFC
             dict
         )
     ),
-
+    c_(combModel_.thermo().composition().Y("c")),
     Sct_("Sct", dimless, this->coeffDict_),
     alpha_u_("alpha_u", dimViscosity, this->coeffDict_),
     Le_("Le", dimless, this->coeffDict_)
@@ -96,18 +96,16 @@ void Foam::reactionRateModels::ETFC::correct
     
     volScalarField expFactor = 1 - exp(-1/TauByT);
     
-    volScalarField c = combModel_.thermo().composition().Y("c");
-    
     volScalarField dFactor = rhoU()*(alpha_u_/Le_+Dt_inf*expFactor);
     
-    volScalarField cLam = 0.25*pow(turbulentCorrelation_->laminarCorrelation().burningVelocity(), 2)*
-        rhoU()*max(c-SMALL*mesh_.time().deltaT().value(),0.0)*(1-c)/
+    volScalarField cLam = 0.25*pow(turbulentCorrelation_->getLaminarBurningVelocity(), 2)*
+        rhoU()*max(c_-SMALL*mesh_.time().deltaT().value(),0.0)*(1-c_)/
         (alpha_u_/Le_+Dt_inf*expFactor);
   
     cSource_ =
         rhoU()*
         turbulentCorrelation_->burningVelocity()*
-        mag(fvc::grad(c))*
+        mag(fvc::grad(c_))*
         pow((max(1-expFactor*TauByT, 0.0)),0.5)  + cLam;
 
     if (debug_)

@@ -147,8 +147,8 @@ public:
                 return sTurbulent_;
             }
 
-            //- Return laminar correlation
-            laminarBurningVelocity& laminarCorrelation();
+            //- Return laminar burning velocity
+            const volScalarField& getLaminarBurningVelocity();
 
         //- Correct progress variable source
         // virtual void correct() = 0;
