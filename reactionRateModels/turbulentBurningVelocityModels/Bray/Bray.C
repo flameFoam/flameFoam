@@ -51,15 +51,7 @@ Foam::turbulentBurningVelocityModels::Bray::Bray
     const reactionRate& reactRate,
     const dictionary& dict
 ):
-    turbulentBurningVelocity(modelType, reactRate, dict),
-    laminarCorrelation_(
-        laminarBurningVelocity::New
-        (
-            combModel_.coeffs(),
-            this->mesh_,
-            combModel_
-        )
-    )
+    turbulentBurningVelocity(modelType, reactRate, dict)
 {
     appendInfo("\tTBV estimation method: Bray correlation");
 }
