@@ -62,6 +62,14 @@ class ETFC
         autoPtr<laminarBurningVelocity> laminarCorrelation_;
 
 	const volScalarField& c_;
+	
+	volScalarField Dt_inf_;
+	
+	volScalarField TauByT_;
+	
+	volScalarField expFactor_;
+	
+	volScalarField cLam_;
 protected:
 
     // Protected data

@@ -62,6 +62,58 @@ Foam::reactionRateModels::ETFC::ETFC
         )
     ),
     c_(combModel_.thermo().composition().Y("c")),
+    Dt_inf_
+    (
+    	IOobject
+        (
+            "Dt_inf",
+            mesh_.time().name(),
+            mesh_,
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh_,
+        dimensionedScalar("Dt_inf", dimViscosity, Zero)
+    ),
+    TauByT_
+    (
+    	IOobject
+        (
+            "TauByT",
+            mesh_.time().name(),
+            mesh_,
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh_,
+        dimensionedScalar("TauByT", dimless, Zero)
+    ),
+    expFactor_
+    (
+    	IOobject
+        (
+            "expFactor",
+            mesh_.time().name(),
+            mesh_,
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh_,
+        dimensionedScalar("expFactor", dimless, Zero)
+    ),
+    cLam_
+    (
+    	IOobject
+        (
+            "cLam",
+            mesh_.time().name(),
+            mesh_,
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh_,
+        dimensionedScalar("cLam", dimDensity/dimTime, Zero)
+    ),
     Sct_("Sct", dimless, 0),
     alpha_u_("alpha_u", dimViscosity, this->coeffDict_),
     Le_("Le", dimless, this->coeffDict_)
@@ -103,21 +155,21 @@ void Foam::reactionRateModels::ETFC::correct
 
     turbulentCorrelation_->correct();
 
-    volScalarField Dt_inf = combModel_.turbulence().nut()/Sct_;
+    Dt_inf_ = combModel_.turbulence().nut()/Sct_;
 
-    volScalarField TauByT = max(1.5* Dt_inf/(combModel_.turbulence().k()*mesh_.time()), SMALL);
+    TauByT_ = max(1.5* Dt_inf_/(combModel_.turbulence().k()*mesh_.time()), SMALL);
 
-    volScalarField expFactor = 1 - exp(-1/TauByT);
+    expFactor_ = 1 - exp(-1/TauByT_);
 
-    volScalarField cLam = 0.25*pow(turbulentCorrelation_->getLaminarBurningVelocity(), 2)*
+    cLam_ = 0.25*pow(turbulentCorrelation_->getLaminarBurningVelocity(), 2)*
         rhoU()*max(c_-SMALL*mesh_.time().deltaT().value(),0.0)*(1-c_)/
-        (alpha_u_/Le_+Dt_inf*expFactor);
+        (alpha_u_/Le_+Dt_inf_*expFactor_);
 
     cSource_ =
         rhoU()*
         turbulentCorrelation_->burningVelocity()*
         mag(fvc::grad(c_))*
-        pow((max(1-expFactor*TauByT, 0.0)),0.5)  + cLam;
+        pow((max(1-expFactor_*TauByT_, 0.0)),0.5)  + cLam_;
 
     if (debug_)
     {
