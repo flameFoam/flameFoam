@@ -16,6 +16,7 @@ reactionRateModels/reactionRate/reactionRate.C
 reactionRateModels/reactionRate/reactionRateNew.C
 reactionRateModels/TFC/TFC.C
 reactionRateModels/FSD/FSD.C
+reactionRateModels/laminarBurningVelocityModels/ANN/ANN.C
 flameFoam.C
 
 LIB = $(FOAM_USER_LIBBIN)/flameFoam-11.0.0
