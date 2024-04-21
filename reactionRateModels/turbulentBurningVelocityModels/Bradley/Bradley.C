@@ -52,15 +52,7 @@ Foam::turbulentBurningVelocityModels::Bradley::Bradley
     const dictionary& dict
 ):
     turbulentBurningVelocity(modelType, reactRate, dict),
-    Le_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("Le")),
-    laminarCorrelation_(
-        laminarBurningVelocity::New
-        (
-            combModel_.coeffs(),
-            this->mesh_,
-            combModel_
-        )
-    )
+    Le_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("Le"))
 {
     appendInfo("\tTBV estimation method: Bradley correlation");
     appendInfo("\t\tLe: " + name(Le_));
