@@ -64,8 +64,6 @@ class Zimont
 
         const dimensionedScalar ACalpha_;
 
-        autoPtr<laminarBurningVelocity> laminarCorrelation_;
-
 public:
 
     //- Runtime type information
