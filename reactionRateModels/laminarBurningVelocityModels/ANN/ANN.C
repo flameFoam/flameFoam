@@ -361,7 +361,9 @@ Foam::laminarBurningVelocityModels::ANN::ANN
 			IOobject::NO_WRITE
     		),
     		mesh_,
-    		scalar(0)))
+    		scalar(0)
+        )
+    )
 {
     appendInfo("\tLBV estimation method: ANN correlation");
     
@@ -636,8 +638,8 @@ void Foam::laminarBurningVelocityModels::ANN::correct
     for (int i = 0; i < 7; i++) 
     {	
         L0_[i] = 0;
-		for (int k = 0; k < 3; k++) 
-		{
+	    for (int k = 0; k < 3; k++) 
+        {
 		    L0_[i] += W0_[k][i] * par_[k];
 		}
     	Y0out_[i] = tanh(L0_[i] + B0_[i]);
