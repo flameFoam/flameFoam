@@ -32,8 +32,8 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef TFC_H
-#define TFC_H
+#ifndef ETFC_H
+#define ETFC_H
 
 #include "reactionRate.H"
 #include "turbulentBurningVelocity.H"
