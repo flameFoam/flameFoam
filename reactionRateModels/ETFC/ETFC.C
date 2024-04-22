@@ -155,14 +155,14 @@ void Foam::reactionRateModels::ETFC::correct
 
     turbulentCorrelation_->correct();
 
-    Dt_inf_ = combModel_.turbulence().nut()/Sct_;
+    Dt_inf_ = combModel_.turbulence().nut()/Sct_; // TODO: check against dev2-efix-ZimontLe-no0-fix2/
 
-    TauByT_ = max(1.5* Dt_inf_/(combModel_.turbulence().k()*mesh_.time()), SMALL);
+    TauByT_ = max(1.5* Dt_inf_/(combModel_.turbulence().k()*mesh_.time()), SMALL);  // TODO: check against dev2-efix-ZimontLe-no0-fix2/
 
     expFactor_ = 1 - exp(-1/TauByT_);
 
     cLam_ = 0.25*pow(turbulentCorrelation_->getLaminarBurningVelocity(), 2)*
-        rhoU()*max(c_-SMALL*mesh_.time().deltaT().value(),0.0)*(1-c_)/
+        rhoU()*max(c_-SMALL*mesh_.time().deltaT().value(),0.0)*(1-c_)/            // TODO: check if deltaT or absolute value should be used
         (alpha_u_/Le_+Dt_inf_*expFactor_);
 
     cSource_ =
