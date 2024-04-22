@@ -56,7 +56,6 @@ Foam::laminarBurningVelocityModels::ANN::ANN
     X_H2_0_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("X_H2_0")),
     X_H2O_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("X_H2O")),
     ER_(0.705*X_H2_0_/(0.295*(1-X_H2_0_-X_H2O_))),
-    sLaminar0_(dimensionedScalar(dimVelocity, 1.44*ER_*ER_+1.07*ER_-0.29)),
     pRef_(dimensionedScalar(dimPressure, 100000)),
     TRef_(dimensionedScalar(dimTemperature, 298)),
     p_(mesh.lookupObject<volScalarField>("p")),
