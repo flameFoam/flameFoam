@@ -59,7 +59,6 @@ class ANN
         const scalar X_H2_0_;
         const scalar X_H2O_;
         const scalar ER_;
-        const dimensionedScalar sLaminar0_;
         const dimensionedScalar pRef_;
         const dimensionedScalar TRef_;
         const volScalarField& p_;
