@@ -114,7 +114,8 @@ public:
             const word modelType,
             const dictionary& dictCoeffs,
             const fvMesh& mesh,
-            const combustionModel& combModel
+            const combustionModel& combModel,
+            const reactionRate& reactRate
         );
 
         //- Disallow default bitwise copy construction
