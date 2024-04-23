@@ -74,7 +74,7 @@ Foam::reactionRate::reactionRate
     HEff_(dimensionedScalar("Heff", dimEnergy/dimMass, (Y_H2_0_-Y_H2_99_)*H0_)),
     // model constants
     yIndex_(mixture_.index(mixture_.Y("b"))),
-    WU_(dimensionedScalar("WU", dimMass/dimMoles, mixture_.Wi(yIndex_))),
+    WU_(dimensionedScalar("WU", dimMass/dimMoles, mixture_.Wi(yIndex_)/1000.0)),
     p0_(dimensionedScalar("p0", dimPressure, average(combModel_.thermo().p()).value())),
     rho0_(dimensionedScalar("rho0", dimDensity, average(combModel_.rho()).value())),
     // debug printout switch
