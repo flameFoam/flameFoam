@@ -72,31 +72,31 @@ class ANN
         const scalarList B3_;
         const scalarListList W4_;
         const dimensionedScalar B4_;
-        
+
         // Input layer
         PtrList<volScalarField> L0_;
-	    List<string> L0_names_;
-	    PtrList<volScalarField> Y0out_;
-	    List<string> Y0out_names_;
-	
-	    // Layer 1
+        List<string> L0_names_;
+        PtrList<volScalarField> Y0out_;
+        List<string> Y0out_names_;
+
+        // Layer 1
         PtrList<volScalarField> L1_;
-	    List<string> L1_names_;
-	    PtrList<volScalarField> Y1out_;
-	    List<string> Y1out_names_;
-	
-	    // Layer 2
+        List<string> L1_names_;
+        PtrList<volScalarField> Y1out_;
+        List<string> Y1out_names_;
+
+        // Layer 2
         PtrList<volScalarField> L2_;
         List<string> L2_names_;
         PtrList<volScalarField> Y2out_;
         List<string> Y2out_names_;
-	
-	    // Layer 3
+
+        // Layer 3
         PtrList<volScalarField> L3_;
         List<string> L3_names_;
         PtrList<volScalarField> Y3out_;
         List<string> Y3out_names_;
-	
+
         // Layer 4
         volScalarField L4_;
 
