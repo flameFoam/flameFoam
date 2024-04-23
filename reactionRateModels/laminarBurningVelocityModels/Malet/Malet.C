@@ -50,9 +50,10 @@ Foam::laminarBurningVelocityModels::Malet::Malet
     const word modelType,
     const dictionary& dict,
     const fvMesh& mesh,
-    const combustionModel& combModel
+    const combustionModel& combModel,
+    const reactionRate& reactRate
 ):
-    laminarBurningVelocity(modelType, dict, mesh, combModel),
+    laminarBurningVelocity(modelType, dict, mesh, combModel, reactRate),
     X_H2_0_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("X_H2_0")),
     X_H2O_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("X_H2O")),
     ER_(0.705*X_H2_0_/(0.295*(1-X_H2_0_-X_H2O_))),

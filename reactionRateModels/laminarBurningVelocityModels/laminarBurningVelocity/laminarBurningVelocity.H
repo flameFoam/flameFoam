@@ -43,6 +43,7 @@ SourceFiles
 #include "combustionModel.H"
 #include "fvmSup.H"
 #include "infoPass.H"
+#include "reactionRate.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -73,6 +74,8 @@ protected:
 
         //- laminar burning velocity
         volScalarField sLaminar_;
+        
+        const reactionRate& reactionRate_; 
 
         bool debug_;
 
@@ -94,9 +97,10 @@ public:
                 const word modelType,
                 const dictionary& dict,
                 const fvMesh& mesh,
-                const combustionModel& combModel
+                const combustionModel& combModel,
+                const reactionRate& reactRate
             ),
-            (modelType, dict, mesh, combModel)
+            (modelType, dict, mesh, combModel, reactRate)
         );
 
 
@@ -108,7 +112,8 @@ public:
             const word& modelType,
             const dictionary& dict,
             const fvMesh& mesh,
-            const combustionModel& combModel
+            const combustionModel& combModel,
+            const reactionRate& reactRate
         );
 
         //- Disallow default bitwise copy construction
@@ -121,7 +126,8 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const combustionModel& combModel
+            const combustionModel& combModel,
+            const reactionRate& reactRate
         );
 
 

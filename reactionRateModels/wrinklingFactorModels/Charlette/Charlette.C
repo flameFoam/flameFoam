@@ -61,7 +61,8 @@ Foam::wrinklingFactorModels::Charlette::Charlette
         (
             combModel_.coeffs(),
             mesh_,
-            combModel_
+            combModel_,
+            reactRate
         )
     ),
     c2_(0.5),

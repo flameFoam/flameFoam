@@ -59,11 +59,8 @@ class ANN
         const scalar X_H2_0_;
         const scalar X_H2O_;
         const scalar ER_;
-        const dimensionedScalar pRef_;
-        const dimensionedScalar TRef_;
+
         const volScalarField& p_;
-        const volScalarField& T_;
-        
         PtrList<volScalarField> par_;
         const scalarListList W0_;
         const scalarList B0_;

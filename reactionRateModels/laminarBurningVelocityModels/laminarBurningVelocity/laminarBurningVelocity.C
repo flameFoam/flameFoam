@@ -41,7 +41,8 @@ Foam::laminarBurningVelocity::laminarBurningVelocity
     const word& modelType,
     const dictionary& dict,
     const fvMesh& mesh,
-    const combustionModel& combModel
+    const combustionModel& combModel,
+    const reactionRate& reactRate
 )
 :
     coeffDict_(dict.optionalSubDict(modelType + "Coeffs")),
@@ -60,6 +61,7 @@ Foam::laminarBurningVelocity::laminarBurningVelocity
         mesh_,
         dimensionedScalar("LBV", dimVelocity, Zero)
     ),
+    reactionRate_(reactRate),
     debug_(dict.lookupOrDefault("debug", false))
 {
     Info << "flameFoam laminarBurningVelocity object initialized" << endl;

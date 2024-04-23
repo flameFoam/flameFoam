@@ -65,7 +65,8 @@ Foam::turbulentBurningVelocity::turbulentBurningVelocity
         (
             combModel_.coeffs(),
             this->mesh_,
-            combModel_
+            combModel_,
+            reactRate
         )
     ),
     debug_(dict.lookupOrDefault("debug", false))

@@ -31,7 +31,8 @@ Foam::autoPtr<Foam::laminarBurningVelocity> Foam::laminarBurningVelocity::New
 (
     const dictionary& dict,
     const fvMesh& mesh,
-    const combustionModel& combModel
+    const combustionModel& combModel,
+    const reactionRate& reactRate
 )
 {
     word laminarBurningVelocityType
@@ -62,7 +63,7 @@ Foam::autoPtr<Foam::laminarBurningVelocity> Foam::laminarBurningVelocity::New
     const word className = laminarBurningVelocityType(0, tempOpen);
 
     return autoPtr<laminarBurningVelocity>
-        (cstrIter()(className, dict, mesh, combModel));
+        (cstrIter()(className, dict, mesh, combModel, reactRate));
 }
 
 

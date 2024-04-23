@@ -50,16 +50,14 @@ Foam::laminarBurningVelocityModels::ANN::ANN
     const word modelType,
     const dictionary& dict,
     const fvMesh& mesh,
-    const combustionModel& combModel
+    const combustionModel& combModel,
+    const reactionRate& reactRate
 ):
-    laminarBurningVelocity(modelType, dict, mesh, combModel),
+    laminarBurningVelocity(modelType, dict, mesh, combModel, reactRate),
     X_H2_0_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("X_H2_0")),
     X_H2O_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("X_H2O")),
     ER_(0.705*X_H2_0_/(0.295*(1-X_H2_0_-X_H2O_))),
-    pRef_(dimensionedScalar(dimPressure, 100000)),
-    TRef_(dimensionedScalar(dimTemperature, 298)),
     p_(mesh.lookupObject<volScalarField>("p")),
-    T_(mesh.lookupObject<volScalarField>("T")),
         
     par_(PtrList<volScalarField>(3)),
     
@@ -367,6 +365,7 @@ Foam::laminarBurningVelocityModels::ANN::ANN
     appendInfo("\tLBV estimation method: ANN correlation");
     
     par_.set(0, new volScalarField("p_dimless", p_/3970000));
+    
     par_.set
     (
         1, 
@@ -384,10 +383,26 @@ Foam::laminarBurningVelocityModels::ANN::ANN
             ER_/7.16
         )
     );
-    par_.set(2, new volScalarField("T_dimless", T_/864.0));
+    
+    par_.set
+    (
+        2,
+        new volScalarField
+        (
+            IOobject
+            (
+                "TU",
+                mesh_.time().timeName(),
+                mesh_,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh_,
+            dimensionedScalar("TU", dimTemperature, Zero)
+        )
+    );
 
     par_[0].dimensions().reset(dimless);
-    par_[2].dimensions().reset(dimless);
     
      // Input layer setup
     L0_names_[0] = "L0_0";
@@ -632,6 +647,12 @@ void Foam::laminarBurningVelocityModels::ANN::correct
         Info << "\t\t\tANN correct:" << endl;
         Info << "\t\t\t\tInitial average S_L: "  << average(sLaminar_).value() << endl;
     }
+    
+    // TU parameter setup
+    par_[2].dimensions().reset(dimTemperature);
+    par_[2] = reactionRate_.TU() / 864.0;
+    par_[2].dimensions().reset(dimless);
+    
 
     // Input layer calculations
     for (int i = 0; i < 7; i++) 
