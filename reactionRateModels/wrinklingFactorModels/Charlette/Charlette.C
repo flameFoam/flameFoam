@@ -59,10 +59,8 @@ Foam::wrinklingFactorModels::Charlette::Charlette
     laminarCorrelation_(
         laminarBurningVelocity::New
         (
-            combModel_.coeffs(),
-            mesh_,
-            combModel_,
-            reactRate
+            reactRate,
+            combModel_.coeffs()
         )
     ),
     c2_(0.5),

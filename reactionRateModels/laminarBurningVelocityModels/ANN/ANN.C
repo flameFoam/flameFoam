@@ -48,16 +48,14 @@ namespace laminarBurningVelocityModels
 Foam::laminarBurningVelocityModels::ANN::ANN
 (
     const word modelType,
-    const dictionary& dict,
-    const fvMesh& mesh,
-    const combustionModel& combModel,
-    const reactionRate& reactRate
+    const reactionRate& reactRate,
+    const dictionary& dict
 ):
-    laminarBurningVelocity(modelType, dict, mesh, combModel, reactRate),
+    laminarBurningVelocity(modelType, reactRate, dict),
     X_H2_0_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("X_H2_0")),
     X_H2O_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("X_H2O")),
     ER_(0.705*X_H2_0_/(0.295*(1-X_H2_0_-X_H2O_))),
-    p_(mesh.lookupObject<volScalarField>("p")),
+    p_(mesh_.lookupObject<volScalarField>("p")),
 
     par_(PtrList<volScalarField>(3)),
 

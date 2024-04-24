@@ -108,14 +108,12 @@ public:
 
     // Constructors
 
-        //- Construct from dictionary, mesh and combustion model
+        //- Construct from dictionary and reaction rate
         ANN
         (
             const word modelType,
-            const dictionary& dictCoeffs,
-            const fvMesh& mesh,
-            const combustionModel& combModel,
-            const reactionRate& reactRate
+            const reactionRate& reactRate,
+            const dictionary& dictCoeffs
         );
 
         //- Disallow default bitwise copy construction
