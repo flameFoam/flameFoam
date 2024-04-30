@@ -43,6 +43,7 @@ SourceFiles
 #include "combustionModel.H"
 #include "fvmSup.H"
 #include "infoPass.H"
+#include "reactionRate.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -61,6 +62,9 @@ class laminarBurningVelocity
 protected:
 
     // Protected data
+        
+        // Reaction rate
+        const reactionRate& reactionRate_; 
 
         //- Dictionary
         dictionary coeffDict_;
@@ -73,7 +77,7 @@ protected:
 
         //- laminar burning velocity
         volScalarField sLaminar_;
-
+        
         bool debug_;
 
 
@@ -92,11 +96,10 @@ public:
             dictionary,
             (
                 const word modelType,
-                const dictionary& dict,
-                const fvMesh& mesh,
-                const combustionModel& combModel
+                const reactionRate& reactRate,
+                const dictionary& dict
             ),
-            (modelType, dict, mesh, combModel)
+            (modelType, reactRate, dict)
         );
 
 
@@ -106,9 +109,8 @@ public:
         laminarBurningVelocity
         (
             const word& modelType,
-            const dictionary& dict,
-            const fvMesh& mesh,
-            const combustionModel& combModel
+            const reactionRate& reactRate,
+            const dictionary& dict
         );
 
         //- Disallow default bitwise copy construction
@@ -118,10 +120,9 @@ public:
     // Selector
 
         static autoPtr<laminarBurningVelocity> New
-        (
-            const dictionary& dict,
-            const fvMesh& mesh,
-            const combustionModel& combModel
+        (   
+            const reactionRate& reactRate,
+            const dictionary& dict
         );
 
 

@@ -59,11 +59,8 @@ class ANN
         const scalar X_H2_0_;
         const scalar X_H2O_;
         const scalar ER_;
-        const dimensionedScalar pRef_;
-        const dimensionedScalar TRef_;
+
         const volScalarField& p_;
-        const volScalarField& T_;
-        
         PtrList<volScalarField> par_;
         const scalarListList W0_;
         const scalarList B0_;
@@ -75,31 +72,31 @@ class ANN
         const scalarList B3_;
         const scalarListList W4_;
         const dimensionedScalar B4_;
-        
+
         // Input layer
         PtrList<volScalarField> L0_;
-	    List<string> L0_names_;
-	    PtrList<volScalarField> Y0out_;
-	    List<string> Y0out_names_;
-	
-	    // Layer 1
+        List<string> L0_names_;
+        PtrList<volScalarField> Y0out_;
+        List<string> Y0out_names_;
+
+        // Layer 1
         PtrList<volScalarField> L1_;
-	    List<string> L1_names_;
-	    PtrList<volScalarField> Y1out_;
-	    List<string> Y1out_names_;
-	
-	    // Layer 2
+        List<string> L1_names_;
+        PtrList<volScalarField> Y1out_;
+        List<string> Y1out_names_;
+
+        // Layer 2
         PtrList<volScalarField> L2_;
         List<string> L2_names_;
         PtrList<volScalarField> Y2out_;
         List<string> Y2out_names_;
-	
-	    // Layer 3
+
+        // Layer 3
         PtrList<volScalarField> L3_;
         List<string> L3_names_;
         PtrList<volScalarField> Y3out_;
         List<string> Y3out_names_;
-	
+
         // Layer 4
         volScalarField L4_;
 
@@ -111,13 +108,12 @@ public:
 
     // Constructors
 
-        //- Construct from dictionary, mesh and combustion model
+        //- Construct from dictionary and reaction rate
         ANN
         (
             const word modelType,
-            const dictionary& dictCoeffs,
-            const fvMesh& mesh,
-            const combustionModel& combModel
+            const reactionRate& reactRate,
+            const dictionary& dictCoeffs
         );
 
         //- Disallow default bitwise copy construction

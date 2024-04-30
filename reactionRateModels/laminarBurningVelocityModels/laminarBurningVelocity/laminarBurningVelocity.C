@@ -39,14 +39,14 @@ namespace Foam
 Foam::laminarBurningVelocity::laminarBurningVelocity
 (
     const word& modelType,
-    const dictionary& dict,
-    const fvMesh& mesh,
-    const combustionModel& combModel
+    const reactionRate& reactRate,
+    const dictionary& dict
 )
 :
+    reactionRate_(reactRate),
     coeffDict_(dict.optionalSubDict(modelType + "Coeffs")),
-    mesh_(mesh),
-    combModel_(combModel),
+    mesh_(reactionRate_.mesh()),
+    combModel_(reactionRate_.combModel()),
     sLaminar_
     (
         IOobject

@@ -48,19 +48,18 @@ namespace laminarBurningVelocityModels
 Foam::laminarBurningVelocityModels::Malet::Malet
 (
     const word modelType,
-    const dictionary& dict,
-    const fvMesh& mesh,
-    const combustionModel& combModel
+    const reactionRate& reactRate,
+    const dictionary& dict
 ):
-    laminarBurningVelocity(modelType, dict, mesh, combModel),
+    laminarBurningVelocity(modelType, reactRate, dict),
     X_H2_0_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("X_H2_0")),
     X_H2O_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("X_H2O")),
     ER_(0.705*X_H2_0_/(0.295*(1-X_H2_0_-X_H2O_))),
     sLaminar0_(dimensionedScalar(dimVelocity, 1.44*ER_*ER_+1.07*ER_-0.29)),
     pRef_(dimensionedScalar(dimPressure, 100000)),
     TRef_(dimensionedScalar(dimTemperature, 298)),
-    p_(mesh.lookupObject<volScalarField>("p")),
-    T_(mesh.lookupObject<volScalarField>("T"))
+    p_(mesh_.lookupObject<volScalarField>("p")),
+    T_(mesh_.lookupObject<volScalarField>("T"))
 {
     appendInfo("\tLBV estimation method: Malet correlation");
 }

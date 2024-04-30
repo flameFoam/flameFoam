@@ -63,9 +63,8 @@ Foam::turbulentBurningVelocity::turbulentBurningVelocity
     laminarCorrelation_(
         laminarBurningVelocity::New
         (
-            combModel_.coeffs(),
-            this->mesh_,
-            combModel_
+            reactRate,
+            combModel_.coeffs()
         )
     ),
     debug_(dict.lookupOrDefault("debug", false))
