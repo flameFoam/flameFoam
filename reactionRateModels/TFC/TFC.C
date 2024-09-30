@@ -90,7 +90,7 @@ void Foam::reactionRateModels::TFC::correct
     }
 
     turbulentCorrelation_->correct();
-    cSource_ = rhoU()*turbulentCorrelation_->burningVelocity()*mag(fvc::grad(combModel_.thermo().composition().Y("c")));
+    cSource_ = rhoU()*turbulentCorrelation_->burningVelocity()*mag(fvc::grad(combModel_.thermo().Y("c")));
 
     if (debug_)
     {

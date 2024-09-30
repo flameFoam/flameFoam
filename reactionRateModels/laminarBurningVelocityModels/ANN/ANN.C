@@ -350,7 +350,7 @@ Foam::laminarBurningVelocityModels::ANN::ANN
             IOobject
             (
                 "L4",
-                mesh_.time().timeName(),
+                mesh_.time().name(),
                 mesh_,
                 IOobject::NO_READ,
                 IOobject::NO_WRITE
@@ -372,7 +372,7 @@ Foam::laminarBurningVelocityModels::ANN::ANN
             IOobject
             (
                 "ER",
-                mesh_.time().timeName(),
+                mesh_.time().name(),
                 mesh_,
                 IOobject::NO_READ,
                 IOobject::AUTO_WRITE
@@ -390,7 +390,7 @@ Foam::laminarBurningVelocityModels::ANN::ANN
             IOobject
             (
                 "TU",
-                mesh_.time().timeName(),
+                mesh_.time().name(),
                 mesh_,
                 IOobject::NO_READ,
                 IOobject::AUTO_WRITE
@@ -429,7 +429,7 @@ Foam::laminarBurningVelocityModels::ANN::ANN
                 IOobject
                 (
                     L0_names_[s],
-                    mesh_.time().timeName(),
+                    mesh_.time().name(),
                     mesh_,
                     IOobject::NO_READ,
                     IOobject::NO_WRITE
@@ -450,7 +450,7 @@ Foam::laminarBurningVelocityModels::ANN::ANN
                 IOobject
                 (
                     Y0out_names_[i],
-                    mesh_.time().timeName(),
+                    mesh_.time().name(),
                     mesh_,
                     IOobject::NO_READ,
                     IOobject::AUTO_WRITE
@@ -494,7 +494,7 @@ Foam::laminarBurningVelocityModels::ANN::ANN
                 IOobject
                 (
                     L1_names_[s],
-                    mesh_.time().timeName(),
+                    mesh_.time().name(),
                     mesh_,
                     IOobject::NO_READ,
                     IOobject::NO_WRITE
@@ -515,7 +515,7 @@ Foam::laminarBurningVelocityModels::ANN::ANN
                 IOobject
                 (
                     Y1out_names_[i],
-                    mesh_.time().timeName(),
+                    mesh_.time().name(),
                     mesh_,
                     IOobject::NO_READ,
                     IOobject::AUTO_WRITE
@@ -553,7 +553,7 @@ Foam::laminarBurningVelocityModels::ANN::ANN
                 IOobject
                 (
                     L2_names_[s],
-                    mesh_.time().timeName(),
+                    mesh_.time().name(),
                     mesh_,
                     IOobject::NO_READ,
                     IOobject::NO_WRITE
@@ -574,7 +574,7 @@ Foam::laminarBurningVelocityModels::ANN::ANN
                 IOobject
                 (
                     Y2out_names_[i],
-                    mesh_.time().timeName(),
+                    mesh_.time().name(),
                     mesh_,
                     IOobject::NO_READ,
                     IOobject::AUTO_WRITE
@@ -608,7 +608,7 @@ Foam::laminarBurningVelocityModels::ANN::ANN
                 IOobject
                 (
                     L3_names_[s],
-                    mesh_.time().timeName(),
+                    mesh_.time().name(),
                     mesh_,
                     IOobject::NO_READ,
                     IOobject::NO_WRITE
@@ -629,7 +629,7 @@ Foam::laminarBurningVelocityModels::ANN::ANN
                 IOobject
                 (
                     Y3out_names_[i],
-                    mesh_.time().timeName(),
+                    mesh_.time().name(),
                     mesh_,
                     IOobject::NO_READ,
                     IOobject::AUTO_WRITE
