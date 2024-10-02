@@ -73,7 +73,7 @@ Foam::reactionRateModels::ETFC::ETFC
             IOobject::AUTO_WRITE
         ),
         mesh_,
-        dimensionedScalar("Dt_inf", dimensionSet(2, -1, 0, 0, 0, 0, 0), Zero)
+        dimensionedScalar("Dt_inf", dimensionSet(0, 2, -1, 0, 0, 0, 0), Zero)
     ),
     TauByT_
     (
@@ -115,7 +115,7 @@ Foam::reactionRateModels::ETFC::ETFC
         dimensionedScalar("cLam", dimDensity/dimTime, Zero)
     ),
     Sct_("Sct", dimless, 0),
-    alpha_u_("alpha_u", dimensionSet(2, -1, 0, 0, 0, 0, 0), this->coeffDict_),
+    alpha_u_("alpha_u", dimensionSet(0, 2, -1, 0, 0, 0, 0), this->coeffDict_),
     Le_("Le", dimless, this->coeffDict_)
 {
     IOdictionary thermophysicalTransportDict

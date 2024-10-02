@@ -82,7 +82,7 @@ void Foam::laminarBurningVelocityModels::Malet::correct
         Info << "\t\t\t\tInitial average S_L: "  << average(sLaminar_).value() << endl;
     }
 
-    sLaminar_ = sLaminar0_*pow(1-X_H2O_,4)*pow(T_/TRef_,2.2)*pow(p_/pRef_,-0.5);
+    sLaminar_ = sLaminar0_*pow(1-X_H2O_,4)*pow(reactionRate_.TU()/TRef_,2.2)*pow(p_/pRef_,-0.5);
 
     if (debug_)
     {
