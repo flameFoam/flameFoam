@@ -63,7 +63,6 @@ class Malet
         const dimensionedScalar pRef_;
         const dimensionedScalar TRef_;
         const volScalarField& p_;
-        const volScalarField& T_;
 
 public:
 

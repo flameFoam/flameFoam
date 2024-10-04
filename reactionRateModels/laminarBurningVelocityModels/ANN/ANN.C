@@ -59,21 +59,21 @@ Foam::laminarBurningVelocityModels::ANN::ANN
 
     par_(PtrList<volScalarField>(3)),
 
-    // Weight matrices initialisation   
+    // Weight matrices initialisation
     W0_(scalarListList({{-3.243977308273315430e+00,
     -8.332144469022750854e-03,
     -3.480189561843872070e+00,
     -3.300335407257080078e+00,
     -1.697143077850341797e+00,
     1.478089523315429688e+01,
-    -4.349520683288574219e+00}, 
+    -4.349520683288574219e+00},
     {3.029801368713378906e+00,
     1.122648711316287518e-03,
     -1.612274795770645142e-01,
     1.099239826202392578e+00,
     5.997737884521484375e+00,
     6.218534111976623535e-01,
-    2.587657421827316284e-03}, 
+    2.587657421827316284e-03},
     {-8.222029209136962891e-01,
     -1.702534849755465984e-03,
     1.868390440940856934e+00,
@@ -104,7 +104,7 @@ Foam::laminarBurningVelocityModels::ANN::ANN
     -4.134190678596496582e-01,
     1.398074673488736153e-04,
     -3.192920386791229248e-01},
-    {2.666092186700552702e-04, 
+    {2.666092186700552702e-04,
     2.076551900245249271e-04,
     -3.022944147232919931e-04,
     -1.304411562159657478e-04,
@@ -113,7 +113,7 @@ Foam::laminarBurningVelocityModels::ANN::ANN
     4.969434812664985657e-04,
     7.113337051123380661e-05,
     2.117981784977018833e-05,
-    -3.026006161235272884e-04}, 
+    -3.026006161235272884e-04},
     {1.559144351631402969e-03,
     3.275305207353085279e-04,
     -2.183801494538784027e-02,
@@ -153,7 +153,7 @@ Foam::laminarBurningVelocityModels::ANN::ANN
     -1.094287753105163574e+00,
     1.316546440124511719e+00,
     -3.417208790779113770e-04,
-    9.424296021461486816e-01}, 
+    9.424296021461486816e-01},
     {4.223680496215820312e-01,
     -8.689393871463835239e-05,
     -8.681480772793292999e-03,
@@ -366,7 +366,7 @@ Foam::laminarBurningVelocityModels::ANN::ANN
 
     par_.set
     (
-        1, 
+        1,
         new volScalarField
         (
             IOobject
@@ -440,8 +440,8 @@ Foam::laminarBurningVelocityModels::ANN::ANN
         );
     }
 
-    for (int i = 0; i < 7; i++) 
-    { 
+    for (int i = 0; i < 7; i++)
+    {
         Y0out_.set
         (
             i,
@@ -505,8 +505,8 @@ Foam::laminarBurningVelocityModels::ANN::ANN
         );
     }
 
-    for (int i = 0; i < 10; i++) 
-    { 
+    for (int i = 0; i < 10; i++)
+    {
         Y1out_.set
         (
             i,
@@ -564,8 +564,8 @@ Foam::laminarBurningVelocityModels::ANN::ANN
         );
     }
 
-    for (int i = 0; i < 7; i++) 
-    { 
+    for (int i = 0; i < 7; i++)
+    {
         Y2out_.set
         (
             i,
@@ -585,7 +585,7 @@ Foam::laminarBurningVelocityModels::ANN::ANN
         );
     }
 
-    // Layer 3 setup 
+    // Layer 3 setup
     L3_names_[0] = "L3_0";
     L3_names_[1] = "L3_1";
     L3_names_[2] = "L3_2";
@@ -619,8 +619,8 @@ Foam::laminarBurningVelocityModels::ANN::ANN
         );
     }
 
-    for (int i = 0; i < 5; i++) 
-    { 
+    for (int i = 0; i < 5; i++)
+    {
         Y3out_.set
         (
             i,
@@ -664,10 +664,10 @@ void Foam::laminarBurningVelocityModels::ANN::correct
     par_[2].dimensions().reset(dimless);
 
     // Input layer calculations
-    for (int i = 0; i < 7; i++) 
-    {   
+    for (int i = 0; i < 7; i++)
+    {
         L0_[i] = 0;
-        for (int k = 0; k < 3; k++) 
+        for (int k = 0; k < 3; k++)
         {
             L0_[i] += W0_[k][i] * par_[k];
         }
@@ -675,10 +675,10 @@ void Foam::laminarBurningVelocityModels::ANN::correct
     }
 
     // Layer 1 calculations
-    for (int i = 0; i < 10; i++) 
-    {   
+    for (int i = 0; i < 10; i++)
+    {
         L1_[i] = 0;
-        for (int k = 0; k < 7; k++) 
+        for (int k = 0; k < 7; k++)
         {
             L1_[i] += W1_[k][i] * Y0out_[k];
         }
@@ -686,11 +686,11 @@ void Foam::laminarBurningVelocityModels::ANN::correct
         Y1out_[i].max(0);
     }
 
-    // Layer 2 calculations  
-    for (int i = 0; i < 7; i++) 
-    {   
+    // Layer 2 calculations
+    for (int i = 0; i < 7; i++)
+    {
         L2_[i] = 0;
-        for (int k = 0; k < 10; k++) 
+        for (int k = 0; k < 10; k++)
         {
             L2_[i] += W2_[k][i] * Y1out_[k];
         }
@@ -699,24 +699,24 @@ void Foam::laminarBurningVelocityModels::ANN::correct
     }
 
     // Layer 3 calculations
-    for (int i = 0; i < 5; i++) 
-    {   
+    for (int i = 0; i < 5; i++)
+    {
         L3_[i] = 0;
-        for (int k = 0; k < 7; k++) 
+        for (int k = 0; k < 7; k++)
         {
             L3_[i] += W3_[k][i] * Y2out_[k];
         }
         Y3out_[i] = L3_[i] + B3_[i];
         Y3out_[i].max(0);
     }
-        
+
     // Layer 4 setup
     L4_.dimensions().reset(dimless);
     L4_ = 0;
-        
-    // Layer 4 calculations 
+
+    // Layer 4 calculations
     for (int k = 0; k < 5; k++)
-    {   
+    {
         L4_ += W4_[0][k] * Y3out_[k];
     }
 
@@ -730,6 +730,6 @@ void Foam::laminarBurningVelocityModels::ANN::correct
         Info << "\t\t\t\tANN correct finished" << endl;
     }
 
-     
+
 }
 // ************************************************************************* //
