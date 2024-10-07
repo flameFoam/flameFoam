@@ -58,8 +58,7 @@ Foam::laminarBurningVelocityModels::Malet::Malet
     sLaminar0_(dimensionedScalar(dimVelocity, 1.44*ER_*ER_+1.07*ER_-0.29)),
     pRef_(dimensionedScalar(dimPressure, 100000)),
     TRef_(dimensionedScalar(dimTemperature, 298)),
-    p_(mesh_.lookupObject<volScalarField>("p")),
-    T_(mesh_.lookupObject<volScalarField>("T"))
+    p_(mesh_.lookupObject<volScalarField>("p"))
 {
     appendInfo("\tLBV estimation method: Malet correlation");
 }
@@ -82,7 +81,7 @@ void Foam::laminarBurningVelocityModels::Malet::correct
         Info << "\t\t\t\tInitial average S_L: "  << average(sLaminar_).value() << endl;
     }
 
-    sLaminar_ = sLaminar0_*pow(1-X_H2O_,4)*pow(T_/TRef_,2.2)*pow(p_/pRef_,-0.5);
+    sLaminar_ = sLaminar0_*pow(1-X_H2O_,4)*pow(reactionRate_.TU()/TRef_,2.2)*pow(p_/pRef_,-0.5);
 
     if (debug_)
     {

@@ -48,7 +48,6 @@ Foam::reactionRate::reactionRate
     coeffDict_(dict.optionalSubDict(modelType + "Coeffs")),
     mesh_(mesh),
     combModel_(combModel),
-    mixture_(combModel_.thermo().composition()),
     cSource_
     (
         IOobject
@@ -64,17 +63,17 @@ Foam::reactionRate::reactionRate
     ),
     p_(mesh.lookupObject<volScalarField>("p")),
     // HEff estimation
-    molarH2_(dimensionedScalar("molarH2", dimMass/dimMoles, 0.002)),
+    molarH2_(dimensionedScalar("molarH2", dimMass/dimMoles, 2)),
     X_H2_0_(coeffDict_.lookup<scalar>("X_H2_0")),
     Y_H2_0_(dimensionedScalar("Y_H2_0",
-        molarH2_*X_H2_0_*average(p_)/(average(combModel.rho())*constant::physicoChemical::R*average(combModel.thermo().T()))
+        molarH2_*X_H2_0_*average(p_)/(average(combModel.rho())*constant::physicoChemical::RR*average(combModel.thermo().T()))
     ).value()),
     Y_H2_99_(0),
     H0_(coeffDict_.lookup<scalar>("H0")),
     HEff_(dimensionedScalar("Heff", dimEnergy/dimMass, (Y_H2_0_-Y_H2_99_)*H0_)),
     // model constants
-    yIndex_(mixture_.index(mixture_.Y("b"))),
-    WU_(dimensionedScalar("WU", dimMass/dimMoles, mixture_.Wi(yIndex_)/1000.0)),
+    yIndex_(combModel_.thermo().specieIndex(combModel_.thermo().Y("b"))),
+    WU_(combModel_.thermo().Wi(yIndex_)),
     p0_(dimensionedScalar("p0", dimPressure, average(combModel_.thermo().p()).value())),
     rho0_(dimensionedScalar("rho0", dimDensity, average(combModel_.rho()).value())),
     // debug printout switch
@@ -94,7 +93,7 @@ Foam::reactionRate::~reactionRate()
 Foam::tmp<Foam::volScalarField>
 Foam::reactionRate::TU() const
 {
-    return WU_*p_/(rhoU()*constant::physicoChemical::R);
+    return WU_*p_/(rhoU()*constant::physicoChemical::RR);
 }
 
 Foam::tmp<Foam::volScalarField>
@@ -106,7 +105,7 @@ Foam::reactionRate::rhoU() const
 Foam::tmp<Foam::volScalarField>
 Foam::reactionRate::muU() const
 {
-    return mixture_.mu(yIndex_, p_, TU());
+    return combModel_.thermo().mui(yIndex_, p_, TU());
 }
 
 
@@ -138,7 +137,7 @@ Foam::reactionRate::R(volScalarField& Y) const
 Foam::tmp<Foam::volScalarField>
 Foam::reactionRate::Qdot() const
 {
-    volScalarField& c = const_cast<volScalarField&>(mixture_.Y("c"));
+    volScalarField& c = const_cast<volScalarField&>(combModel_.thermo().Y("c"));
 
     if (debug_)
     {

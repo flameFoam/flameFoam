@@ -102,8 +102,7 @@ nonUnityLewisViscosityEddyDiffusivity<TurbulenceThermophysicalTransportModel>::q
         )
     );
 
-    const basicSpecieMixture& composition = this->thermo().composition();
-    const PtrList<volScalarField>& Y = composition.Y();
+    const PtrList<volScalarField>& Y = this->thermo().Y();
 
     if (Y.size())
     {
@@ -121,7 +120,7 @@ nonUnityLewisViscosityEddyDiffusivity<TurbulenceThermophysicalTransportModel>::q
         {
             const volScalarField hi
             (
-                composition.Hs(i, this->thermo().p(), this->thermo().T())
+                this->thermo().hsi(i, this->thermo().p(), this->thermo().T())
             );
 
             hGradY += fvc::interpolate(hi)*fvc::snGrad(Y[i]);
@@ -157,8 +156,7 @@ nonUnityLewisViscosityEddyDiffusivity<TurbulenceThermophysicalTransportModel>::d
         )
     );
 
-    const basicSpecieMixture& composition = this->thermo().composition();
-    const PtrList<volScalarField>& Y = composition.Y();
+    const PtrList<volScalarField>& Y = this->thermo().Y();
 
     tmpDivq.ref() -=
         fvm::laplacianCorrection(this->alpha()*this->alphaEff(), he);
@@ -177,7 +175,7 @@ nonUnityLewisViscosityEddyDiffusivity<TurbulenceThermophysicalTransportModel>::d
     {
         const volScalarField hi
         (
-            composition.Hs(i, this->thermo().p(), this->thermo().T())
+            this->thermo().hsi(i, this->thermo().p(), this->thermo().T())
         );
 
         hGradY += fvc::interpolate(hi)*fvc::snGrad(Y[i]);

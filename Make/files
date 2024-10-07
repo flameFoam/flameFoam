@@ -20,4 +20,4 @@ reactionRateModels/FSD/FSD.C
 reactionRateModels/laminarBurningVelocityModels/ANN/ANN.C
 flameFoam.C
 
-LIB = $(FOAM_USER_LIBBIN)/flameFoam-11.0.0
+LIB = $(FOAM_USER_LIBBIN)/flameFoam-12.0.0

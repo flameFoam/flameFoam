@@ -71,9 +71,6 @@ protected:
         //- Combustion model owner
         const combustionModel& combModel_;
 
-        //- Mixture
-        const basicSpecieMixture& mixture_;
-
         //- Fuel consumption rate per unit of flame area
         volScalarField cSource_;
 

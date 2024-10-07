@@ -53,7 +53,7 @@ Foam::turbulentBurningVelocityModels::Zimont::Zimont
 ):
     turbulentBurningVelocity(modelType, reactRate, dict),
     ZimontA_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("ZimontA")),
-    alpha_u_(dimensionedScalar(dimViscosity, dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("alpha_u"))),
+    alpha_u_(dimensionedScalar(dimKinematicViscosity, dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("alpha_u"))),
     Le_(dict.optionalSubDict(modelType + "Coeffs").lookupOrDefault<scalar>("Le", 1.0)),
     ACalpha_(ZimontA_*Foam::pow(0.37, 0.25)*Foam::pow(alpha_u_, -0.25)*Foam::pow(Le_, -0.3))
 {

@@ -61,7 +61,7 @@ Foam::reactionRateModels::ETFC::ETFC
             dict
         )
     ),
-    c_(combModel_.thermo().composition().Y("c")),
+    c_(combModel_.thermo().Y("c")),
     Dt_inf_
     (
     	IOobject
@@ -73,7 +73,7 @@ Foam::reactionRateModels::ETFC::ETFC
             IOobject::AUTO_WRITE
         ),
         mesh_,
-        dimensionedScalar("Dt_inf", dimViscosity, Zero)
+        dimensionedScalar("Dt_inf", dimKinematicViscosity, Zero)
     ),
     TauByT_
     (
@@ -115,7 +115,7 @@ Foam::reactionRateModels::ETFC::ETFC
         dimensionedScalar("cLam", dimDensity/dimTime, Zero)
     ),
     Sct_("Sct", dimless, 0),
-    alpha_u_("alpha_u", dimViscosity, this->coeffDict_),
+    alpha_u_("alpha_u", dimKinematicViscosity, this->coeffDict_),
     Le_("Le", dimless, this->coeffDict_)
 {
     IOdictionary thermophysicalTransportDict

@@ -1,1 +1,1 @@
-const word flameFoamVersion = "11.0.0";
+const word flameFoamVersion = "12.0.0";

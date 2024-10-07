@@ -58,8 +58,7 @@ Foam::combustionModels::flameFoam::flameFoam
             *this
         )
     ),
-    mixture_(dynamic_cast<const basicSpecieMixture&>(this->thermo().composition())),
-    cIndex_(mixture_.index(mixture_.Y("c"))),
+    cIndex_(this->thermo().specieIndex(this->thermo().Y("c"))),
     runInfo_("flameFoam." + this->mesh().name() + ".combustionInfo"),
     debug_(this->coeffs().lookupOrDefault("debug", false))
 {
@@ -76,7 +75,7 @@ Foam::combustionModels::flameFoam::flameFoam
     runInfo_ << "\tT: "     << average(thermo.T()).value() << endl;
     runInfo_ << "\trho: "   << average(thermo.rho()).value() << endl;
     runInfo_ << "\tmu: "    << average(thermo.mu()).value() << endl;
-    runInfo_ << "\tc: "     << average(mixture_.Y("c")).value() << endl;
+    runInfo_ << "\tc: "     << average(thermo.Y("c")).value() << endl;
 
     outputSubInfo();
 }
@@ -120,7 +119,7 @@ Foam::combustionModels::flameFoam::R(const label speciei) const
         return
         volScalarField::Internal::New
         (
-            typedName("R_" + mixture_.Y()[speciei].name()),
+            typedName("R_" + this->thermo().Y()[speciei].name()),
             this->mesh(),
             dimensionedScalar(dimDensity/dimTime, 0)
         );
@@ -135,7 +134,7 @@ Foam::combustionModels::flameFoam::R(volScalarField& Y) const
     {
         Info << "flameFoam R(" << Y.name() << "): " << endl;
     }
-    if (mixture_.index(Y) == cIndex_)
+    if (this->thermo().specieIndex(Y) == cIndex_)
     {
         return reactionRate_->R(Y);
     }

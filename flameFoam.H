@@ -26,7 +26,7 @@ Class
 
 Description
     Collection of combustion models for turbulent premixed combustion of
-    hydrogen/air mixtures for OpenFOAM v11.
+    hydrogen/air mixtures for OpenFOAM v12.
 
     Models provided for laminar burning velocity estimation:
         Constant, user defined value
@@ -73,8 +73,6 @@ class flameFoam
         //- Auto pointer to reaction rate model
         autoPtr<reactionRate> reactionRate_;
 
-        //- Reference to the mixture
-        const basicSpecieMixture& mixture_;
 
         //- progress variable specie index
         label cIndex_;

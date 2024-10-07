@@ -87,7 +87,7 @@ void Foam::reactionRateModels::FSD::correct
 
     wrinklingCorrelation_->correct();
 
-    cSource_ = rhoU()*wrinklingCorrelation_->burningVelocity()*mag(fvc::grad(combModel_.thermo().composition().Y("c")));
+    cSource_ = rhoU()*wrinklingCorrelation_->burningVelocity()*mag(fvc::grad(combModel_.thermo().Y("c")));
 
     if (debug_)
     {
