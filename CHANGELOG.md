@@ -1,5 +1,9 @@
 # Changelog
 
+## [12.0.0] - 2024-10-07
+### Changed
+- Ported to OpenFOAM 12 - minor changes
+
 ## [11.0.0] - 2024-03-26
 ### Changed
 - Ported to OpenFOAM 11 by a complete rewrite of the solver into a collection of classes now to be used with standard OpenFOAM modules, same capabilities maintained (except ETFC and ANN LBV models, porting pending)
