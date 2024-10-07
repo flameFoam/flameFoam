@@ -93,7 +93,7 @@ Foam::reactionRate::~reactionRate()
 Foam::tmp<Foam::volScalarField>
 Foam::reactionRate::TU() const
 {
-    return WU_*p_/(rhoU()*constant::physicoChemical::RR*0.001);
+    return WU_*p_/(rhoU()*constant::physicoChemical::RR);
 }
 
 Foam::tmp<Foam::volScalarField>
