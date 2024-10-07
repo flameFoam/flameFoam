@@ -1,6 +1,6 @@
 # flameFoam
 
-Hydrogen-air premixed turbulent combustion model for OpenFOAM v11:
+Hydrogen-air premixed turbulent combustion model for OpenFOAM-12:
 - Progress variable approach
 - TFC and (ETFC: pending) models for RANS with Zimont, Bradley and Bray correlations
 - Laminar burning velocity can be set by user (constant value) or estimated using Malet correlation (for lean mixtures only) or (custom DNN model: pending) (for dry mixtures only)
