@@ -7,14 +7,14 @@ Hydrogen-air premixed turbulent combustion model for OpenFOAM-12:
 - FSD model for LES with Charlette correlation
 
 ## Compilation
-Library is compiled using **wmake** command. [OpenFOAM v11](https://openfoam.org/release/11/) needs to be installed.
+Library is compiled using **wmake** command. [OpenFOAM-12](https://openfoam.org/release/12/) needs to be installed.
 
 ## Activation
 Library needs to be included in controlDict:
 ```C
 libs
 (
-  "flameFoam-11.0.0.so"
+  "flameFoam-12.0.0.so"
 );
 ```
 
@@ -25,6 +25,7 @@ Preparation in progress, please contact through e-mail
 - Lead developer: Mantas Povilaitis, 2019 - current, mantas.povilaitis@lei.lt
 - Co-developer: Julius Venckus, 2022 - current
 - DNN model development and implementation: Andrius Ambrutis, 2022 - current
+- Porting to OpenFOAM-11: Ilaryon Saladkou, 2024
 - Initial co-developer: Justina Jaseliūnaitė, 2019 - 2022
 
 ## Publications
