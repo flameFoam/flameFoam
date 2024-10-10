@@ -76,11 +76,8 @@ void Foam::turbulentBurningVelocityModels::Bradley::correct()
     }
 
     laminarCorrelation_->correct();
-    sTurbulent_ = max(
-        laminarCorrelation_->burningVelocity(),
-        1.37179015019233* //0.88*0.157^(-0.3)*(2/3)^(0.275)
-        pow(laminarCorrelation_->burningVelocity(), 0.6)*pow(saneEpsilon()*reactionRate_.muU()/reactionRate_.rhoU(), -0.15)*Foam::pow(Le_, -0.3)*pow(combModel_.turbulence().k(), 0.5)
-    );
+    sTurbulent_ = 1.37179015019233* //0.88*0.157^(-0.3)*(2/3)^(0.275)
+    pow(laminarCorrelation_->burningVelocity(), 0.6)*pow(saneEpsilon()*reactionRate_.muU()/reactionRate_.rhoU(), -0.15)*Foam::pow(Le_, -0.3)*pow(combModel_.turbulence().k(), 0.5);
 
     if (debug_)
     {
