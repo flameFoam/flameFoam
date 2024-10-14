@@ -75,6 +75,19 @@ Foam::reactionRateModels::ETFC::ETFC
         mesh_,
         dimensionedScalar("Dt_inf", dimKinematicViscosity, Zero)
     ),
+    DEff_
+    (
+    	IOobject
+        (
+            "DEff",
+            mesh_.time().name(),
+            mesh_,
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh_,
+        dimensionedScalar("DEff", dimKinematicViscosity, Zero)
+    ),
     TauByT_
     (
     	IOobject
@@ -161,9 +174,11 @@ void Foam::reactionRateModels::ETFC::correct
 
     expFactor_ = 1 - exp(-1/TauByT_);
 
+    DEff_ = alpha_u_/Le_+Dt_inf_*expFactor_;
+
     cLam_ = 0.25*pow(turbulentCorrelation_->getLaminarBurningVelocity(), 2)*
         rhoU()*max(c_-SMALL*mesh_.time().deltaT().value(),0.0)*(1-c_)/            // TODO: check if deltaT or absolute value should be used
-        (alpha_u_/Le_+Dt_inf_*expFactor_);
+        DEff_;
 
     cSource_ =
         rhoU()*
