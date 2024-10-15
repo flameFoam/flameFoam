@@ -1,6 +1,6 @@
 # Changelog
 
-## [12.1.0] - 2024-10-07
+## [12.1.0] - 2024-10-15
 ### Changed
 - Implemented proper diffusion coefficient for the ETFC model. Improved check logic for too low turbulent burning velocities in the TFC model.
 
