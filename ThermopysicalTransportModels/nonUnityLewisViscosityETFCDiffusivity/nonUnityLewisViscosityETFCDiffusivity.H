@@ -79,7 +79,7 @@ protected:
             //- Turbulent Schmidt number []
             dimensionedScalar Sct_;
 
-            const volScalarField& DEff_;
+            const volScalarField& DEffByRho_;
 
 
 public:
@@ -126,7 +126,7 @@ public:
             return volScalarField::New
             (
                 "DEff",
-                this->DEff_*this->momentumTransport().rho()
+                this->DEffByRho_*this->momentumTransport().rho()
             );
         }
 
@@ -137,7 +137,7 @@ public:
             return volScalarField::New
             (
                 "DEff",
-                this->DEff_*this->momentumTransport().rho()
+                this->DEffByRho_*this->momentumTransport().rho()
             );
         }
 
@@ -149,7 +149,7 @@ public:
             const label patchi
         ) const
         {
-            return this->DEff_.boundaryField()[patchi]*this->momentumTransport().rho().boundaryField()[patchi];
+            return this->DEffByRho_.boundaryField()[patchi]*this->momentumTransport().rho().boundaryField()[patchi];
         }
 
         //- Return the heat flux [W/m^2]

@@ -57,7 +57,7 @@ nonUnityLewisViscosityETFCDiffusivity
     ),
     
     Sct_("Sct", dimless, this->coeffDict_),
-    DEff_(this->momentumTransport().mesh().template lookupObject<volScalarField>("DEff"))
+    DEffByRho_(this->momentumTransport().mesh().template lookupObject<volScalarField>("DEffByRho"))
 {
     this->printCoeffs(typeName);
 }

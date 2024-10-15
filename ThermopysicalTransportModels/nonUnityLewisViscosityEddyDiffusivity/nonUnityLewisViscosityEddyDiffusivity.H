@@ -129,6 +129,15 @@ public:
             );
         }
 
+        virtual tmp<volScalarField> DEff() const
+        {
+            return volScalarField::New
+            (
+                "DEff",
+                this->thermo().rho()*this->momentumTransport().nuEff()/Sct_
+            );
+        }
+
         //- Effective mass diffusion coefficient
         //  for a given specie mass-fraction for patch [kg/m/s]
         virtual tmp<scalarField> DEff

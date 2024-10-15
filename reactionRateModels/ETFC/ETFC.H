@@ -65,7 +65,7 @@ class ETFC
 	
 	volScalarField Dt_inf_;
 
-	volScalarField DEff_;
+	volScalarField DEffByRho_;
 	
 	volScalarField TauByT_;
 	
