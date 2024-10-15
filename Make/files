@@ -1,4 +1,6 @@
 infoPass/infoPass.C
+ThermopysicalTransportModels/nonUnityLewisViscosityETFCDiffusivity/makeFluidMulticomponentNonUnityLewisViscosityETFCDiffusivity.C
+ThermopysicalTransportModels/nonUnityLewisViscosityETFCDiffusivity/makePhaseFluidMulticomponentNonUnityLewisViscosityETFCDiffusivity.C
 ThermopysicalTransportModels/nonUnityLewisViscosityEddyDiffusivity/makeFluidMulticomponentNonUnityLewisViscosityEddyDiffusivity.C
 ThermopysicalTransportModels/nonUnityLewisViscosityEddyDiffusivity/makePhaseFluidMulticomponentNonUnityLewisViscosityEddyDiffusivity.C
 reactionRateModels/wrinklingFactorModels/wrinklingFactor/wrinklingFactor.C
@@ -20,4 +22,4 @@ reactionRateModels/FSD/FSD.C
 reactionRateModels/laminarBurningVelocityModels/ANN/ANN.C
 flameFoam.C
 
-LIB = $(FOAM_USER_LIBBIN)/flameFoam-12.0.0
+LIB = $(FOAM_USER_LIBBIN)/flameFoam-12.1.0

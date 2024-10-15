@@ -1,5 +1,9 @@
 # Changelog
 
+## [12.1.0] - 2024-10-15
+### Changed
+- Implemented proper diffusion coefficient for the ETFC model. Improved check logic for too low turbulent burning velocities in the TFC model.
+
 ## [12.0.0] - 2024-10-07
 ### Changed
 - Ported to OpenFOAM 12 - minor changes

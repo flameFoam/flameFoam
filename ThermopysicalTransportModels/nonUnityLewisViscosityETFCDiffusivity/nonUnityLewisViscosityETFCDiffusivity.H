@@ -22,10 +22,10 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::turbulenceThermophysicalTransportModels::nonUnityLewisViscosityEddyDiffusivity
+    Foam::turbulenceThermophysicalTransportModels::nonUnityLewisViscosityETFCDiffusivity
 
 Description
-    Non-unity-Lewis-Eddy-diffusivity based temperature gradient heat flux model
+    Non-unity-Lewis-ETFC-diffusivity based temperature gradient heat flux model
     for RAS or LES of turbulent flow. Allows independent specification of
     turbulent Prandtl and Schmidt numbers.  Unity laminar Lewis number is
     assumed.
@@ -38,21 +38,21 @@ Usage
     \verbatim
     LES
     {
-        model           nonUnityLewisViscosityEddyDiffusivity;
+        model           nonUnityLewisViscosityETFCDiffusivity;
         Prt             0.85;
         Sct             0.7;
     }
     \endverbatim
 
 SourceFiles
-    nonUnityLewisViscosityEddyDiffusivity.C
+    nonUnityLewisViscosityETFCDiffusivity.C
 
 \*---------------------------------------------------------------------------*/
 
 #include "unityLewisEddyDiffusivity.H"
 
-#ifndef nonUnityLewisViscosityEddyDiffusivity_H
-#define nonUnityLewisViscosityEddyDiffusivity_H
+#ifndef nonUnityLewisViscosityETFCDiffusivity_H
+#define nonUnityLewisViscosityETFCDiffusivity_H
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -62,23 +62,24 @@ namespace turbulenceThermophysicalTransportModels
 {
 
 /*---------------------------------------------------------------------------*\
-                Class nonUnityLewisViscosityEddyDiffusivity Declaration
+                Class nonUnityLewisViscosityETFCDiffusivity Declaration
 \*---------------------------------------------------------------------------*/
 
 template<class TurbulenceThermophysicalTransportModel>
-class nonUnityLewisViscosityEddyDiffusivity
+class nonUnityLewisViscosityETFCDiffusivity
 :
     public unityLewisEddyDiffusivity<TurbulenceThermophysicalTransportModel>
 {
 
 protected:
-
     // Protected data
 
         // Model coefficients
 
             //- Turbulent Schmidt number []
             dimensionedScalar Sct_;
+
+            const volScalarField& DEffByRho_;
 
 
 public:
@@ -95,13 +96,13 @@ public:
 
 
     //- Runtime type information
-    TypeName("nonUnityLewisViscosityEddyDiffusivity");
+    TypeName("nonUnityLewisViscosityETFCDiffusivity");
 
 
     // Constructors
 
         //- Construct from a momentum transport model and a thermo model
-        nonUnityLewisViscosityEddyDiffusivity
+        nonUnityLewisViscosityETFCDiffusivity
         (
             const momentumTransportModel& momentumTransport,
             const thermoModel& thermo
@@ -109,7 +110,7 @@ public:
 
 
     //- Destructor
-    virtual ~nonUnityLewisViscosityEddyDiffusivity()
+    virtual ~nonUnityLewisViscosityETFCDiffusivity()
     {}
 
 
@@ -125,16 +126,18 @@ public:
             return volScalarField::New
             (
                 "DEff",
-                this->thermo().rho()*this->momentumTransport().nuEff()/Sct_
+                this->DEffByRho_*this->momentumTransport().rho()
             );
         }
 
+        //- Effective mass diffusion coefficient
+        //  for a given specie mass-fraction [kg/m/s]
         virtual tmp<volScalarField> DEff() const
         {
             return volScalarField::New
             (
                 "DEff",
-                this->thermo().rho()*this->momentumTransport().nuEff()/Sct_
+                this->DEffByRho_*this->momentumTransport().rho()
             );
         }
 
@@ -146,8 +149,7 @@ public:
             const label patchi
         ) const
         {
-            return
-                this->thermo().rho(patchi)*this->momentumTransport().nuEff(patchi)/Sct_.value();
+            return this->DEffByRho_.boundaryField()[patchi]*this->momentumTransport().rho().boundaryField()[patchi];
         }
 
         //- Return the heat flux [W/m^2]
@@ -166,7 +168,7 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef NoRepository
-    #include "nonUnityLewisViscosityEddyDiffusivity.C"
+    #include "nonUnityLewisViscosityETFCDiffusivity.C"
 #endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
