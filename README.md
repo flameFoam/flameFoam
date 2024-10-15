@@ -2,7 +2,7 @@
 
 Hydrogen-air premixed turbulent combustion model for OpenFOAM-12:
 - Progress variable approach
-- TFC and (ETFC: pending) models for RANS with Zimont, Bradley and Bray correlations
+- TFC and ETFC models for RANS with Zimont, Bradley and Bray correlations
 - Laminar burning velocity can be set by user (constant value) or estimated using Malet correlation (for lean mixtures only) or (custom DNN model: pending) (for dry mixtures only)
 - FSD model for LES with Charlette correlation
 
@@ -14,7 +14,7 @@ Library needs to be included in controlDict:
 ```C
 libs
 (
-  "flameFoam-12.0.0.so"
+  "flameFoam-12.1.0.so"
 );
 ```
 
