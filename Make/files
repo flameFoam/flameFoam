@@ -19,7 +19,8 @@ reactionRateModels/reactionRate/reactionRateNew.C
 reactionRateModels/TFC/TFC.C
 reactionRateModels/ETFC/ETFC.C
 reactionRateModels/FSD/FSD.C
+reactionRateModels/DDT/DDT.C
 reactionRateModels/laminarBurningVelocityModels/ANN/ANN.C
 flameFoam.C
 
-LIB = $(FOAM_USER_LIBBIN)/flameFoam-12.2.0
+LIB = $(FOAM_USER_LIBBIN)/flameFoam-12.2.0-DDT
