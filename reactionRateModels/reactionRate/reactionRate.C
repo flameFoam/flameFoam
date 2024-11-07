@@ -1,25 +1,25 @@
 /*---------------------------------------------------------------------------*\
-  =========                 |
-  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Copyright (C) 2011-2023 OpenFOAM Foundation
-     \\/     M anipulation  |
--------------------------------------------------------------------------------
-License
-    This file is derivative work of OpenFOAM.
 
-    OpenFOAM is free software: you can redistribute it and/or modify it
+ flameFoam
+ Copyright (C) 2021-2024 Lithuanian Energy Institute
+
+ -------------------------------------------------------------------------------
+License
+    This file is part of flameFoam, derivative work of OpenFOAM.
+
+    flameFoam is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    flameFoam is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
+    <http://www.gnu.org/licenses/> for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+Disclaimer
+    flameFoam is not approved or endorsed by neither the OpenFOAM Foundation
+    Limited nor OpenCFD Limited.
 
 \*---------------------------------------------------------------------------*/
 
@@ -41,13 +41,14 @@ Foam::reactionRate::reactionRate
 (
     const word& modelType,
     const dictionary& dict,
-    const fvMesh& mesh,
     const combustionModel& combModel
 )
 :
     coeffDict_(dict.optionalSubDict(modelType + "Coeffs")),
-    mesh_(mesh),
     combModel_(combModel),
+    mesh_(combModel_.mesh()),
+
+    // fields
     cSource_
     (
         IOobject
@@ -61,25 +62,40 @@ Foam::reactionRate::reactionRate
         mesh_,
         dimensionedScalar("cSource", dimDensity/dimTime, Zero)
     ),
-    p_(mesh.lookupObject<volScalarField>("p")),
-    // HEff estimation
-    molarH2_(dimensionedScalar("molarH2", dimMass/dimMoles, 2)),
-    X_H2_0_(coeffDict_.lookup<scalar>("X_H2_0")),
-    Y_H2_0_(dimensionedScalar("Y_H2_0",
-        molarH2_*X_H2_0_*average(p_)/(average(combModel.rho())*constant::physicoChemical::RR*average(combModel.thermo().T()))
-    ).value()),
-    Y_H2_99_(0),
-    H0_(coeffDict_.lookup<scalar>("H0")),
-    HEff_(dimensionedScalar("Heff", dimEnergy/dimMass, (Y_H2_0_-Y_H2_99_)*H0_)),
-    // model constants
+    p_(mesh_.lookupObject<volScalarField>("p")),
+    T_(mesh_.lookupObject<volScalarField>("T")),
+
+    // indices and switches
     yIndex_(combModel_.thermo().specieIndex(combModel_.thermo().Y("b"))),
+    Tu_(coeffDict_.lookup<Switch>("Tu")),
+    debug_(coeffDict_.lookupOrDefault<Switch>("debug", false)), // reiktų perduot iš flameFoam
+    debugFields_(coeffDict_.lookupOrDefault<Switch>("debugFields", false)), // reiktų perduot iš flameFoam
+
+    // model constants
+    p0_(mesh_.time().value()==0 ?
+        dimensionedScalar("p0", average(p_))
+        : dimensionedScalar("p0", dimPressure, coeffDict_.lookup<scalar>("p0"))),
+
+    rho0_(mesh_.time().value()==0 ?
+        dimensionedScalar("rho0", average(combModel_.rho()))
+        : dimensionedScalar("rho0", dimDensity, coeffDict_.lookup<scalar>("rho0"))),
+
+    // HEff estimation
+    WH2_(dimensionedScalar("WH2", dimMass/dimMoles, 2)),
     WU_(combModel_.thermo().Wi(yIndex_)),
-    p0_(dimensionedScalar("p0", dimPressure, average(combModel_.thermo().p()).value())),
-    rho0_(dimensionedScalar("rho0", dimDensity, average(combModel_.rho()).value())),
-    // debug printout switch
-    debug_(coeffDict_.lookupOrDefault("debug", false)) // reiktų perduot iš flameFoam
+
+    X_H2_0_(coeffDict_.lookup<scalar>("X_H2_0")),
+    Y_H2_99_(coeffDict_.lookup<scalar>("Y_H2_99")),
+    Y_H2_0_(dimensionedScalar("Y_H2_0", X_H2_0_*WH2_/WU_).value()),
+
+    H0_(coeffDict_.lookup<scalar>("H0")),
+    HEff_(dimensionedScalar("Heff", dimEnergy/dimMass, (Y_H2_0_-Y_H2_99_)*H0_))
+
 {
     Info << "flameFoam reactionRate object initialized" << endl;
+    Info << "Unburnt mixture temperature correction: ";
+    Info << Tu_.asText() << endl;
+    appendInfo(std::string("Unburnt mixture temperature correction: ") + Tu_.asText());
 }
 
 
@@ -93,7 +109,14 @@ Foam::reactionRate::~reactionRate()
 Foam::tmp<Foam::volScalarField>
 Foam::reactionRate::TU() const
 {
-    return WU_*p_/(rhoU()*constant::physicoChemical::RR);
+    if (Tu_)
+    {
+        return WU_*p_/(rhoU()*constant::physicoChemical::RR);
+    }
+    else
+    {
+        return T_;
+    }
 }
 
 Foam::tmp<Foam::volScalarField>

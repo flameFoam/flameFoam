@@ -1,8 +1,15 @@
 # Changelog
 
+## [12.2.0] - 2024-11-07
+### Changed
+- Added new switches to control optional correction of unburnt mixture temperature and debug field writing
+- Implemented support for calculation restart from non-zero times
+- Various clean-ups and fixes, including for regressions after porting
+
 ## [12.1.0] - 2024-10-15
 ### Changed
-- Implemented proper diffusion coefficient for the ETFC model. Improved check logic for too low turbulent burning velocities in the TFC model.
+- Implemented proper diffusion coefficient for the ETFC model
+- Improved check logic for too low turbulent burning velocities in the TFC model
 
 ## [12.0.0] - 2024-10-07
 ### Changed

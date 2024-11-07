@@ -1,25 +1,25 @@
 /*---------------------------------------------------------------------------*\
-  =========                 |
-  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Copyright (C) 2011-2023 OpenFOAM Foundation
-     \\/     M anipulation  |
--------------------------------------------------------------------------------
-License
-    This file is derivative work of OpenFOAM.
 
-    OpenFOAM is free software: you can redistribute it and/or modify it
+ flameFoam
+ Copyright (C) 2021-2024 Lithuanian Energy Institute
+
+ -------------------------------------------------------------------------------
+License
+    This file is part of flameFoam, derivative work of OpenFOAM.
+
+    flameFoam is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    flameFoam is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
+    <http://www.gnu.org/licenses/> for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+Disclaimer
+    flameFoam is not approved or endorsed by neither the OpenFOAM Foundation
+    Limited nor OpenCFD Limited.
 
 Class
     Foam::reactionRate
@@ -65,22 +65,43 @@ protected:
         //- Dictionary
         const dictionary& coeffDict_;
 
-        //- Mesh reference
-        const fvMesh& mesh_;
-
         //- Combustion model owner
         const combustionModel& combModel_;
 
-        //- Fuel consumption rate per unit of flame area
+        //- Mesh reference
+        const fvMesh& mesh_;
+
+        //- Fuel consumption rate per unit of flame area (field)
         volScalarField cSource_;
 
+        //- Other fields
         const volScalarField& p_;
+        const volScalarField& T_;
 
-        const dimensionedScalar molarH2_;
+        //- Unburnt component index
+        const label yIndex_;
 
+        //- Unburnt temperature correction switch
+        const Switch Tu_;
+
+        //- Debug switches
+        const Switch debug_;
+        const Switch debugFields_;
+
+        //- Initial values (fields)
+        const dimensionedScalar p0_;
+        const dimensionedScalar rho0_;
+
+        //- Molar mass of hydrogen
+        const dimensionedScalar WH2_;
+
+        //- Molas mass of unburned mixture
+        const dimensionedScalar WU_;
+
+        //- Hydrogen concentration selections
         const scalar X_H2_0_;
-        const scalar Y_H2_0_;
         const scalar Y_H2_99_;
+        const scalar Y_H2_0_;
 
         //- User supplied combustion heat
         const scalar H0_;
@@ -88,13 +109,7 @@ protected:
         //- Effective combustion heat
         const dimensionedScalar HEff_;
 
-        const label yIndex_;
 
-        const dimensionedScalar WU_;
-        const dimensionedScalar p0_;
-        const dimensionedScalar rho0_;
-
-        bool debug_;
 
 
 public:
@@ -113,10 +128,9 @@ public:
             (
                 const word modelType,
                 const dictionary& dict,
-                const fvMesh& mesh,
                 const combustionModel& combModel
             ),
-            (modelType, dict, mesh, combModel)
+            (modelType, dict, combModel)
         );
 
 
@@ -127,7 +141,6 @@ public:
         (
             const word& modelType,
             const dictionary& dict,
-            const fvMesh& mesh,
             const combustionModel& combModel
         );
 
@@ -140,7 +153,6 @@ public:
         static autoPtr<reactionRate> New
         (
             const dictionary& dict,
-            const fvMesh& mesh,
             const combustionModel& combModel
         );
 

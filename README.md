@@ -14,7 +14,7 @@ Library needs to be included in controlDict:
 ```C
 libs
 (
-  "flameFoam-12.1.0.so"
+  "flameFoam-12.2.0.so"
 );
 ```
 

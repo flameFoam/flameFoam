@@ -1,25 +1,25 @@
 /*---------------------------------------------------------------------------*\
-  =========                 |
-  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Copyright (C) 2011-2023 OpenFOAM Foundation
-     \\/     M anipulation  |
--------------------------------------------------------------------------------
-License
-    This file is derivative work of OpenFOAM.
 
-    OpenFOAM is free software: you can redistribute it and/or modify it
+ flameFoam
+ Copyright (C) 2021-2024 Lithuanian Energy Institute
+
+ -------------------------------------------------------------------------------
+License
+    This file is part of flameFoam, derivative work of OpenFOAM.
+
+    flameFoam is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    flameFoam is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
+    <http://www.gnu.org/licenses/> for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+Disclaimer
+    flameFoam is not approved or endorsed by neither the OpenFOAM Foundation
+    Limited nor OpenCFD Limited.
 
 \*---------------------------------------------------------------------------*/
 
@@ -49,11 +49,10 @@ Foam::reactionRateModels::ETFC::ETFC
 (
     const word modelType,
     const dictionary& dict,
-    const fvMesh& mesh,
     const combustionModel& combModel
 )
 :
-    reactionRate(modelType, dict, mesh, combModel),
+    reactionRate(modelType, dict, combModel),
     turbulentCorrelation_(
         turbulentBurningVelocity::New
         (
@@ -70,7 +69,7 @@ Foam::reactionRateModels::ETFC::ETFC
             mesh_.time().name(),
             mesh_,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            debug_ ? IOobject::AUTO_WRITE : IOobject::NO_WRITE
         ),
         mesh_,
         dimensionedScalar("Dt_inf", dimKinematicViscosity, Zero)
@@ -83,7 +82,7 @@ Foam::reactionRateModels::ETFC::ETFC
             mesh_.time().name(),
             mesh_,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            debugFields_ ? IOobject::AUTO_WRITE : IOobject::NO_WRITE
         ),
         mesh_,
         dimensionedScalar("DEffByRho", dimKinematicViscosity, Zero)
@@ -96,7 +95,7 @@ Foam::reactionRateModels::ETFC::ETFC
             mesh_.time().name(),
             mesh_,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            debug_ ? IOobject::AUTO_WRITE : IOobject::NO_WRITE
         ),
         mesh_,
         dimensionedScalar("TauByT", dimless, Zero)
@@ -109,7 +108,7 @@ Foam::reactionRateModels::ETFC::ETFC
             mesh_.time().name(),
             mesh_,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            debug_ ? IOobject::AUTO_WRITE : IOobject::NO_WRITE
         ),
         mesh_,
         dimensionedScalar("expFactor", dimless, Zero)
@@ -122,7 +121,7 @@ Foam::reactionRateModels::ETFC::ETFC
             mesh_.time().name(),
             mesh_,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            debugFields_ ? IOobject::AUTO_WRITE : IOobject::NO_WRITE
         ),
         mesh_,
         dimensionedScalar("cLam", dimDensity/dimTime, Zero)
@@ -136,8 +135,8 @@ Foam::reactionRateModels::ETFC::ETFC
         IOobject
         (
             "thermophysicalTransport",
-            mesh.time().constant(),
-            mesh,
+            mesh_.time().constant(),
+            mesh_,
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
