@@ -29,10 +29,11 @@ Preparation in progress, please contact through e-mail
 - Initial co-developer: Justina Jaseliūnaitė, 2019 - 2022
 
 ## Publications
-- General paper on the initial version (Elsevier paywall):
+- General paper on the initial version:
   - flameFoam: An open source CFD solver for turbulent premixed combustion https://www.sciencedirect.com/science/article/pii/S0029549321003137
-- Presentation of the deep neural network developed for the estimation of laminar burning velocity (Open access):
-  - Development of a CFD-Suitable Deep Neural Network Model for Laminar Burning Velocity https://www.mdpi.com/2076-3417/12/15/7460
-- Experiment simulations (Open access):
+- Experiment simulations:
+  - The role of CFD combustion modelling in hydrogen safety management — IX: Validation of ETFC model implementation in flameFoam for large-scale hydrogen-air-steam deflagration https://www.sciencedirect.com/science/article/abs/pii/S0029549324008379
   - Simulation of Hydrogen-Air-Diluents Mixture Combustion in an Acceleration Tube with FlameFoam Solver https://www.mdpi.com/1996-1073/14/17/5504
   - RANS- and TFC-Based Simulation of Turbulent Combustion in a Small-Scale Venting Chamber https://www.mdpi.com/1996-1073/14/18/5710
+- Presentation of the deep neural network developed for the estimation of laminar burning velocity:
+  - Development of a CFD-Suitable Deep Neural Network Model for Laminar Burning Velocity https://www.mdpi.com/2076-3417/12/15/7460
