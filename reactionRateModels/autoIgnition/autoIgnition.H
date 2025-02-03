@@ -39,13 +39,11 @@ SourceFiles
 #include "dictionary.H"
 #include "autoPtr.H"
 #include "combustionModel.H"
+#include "DDT.H"
+#include "runTimeSelectionTables.H"
 
 namespace Foam
 {
-namespace reactionRateModels
-{
-
-class DDT;  // Forward declaration
 
 /*---------------------------------------------------------------------------*\
                            Class autoIgnition Declaration
@@ -61,6 +59,16 @@ class autoIgnition
 
 public:
     TypeName("autoIgnition");
+
+    // Declare run-time constructor selection table
+    declareRunTimeSelectionTable
+    (
+        autoPtr,
+        autoIgnition,
+        dictionary,
+        (const DDT& ddt, const dictionary& dict),
+        (ddt, dict)
+    );
 
     // Constructors
 
@@ -89,8 +97,6 @@ public:
         return autoPtr<autoIgnition>(new autoIgnition(ddt, dict));
     }
 };
-
-} // End namespace reactionRateModels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

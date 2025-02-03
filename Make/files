@@ -21,7 +21,7 @@ reactionRateModels/ETFC/ETFC.C
 reactionRateModels/FSD/FSD.C
 reactionRateModels/DDT/DDT.C
 reactionRateModels/laminarBurningVelocityModels/ANN/ANN.C
-reactionRateModels/laminarBurningVelocityModels/autoIgnition/autoIgnition.C
+reactionRateModels/autoIgnition/autoIgnition.C
 flameFoam.C
 
 LIB = $(FOAM_USER_LIBBIN)/flameFoam-12.2.0-DDT

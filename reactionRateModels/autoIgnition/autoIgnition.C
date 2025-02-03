@@ -23,12 +23,22 @@ Disclaimer
 
 \*---------------------------------------------------------------------------*/
 
+
+
 #include "autoIgnition.H"
-#include "DDT.H"
+#include "addToRunTimeSelectionTable.H"
+
+//************************************* Static Data Members **************************************//
+
+namespace Foam
+{
+    defineTypeNameAndDebug(autoIgnition, 0);
+    defineRunTimeSelectionTable(autoIgnition, dictionary);
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::reactionRateModels::autoIgnition::autoIgnition
+Foam::autoIgnition::autoIgnition
 (
     const DDT& ddt,
     const dictionary& dict
@@ -42,13 +52,13 @@ Foam::reactionRateModels::autoIgnition::autoIgnition
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::reactionRateModels::autoIgnition::~autoIgnition()
+Foam::autoIgnition::~autoIgnition()
 {}
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 Foam::scalar
-Foam::reactionRateModels::autoIgnition::tau() const
+Foam::autoIgnition::tau() const
 {
     return 0.0;
 }
