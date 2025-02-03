@@ -23,60 +23,47 @@ Disclaimer
 
 \*---------------------------------------------------------------------------*/
 
-
-
 #include "autoIgnition.H"
 
-// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-namespace Foam
-{
-namespace reactionRateModels
-{
-    defineTypeNameAndDebug(autoIgnition, 0);
-    defineRunTimeSelectionTable
-    (
-        autoIgnition,
-        dictionary
-    );
-}
-}
-
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-
-Foam::reactionRateModels::autoIgnition::autoIgnition
+Foam::autoPtr<Foam::reactionRateModels::autoIgnition> 
+Foam::reactionRateModels::autoIgnition::New
 (
-    const word& modelType,
     const reactionRate& reactRate,
     const dictionary& dict
 )
-:   
-
-    reactionRate_(reactRate),
-    coeffDict_(dict),
-    mesh_(reactionRate_.mesh()),
-    combModel_(reactionRate_.combModel()),
-    tau_
-    (
-        IOobject
-        (
-            "tau",
-            mesh_.time().name(),
-            mesh_,
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh_,
-        dimensionedScalar("tau", dimTime, 0.0)
-    ),
-    debug_(coeffDict_.lookupOrDefault("debug", false))
 {
-    Info << "flameFoam autoIgnition object initialized" << endl;
+    word autoIgnitionType
+    (
+        dict.lookup("autoIgnition")
+    );
+
+    Info<< "Selecting auto-ignition model "
+        << autoIgnitionType << endl;
+
+    dictionaryConstructorTable::iterator cstrIter =
+        dictionaryConstructorTablePtr_->find(autoIgnitionType);
+
+    if (cstrIter == dictionaryConstructorTablePtr_->end())
+    {
+        FatalIOErrorInFunction
+        (
+            dict
+        )   << "Unknown auto-ignition model "
+            << autoIgnitionType << endl << endl
+            << "Valid auto-ignition models are :" << endl
+            << dictionaryConstructorTablePtr_->toc()
+            << exit(FatalIOError);
+    }
+
+    const label tempOpen = autoIgnitionType.find('<');
+
+    const word className = autoIgnitionType(0, tempOpen);
+
+    return autoPtr<autoIgnition>
+        (cstrIter()(className, reactRate, dict));
 }
 
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::reactionRateModels::autoIgnition::~autoIgnition()
-{}
-
-// ************************************************************************* // 
+// ************************************************************************* //

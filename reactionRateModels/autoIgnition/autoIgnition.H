@@ -35,29 +35,48 @@ SourceFiles
 #ifndef autoIgnition_H
 #define autoIgnition_H
 
-#include "volFields.H"
+#include "runTimeSelectionTables.H"
 #include "dictionary.H"
 #include "autoPtr.H"
+#include "volFields.H"
 #include "combustionModel.H"
-#include "DDT.H"
-#include "runTimeSelectionTables.H"
+#include "fvmSup.H"
+#include "infoPass.H"
+#include "reactionRate.H"
 
 namespace Foam
 {
 
+namespace reactionRateModels
+{
 /*---------------------------------------------------------------------------*\
                            Class autoIgnition Declaration
 \*---------------------------------------------------------------------------*/
 
 class autoIgnition
+:
+    public infoPass
 {
-    // Private data
-    scalar Tref_;
-    scalar pref_;
-    scalar Ea_;
-    scalar A_;
+protected:
+    // Protected data
+    const reactionRate& reactionRate_;
+    
+    //- Dictionary
+    dictionary coeffDict_;
+
+    //- Mesh reference
+    const fvMesh& mesh_;
+
+    //- Combustion model owner
+    const combustionModel& combModel_;
+
+    bool debug_;
+
+    //- Auto-ignition delay time field
+    volScalarField tau_;
 
 public:
+    //- Runtime type information
     TypeName("autoIgnition");
 
     // Declare run-time constructor selection table
@@ -66,39 +85,50 @@ public:
         autoPtr,
         autoIgnition,
         dictionary,
-        (const DDT& ddt, const dictionary& dict),
-        (ddt, dict)
+        (
+            const word modelType,
+            const reactionRate& reactRate,
+            const dictionary& dict
+        ),
+        (modelType, reactRate, dict)
     );
 
     // Constructors
+    autoIgnition
+    (
+        const word& modelType,
+        const reactionRate& reactRate,
+        const dictionary& dict
+    );
 
-        //- Construct from dictionary
-        autoIgnition
-        (
-            const DDT& ddt,
-            const dictionary& dict
-        );
+    //- Disallow default bitwise copy construction
+    autoIgnition(const autoIgnition&) = delete;
 
-    //- Destructor
+    // Selector
+    static autoPtr<autoIgnition> New
+    (
+        const reactionRate& reactRate,
+        const dictionary& dict
+    );
+
+    // Destructor
     virtual ~autoIgnition();
 
     // Member Functions
-
-        //- Return the auto-ignition delay time
-        scalar tau() const;
-        virtual void correct() {}
-
-    static autoPtr<autoIgnition> New
-    (
-        const DDT& ddt,
-        const dictionary& dict
-    )
+    const volScalarField& tau() const
     {
-        return autoPtr<autoIgnition>(new autoIgnition(ddt, dict));
+        return tau_;
     }
-};
-} // End namespace Foam
 
+    virtual void correct() = 0;
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const autoIgnition&) = delete;
+};
+} // End namespace reactionRateModels
+} // End namespace Foam
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #endif
