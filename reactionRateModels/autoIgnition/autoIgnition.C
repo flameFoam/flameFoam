@@ -31,20 +31,18 @@ Disclaimer
 
 namespace Foam
 {
-namespace reactionRateModels
-{
     defineTypeNameAndDebug(autoIgnition, 0);
     defineRunTimeSelectionTable
     (
         autoIgnition,
         dictionary
     );
-}
+
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::reactionRateModels::autoIgnition::autoIgnition
+Foam::autoIgnition::autoIgnition
 (
     const word& modelType,
     const reactionRate& reactRate,
@@ -76,7 +74,7 @@ Foam::reactionRateModels::autoIgnition::autoIgnition
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::reactionRateModels::autoIgnition::~autoIgnition()
+Foam::autoIgnition::~autoIgnition()
 {}
 
 // ************************************************************************* // 

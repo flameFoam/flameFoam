@@ -47,8 +47,6 @@ SourceFiles
 namespace Foam
 {
 
-namespace reactionRateModels
-{
 /*---------------------------------------------------------------------------*\
                            Class autoIgnition Declaration
 \*---------------------------------------------------------------------------*/
@@ -127,7 +125,6 @@ public:
         //- Disallow default bitwise assignment
         void operator=(const autoIgnition&) = delete;
 };
-} // End namespace reactionRateModels
 } // End namespace Foam
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
