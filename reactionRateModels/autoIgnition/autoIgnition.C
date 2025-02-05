@@ -54,6 +54,7 @@ Foam::autoIgnition::autoIgnition
     coeffDict_(dict),
     mesh_(reactionRate_.mesh()),
     combModel_(reactionRate_.combModel()),
+    debug_(coeffDict_.lookupOrDefault("debug", false)),
     tau_
     (
         IOobject
@@ -66,8 +67,7 @@ Foam::autoIgnition::autoIgnition
         ),
         mesh_,
         dimensionedScalar("tau", dimTime, 0.0)
-    ),
-    debug_(coeffDict_.lookupOrDefault("debug", false))
+    )
 {
     Info << "flameFoam autoIgnition object initialized" << endl;
 }
