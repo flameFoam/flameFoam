@@ -27,8 +27,8 @@ Disclaimer
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-Foam::autoPtr<Foam::reactionRateModels::autoIgnition> 
-Foam::reactionRateModels::autoIgnition::New
+Foam::autoPtr<Foam::autoIgnition> 
+Foam::autoIgnition::New
 (
     const reactionRate& reactRate,
     const dictionary& dict
