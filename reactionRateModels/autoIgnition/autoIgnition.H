@@ -29,6 +29,7 @@ Description
 
 SourceFiles
     autoIgnition.C
+    autoIgnitionNew.C
 
 \*---------------------------------------------------------------------------*/
 
@@ -68,7 +69,7 @@ protected:
     //- Combustion model owner
     const combustionModel& combModel_;
 
-    bool debug_;
+    const Switch debug_;
 
     //- Auto-ignition delay time field
     volScalarField tau_;
