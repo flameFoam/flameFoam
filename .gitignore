@@ -1,39 +1,5 @@
-paper1.md
-paper2.md
-
 # OpenFOAM build directories
-linux*
-Darwin*
-LinuxDebug*
-LinuxOptimised*
-platforms/
 lnInclude/
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Build files
-*.o
-*.dep
-*.d
-
-# Backup files
-*~
-*.bak
-*.old
-*.orig
-*.rej
-
-# Logs
-log.*
-*.log
-
-# System-specific files
-.DS_Store
-.vscode/
-*.swp
 
 # Dependencies
 Make/linux*/
