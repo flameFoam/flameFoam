@@ -1,0 +1,6 @@
+# OpenFOAM build directories
+lnInclude/
+
+# Dependencies
+Make/linux*/
+Make/darwin*/

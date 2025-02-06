@@ -48,6 +48,7 @@ SourceFiles
 
 #include "reactionRate.H"
 #include "wrinklingFactor.H"
+#include "autoIgnition.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
