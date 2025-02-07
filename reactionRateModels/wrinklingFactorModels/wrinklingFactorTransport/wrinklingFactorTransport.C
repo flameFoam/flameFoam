@@ -30,6 +30,10 @@ Disclaimer
 #include "fvmSup.H"
 #include "fvmDiv.H"
 #include "fvcDdt.H"
+#include "XiFluid.H"
+#include "fvmDdt.H"
+#include "fvmLaplacian.H"
+
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -55,10 +59,9 @@ Foam::wrinklingFactorModels::wrinklingFactorTransport::wrinklingFactorTransport
     const word modelType,
     const reactionRate& reactRate,
     const dictionary& dict
+    
 ):
     wrinklingFactor(modelType, reactRate, dict),
-    U_(mesh_.lookupObject<volVectorField>("U")),
-    delta_(mesh_.objectRegistry::lookupObject<volScalarField>("delta")),
     laminarCorrelation_(
         laminarBurningVelocity::New
         (
@@ -66,13 +69,39 @@ Foam::wrinklingFactorModels::wrinklingFactorTransport::wrinklingFactorTransport
             combModel_.coeffs()
         )
     ),
-    c2_(0.5),
-    Ck_(1.5),
-    Ck_mult1_(0.245454545454545), // 27/110
-    Ck_mult2_(0.648567745274438), // 4*sqrt(27/110)*18/55
-    n43_(4.0/3.0),
-    pi43_(Foam::pow(Foam::constant::mathematical::pi, n43_)),
-    beta_(0.5)
+       Xi_
+    (
+        IOobject
+        (
+            "Xi", 
+            mesh_.time().name(),
+            mesh_,
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh_,
+        dimensionedScalar("Xi", dimless, Zero)
+    ),
+    SuMin_("SuMin", dimVelocity, dict.lookupOrDefault<scalar>("SuMin", 0.01)),
+    SuMax_("SuMax", dimVelocity, dict.lookupOrDefault<scalar>("SuMax", 4.0)),
+    XiCoef_(dict.lookupOrDefault<scalar>("XiCoef", 0.5)),
+    XiShapeCoef_(dict.lookupOrDefault<scalar>("XiShapeCoef", 0.5)),
+    uPrimeCoef_(dict.lookupOrDefault<scalar>("uPrimeCoef", 1.0)),
+    sigmaExt_("sigmaExt", dimless/dimTime, dict.lookupOrDefault<scalar>("sigmaExt", 500)),
+    Su
+    (
+        IOobject
+        (
+            "Su",
+            mesh_.time().name(),
+            mesh_,
+            IOobject::MUST_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh_
+    ),
+    b_(&combModel_.thermo().Y("b")),
+    debug_(coeffDict_.lookupOrDefault("debug", false))
 {
     appendInfo("\tWrinkling factor estimation method: wrinklingFactorTransport correlation");
 }
@@ -88,15 +117,48 @@ Foam::wrinklingFactorModels::wrinklingFactorTransport::~wrinklingFactorTransport
 
 void Foam::wrinklingFactorModels::wrinklingFactorTransport::correct()
 {
-   volScalarField& Xi(Xi_);
+     if (debug_)
+    {
+        Info << "\t\tCharlette correct:" << endl;
+        Info << "\t\t\tInitial average TBV: "  << average(sTurbulent_).value() << endl;
+    }
+
+    laminarCorrelation_->correct();
+
    //rho
-   //muj
-   //tauEta
-   //XiEqStar
-   //XiEq
-   //DTot = DL + DT
-   //DL
-   //DT
+   const volScalarField epsilon
+    (
+        pow(uPrimeCoef_, 3)*combModel_.turbulence().epsilon()
+    );
+
+    const volScalarField up(uPrimeCoef_*sqrt((2.0/3.0)*combModel_.turbulence().k()));
+    const volScalarField tauEta(sqrt(reactionRate_.muU()/(reactionRate_.rhoU()*epsilon)));
+     const volScalarField Reta
+    (
+        up
+      / (
+            sqrt(epsilon*tauEta)
+          + dimensionedScalar(up.dimensions(), 1e-8)
+        )
+    );
+   const volScalarField DL(reactionRate_.muU()/(reactionRate_.rhoU()*0.7));
+   const volScalarField DT(combModel_.turbulence().nut()/0.7);
+   const volScalarField DTot(DL + DT);
+   const volScalarField XiEqStar
+        (
+            scalar(1.001) + XiCoef_*sqrt(up/(Su + SuMin_))*Reta
+        );
+
+    const volScalarField XiEq
+    (
+        scalar(1.001)
+        + (
+            scalar(1)
+            + (2*XiShapeCoef_)
+            *(scalar(0.5) - min(max(*b_, scalar(0)), scalar(1)))
+        )*(XiEqStar - scalar(1.001))
+    );
+
    const volScalarField Gstar(0.28/tauEta);
    const volScalarField R(Gstar*XiEqStar/(XiEqStar - scalar(1)));
    const volScalarField G(R*(XiEq - scalar(1.001))/XiEq);
@@ -104,20 +166,21 @@ void Foam::wrinklingFactorModels::wrinklingFactorTransport::correct()
     // Create Xi equation
     fvScalarMatrix XiEqn
     (
-        fvm::ddt(rho, Xi)                         
-      + fvm::div(phi*muj, Xi)                     
-      - fvm::laplacian(rho*DTot, Xi)     
+        fvm::ddt(reactionRate_.rhoU(), Xi_)                         
+    //   + fvm::div(reactionRate_.rhoU(), Xi_)  //this is commented out because without Uj, the velocity, it's just a copy of the first line                   
+      - fvm::laplacian(reactionRate_.rhoU()*DTot, Xi_)     
      ==
-        rho*Gstar*Xi                     
-      - rho*R*(Xi-scalar(1))                                   
+        reactionRate_.rhoU()*Gstar*Xi_                     
+      - reactionRate_.rhoU()*R*(Xi_-scalar(1))                                   
     );
 
     // Solve equation
     XiEqn.relax();
     XiEqn.solve();
 
-    // Bound Xi to be >= 1
+    // Bound Xi_ to be >= 1
     Xi_.max(1.0);
+    sTurbulent_ = Xi_*laminarCorrelation_->burningVelocity();
 
     if (debug_)
     {

@@ -11,9 +11,21 @@ EXE_INC = \
     -I$(LIB_SRC)/physicalProperties/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/multicomponentThermo/lnInclude \
-    -I$(LIB_SRC)/thermophysicalModels/specie/lnInclude
+    -I$(LIB_SRC)/thermophysicalModels/specie/lnInclude \
+    -I$(FOAM_MODULES)/XiFluid/lnInclude \
+    -I$(FOAM_MODULES)/isothermalFluid/lnInclude \
+    -I$(FOAM_MODULES)/fluidSolver/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I$(LIB_SRC)/thermophysicalModels/laminarFlameSpeed/lnInclude \
+    -I$(LIB_SRC)/thermophysicalModels/ignition/lnInclude
+    
 
 LIB_LIBS = \
     -lcombustionModels \
     -lfluidMulticomponentThermophysicalTransportModels \
-    -lphaseFluidMulticomponentThermophysicalTransportModels
+    -lphaseFluidMulticomponentThermophysicalTransportModels \
+    -lmeshTools \
+    -llaminarFlameSpeedModels \
+    -lfluidSolver \
+    -lisothermalFluid \
+    -lXiIgnition

@@ -55,13 +55,38 @@ class wrinklingFactorTransport
 {
     // Private Data
 
-        
         autoPtr<laminarBurningVelocity> laminarCorrelation_;
 
         //subgrid scale flame wrinkling factor
         volScalarField Xi_;
 
+        //- Minimum laminar flame speed
+        dimensionedScalar SuMin_;
         
+        //- Maximum laminar flame speed
+        dimensionedScalar SuMax_;
+        
+        //- Xi model coefficient
+        scalar XiCoef_;
+        
+        //- Xi shape coefficient
+        scalar XiShapeCoef_;
+        
+        //- Turbulence coefficient
+        scalar uPrimeCoef_;
+        
+        //- Strain rate coefficient
+        dimensionedScalar sigmaExt_;
+
+        //- Laminar burning velocity field
+        volScalarField Su;
+        
+        //- Progress variable field (usually from composition)
+        const volScalarField* b_;
+
+
+        //- Debug flag
+        const Switch debug_;
 
 public:
 
