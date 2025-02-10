@@ -101,7 +101,9 @@ Foam::wrinklingFactorModels::wrinklingFactorTransport::wrinklingFactorTransport
     ),
     b_(&combModel_.thermo().Y("b")),
     Le_("Le", dimless, this->coeffDict_),
+    // TODO: ReT is set to 1 for now, needs to be implemented
     ReT_("ReT", dimless, this->coeffDict_.lookupOrDefault<scalar>("ReT", 1.0)),
+    // TODO: p and is set to 101325.0 for now, needs to be implemented
     p_("p", dimPressure, this->coeffDict_.lookupOrDefault<scalar>("p", 101325.0)),
     p0_("p0", dimPressure, this->coeffDict_.lookupOrDefault<scalar>("p0", 101325.0)),
     debug_(coeffDict_.lookupOrDefault("debug", false))
@@ -128,7 +130,6 @@ void Foam::wrinklingFactorModels::wrinklingFactorTransport::correct()
 
     laminarCorrelation_->correct();
 
-   //rho
    const volScalarField epsilon
     (
         pow(uPrimeCoef_, 3)*combModel_.turbulence().epsilon()
@@ -152,13 +153,11 @@ void Foam::wrinklingFactorModels::wrinklingFactorTransport::correct()
             scalar(1.001) + XiCoef_*sqrt(up/(Su + SuMin_))*Reta
         );
     const volScalarField uPrime(pow(2*combModel_.turbulence().k()/3, 0.5));
-    // TODO: ReT is set to 1 for now, needs to be implemented
-
-
+    
     const volScalarField XiEq
     (
         scalar(1) 
-        + 0.46/Le_*pow(ReT_, 0.25)*pow(uPrime/(Su + SuMin_), 0.3)*pow(p_/p0_, 0.2)
+        + 0.46/Le_*pow(ReT_, 0.25)*pow(uPrime/laminarCorrelation_->burningVelocity(), 0.3)*pow(p_/p0_, 0.2)
     );
 
    const volScalarField Gstar(0.28/tauEta);
