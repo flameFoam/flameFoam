@@ -30,7 +30,6 @@ Disclaimer
 #include "fvmSup.H"
 #include "fvmDiv.H"
 #include "fvcDdt.H"
-#include "XiFluid.H"
 #include "fvmDdt.H"
 #include "fvmLaplacian.H"
 
@@ -101,6 +100,10 @@ Foam::wrinklingFactorModels::wrinklingFactorTransport::wrinklingFactorTransport
         mesh_
     ),
     b_(&combModel_.thermo().Y("b")),
+    Le_("Le", dimless, this->coeffDict_),
+    ReT_("ReT", dimless, this->coeffDict_.lookupOrDefault<scalar>("ReT", 1.0)),
+    p_("p", dimPressure, this->coeffDict_.lookupOrDefault<scalar>("p", 101325.0)),
+    p0_("p0", dimPressure, this->coeffDict_.lookupOrDefault<scalar>("p0", 101325.0)),
     debug_(coeffDict_.lookupOrDefault("debug", false))
 {
     appendInfo("\tWrinkling factor estimation method: wrinklingFactorTransport correlation");
@@ -148,15 +151,14 @@ void Foam::wrinklingFactorModels::wrinklingFactorTransport::correct()
         (
             scalar(1.001) + XiCoef_*sqrt(up/(Su + SuMin_))*Reta
         );
+    const volScalarField uPrime(pow(2*combModel_.turbulence().k()/3, 0.5));
+    // TODO: ReT is set to 1 for now, needs to be implemented
+
 
     const volScalarField XiEq
     (
-        scalar(1.001)
-        + (
-            scalar(1)
-            + (2*XiShapeCoef_)
-            *(scalar(0.5) - min(max(*b_, scalar(0)), scalar(1)))
-        )*(XiEqStar - scalar(1.001))
+        scalar(1) 
+        + 0.46/Le_*pow(ReT_, 0.25)*pow(uPrime/(Su + SuMin_), 0.3)*pow(p_/p0_, 0.2)
     );
 
    const volScalarField Gstar(0.28/tauEta);
@@ -167,7 +169,7 @@ void Foam::wrinklingFactorModels::wrinklingFactorTransport::correct()
     fvScalarMatrix XiEqn
     (
         fvm::ddt(reactionRate_.rhoU(), Xi_)                         
-    //   + fvm::div(reactionRate_.rhoU(), Xi_)  //this is commented out because without Uj, the velocity, it's just a copy of the first line                   
+    //   + fvm::div(reactionRate_.rhoU()*uPrime, Xi_)  
       - fvm::laplacian(reactionRate_.rhoU()*DTot, Xi_)     
      ==
         reactionRate_.rhoU()*Gstar*Xi_                     

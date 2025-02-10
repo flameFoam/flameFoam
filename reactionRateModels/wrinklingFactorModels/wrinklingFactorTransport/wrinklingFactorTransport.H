@@ -35,6 +35,7 @@ SourceFiles
 #ifndef wrinklingFactorTransport_H
 #define wrinklingFactorTransport_H
 
+#include "reactionRate.H"
 #include "wrinklingFactor.H"
 #include "laminarBurningVelocity.H"
 
@@ -84,6 +85,17 @@ class wrinklingFactorTransport
         //- Progress variable field (usually from composition)
         const volScalarField* b_;
 
+        //- Le
+        dimensionedScalar Le_;
+
+        //- ReT
+        dimensionedScalar ReT_;
+
+        //- Pressure
+        dimensionedScalar p_;
+
+        //- Pressure
+        dimensionedScalar p0_;
 
         //- Debug flag
         const Switch debug_;
