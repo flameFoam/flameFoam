@@ -58,13 +58,6 @@ class TFC
         //- Auto pointer to reaction rate model
         autoPtr<turbulentBurningVelocity> turbulentCorrelation_;
 
-        //- Proportionality constant for time scale in the TFC Eq.
-        // scalar C_;
-
-        //- Proportionality constant for sub-grid strain
-        // scalar alpha_;
-
-
 public:
 
     //- Runtime type information
@@ -96,9 +89,6 @@ public:
         virtual void correct();
 
     // IO
-
-        //- Update properties from given dictionary
-        // virtual bool read(const dictionary& dictProperties);
 
         //- Return infoString_
         virtual char const *getInfo();

@@ -60,11 +60,6 @@ Foam::reactionRateModels::TFC::TFC
             dict
         )
     )
-    // C_(dict.optionalSubDict(typeName + "Coeffs").lookup<scalar>("C")),
-    // alpha_
-    // (
-    //     dict.optionalSubDict(typeName + "Coeffs").lookup<scalar>("alpha")
-    // )
 {
     appendInfo("Reaction rate model: TFC");
 }
@@ -105,27 +100,5 @@ char const *Foam::reactionRateModels::TFC::getInfo()
     return infoString_.c_str();
 }
 
-
-// bool  Foam::reactionRateModels::TFC::read
-// (
-//     const dictionary& dict
-// )
-// {
-//     if (reactionRateFlameArea::read(dict))
-//     {
-//         coeffDict_ = dict.optionalSubDict(typeName + "Coeffs");
-//         coeffDict_.lookup("C") >> C_;
-//         coeffDict_.lookup("alpha") >> alpha_;
-//         correlation_.read
-//         (
-//             coeffDict_.subDict(fuel_)
-//         );
-//         return true;
-//     }
-//     else
-//     {
-//         return false;
-//     }
-// }
 
 // ************************************************************************* //

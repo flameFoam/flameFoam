@@ -167,6 +167,7 @@ void Foam::reactionRateModels::ETFC::correct
 
     turbulentCorrelation_->correct();
 
+    // TODO: should be done by taking thermophysicalTransport.DEff()
     Dt_inf_ = combModel_.turbulence().nut()/Sct_; // TODO: check against dev2-efix-ZimontLe-no0-fix2/
 
     TauByT_ = max(1.5* Dt_inf_/(combModel_.turbulence().k()*mesh_.time()), SMALL);  // TODO: check against dev2-efix-ZimontLe-no0-fix2/

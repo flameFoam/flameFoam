@@ -138,9 +138,6 @@ public:
 
     // Member Functions
 
-        // Sanitized epsilon value for use in divisions
-        Foam::tmp<Foam::volScalarField> saneEpsilon();
-
         //- Access functions
 
             //- Return turbulent burning velocity
@@ -148,6 +145,7 @@ public:
             {
                 return sTurbulent_;
             }
+
 
             //- Return laminar burning velocity
             const volScalarField& getLaminarBurningVelocity();

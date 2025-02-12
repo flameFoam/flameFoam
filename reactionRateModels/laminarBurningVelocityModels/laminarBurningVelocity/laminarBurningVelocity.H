@@ -147,18 +147,6 @@ public:
         //- Correct LBV
         virtual void correct() = 0;
 
-        // virtual void correct(
-        //     const volScalarField& k,
-        //     const volScalarField& epsilon,
-        //     const volScalarField& rho,
-        //     const volScalarField& mu
-        // ) = 0;
-
-        // NEAIŠKU AR REIKIA, GAL PRAVERS
-        //- Update from dictionary
-        // virtual bool read(const dictionary& dictProperties);
-
-
     // Member Operators
 
          //- Disallow default bitwise assignment

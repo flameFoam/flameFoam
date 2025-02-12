@@ -107,6 +107,12 @@ Foam::reactionRate::~reactionRate()
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
+Foam::reactionRate::saneEpsilon() const
+{
+    return max(combModel_.turbulence().epsilon(), dimensionedScalar(dimVelocity*dimAcceleration, SMALL));
+}
+
+Foam::tmp<Foam::volScalarField>
 Foam::reactionRate::TU() const
 {
     if (Tu_)
@@ -131,6 +137,11 @@ Foam::reactionRate::muU() const
     return combModel_.thermo().mui(yIndex_, p_, TU());
 }
 
+Foam::tmp<Foam::volScalarField>
+Foam::reactionRate::nuU() const
+{
+    return combModel_.thermo().mui(yIndex_, p_, TU())/rhoU();
+}
 
 Foam::tmp<Foam::volScalarField::Internal>
 Foam::reactionRate::R(const label speciei) const

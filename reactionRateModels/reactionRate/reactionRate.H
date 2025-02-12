@@ -167,11 +167,14 @@ public:
         //- Correct progress variable source
         virtual void correct() = 0;
 
+        // Sanitized epsilon value for use in divisions
+        Foam::tmp<Foam::volScalarField> saneEpsilon() const;
 
-        //- Access functions
+        //- Unburned mixture property functions
         Foam::tmp<Foam::volScalarField> TU() const;
         Foam::tmp<Foam::volScalarField> rhoU() const;
         Foam::tmp<Foam::volScalarField> muU() const;
+        Foam::tmp<Foam::volScalarField> nuU() const;
 
         inline const fvMesh& mesh() const
         {

@@ -25,7 +25,7 @@ Disclaimer
 
 #include "transport.H"
 #include "addToRunTimeSelectionTable.H"
-#include "fvmDdt.H"
+#include "fvmDiv.H"
 #include "fvmLaplacian.H"
 
 
@@ -56,7 +56,8 @@ Foam::wrinklingFactorModels::transport::transport
 
 ):
     wrinklingFactor(modelType, reactRate, dict),
-    laminarCorrelation_(
+    laminarCorrelation_
+    (
         laminarBurningVelocity::New
         (
             reactRate,
@@ -78,18 +79,31 @@ Foam::wrinklingFactorModels::transport::transport
         dimensionedScalar("Xi", dimless, Zero)
     ),
 
-    XiCoef_(dict.lookupOrDefault<scalar>("XiCoef", 0.5)),
-    XiShapeCoef_(dict.lookupOrDefault<scalar>("XiShapeCoef", 0.5)),
-    uPrimeCoef_(dict.lookupOrDefault<scalar>("uPrimeCoef", 1.0)),
     sigmaExt_("sigmaExt", dimless/dimTime, dict.lookupOrDefault<scalar>("sigmaExt", 500)),
     Le_("Le", dimless, this->coeffDict_),
     // TODO: ReT is set to 1 for now, needs to be implemented
     ReT_("ReT", dimless, this->coeffDict_.lookupOrDefault<scalar>("ReT", 1.0)),
+    rho_(combModel_.rho()),
+    phi_(mesh_.lookupObject<surfaceScalarField>("phi")),
     p_(mesh_.lookupObject<volScalarField>("p")),
     p0_("p0", dimPressure, this->coeffDict_.lookupOrDefault<scalar>("p0", 101325.0)),
-    debug_(coeffDict_.lookupOrDefault("debug", false))
+    debug_(coeffDict_.lookupOrDefault("debug", false)),
+    Sct_("Sct", dimless, 0)
 {
-    appendInfo("\tWrinkling factor estimation method: transport correlation");
+    IOdictionary thermophysicalTransportDict
+    (
+        IOobject
+        (
+            "thermophysicalTransport",
+            mesh_.time().constant(),
+            mesh_,
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        )
+    );
+    Sct_ = thermophysicalTransportDict.lookup<scalar>("Sct");
+
+    appendInfo("\tWrinkling factor estimation method: transport equation");
 }
 
 
@@ -103,34 +117,21 @@ Foam::wrinklingFactorModels::transport::~transport()
 
 void Foam::wrinklingFactorModels::transport::correct()
 {
-     if (debug_)
+    if (debug_)
     {
-        Info << "\t\tCharlette correct:" << endl;
+        Info << "\t\ttransport correct:" << endl;
         Info << "\t\t\tInitial average TBV: "  << average(sTurbulent_).value() << endl;
     }
 
     laminarCorrelation_->correct();
 
-   const volScalarField epsilon
-    (
-        pow(uPrimeCoef_, 3)*combModel_.turbulence().epsilon()
-    );
+    const volScalarField uPrime(sqrt((2.0/3.0)*combModel_.turbulence().k()));
+    const volScalarField tauEta(sqrt(reactionRate_.nuU()/reactionRate_.saneEpsilon()));
 
-    const volScalarField up(uPrimeCoef_*sqrt((2.0/3.0)*combModel_.turbulence().k()));
-    const volScalarField tauEta(sqrt(reactionRate_.muU()/(reactionRate_.rhoU()*epsilon)));
-     const volScalarField Reta
-    (
-        up
-      / (
-            sqrt(epsilon*tauEta)
-          + dimensionedScalar(up.dimensions(), 1e-8)
-        )
-    );
-   const volScalarField DL(reactionRate_.muU()/(reactionRate_.rhoU()*0.7));
-   const volScalarField DT(combModel_.turbulence().nut()/0.7);
-   const volScalarField DTot(DL + DT);
-
-    const volScalarField uPrime(pow(2*combModel_.turbulence().k()/3, 0.5));
+    // TODO: should be done by taking thermophysicalTransport.DEff()
+    const volScalarField DL(reactionRate_.muU()/(reactionRate_.rhoU()*0.7));
+    const volScalarField DT(combModel_.turbulence().nut()/Sct_);
+    const volScalarField DTot(DL + DT);
 
     const volScalarField XiEq
     (
@@ -144,12 +145,12 @@ void Foam::wrinklingFactorModels::transport::correct()
     // Create Xi equation
     fvScalarMatrix XiEqn
     (
-        fvm::ddt(reactionRate_.rhoU(), Xi_)
-    //   + fvm::div(reactionRate_.rhoU()*uPrime, Xi_)
-      - fvm::laplacian(reactionRate_.rhoU()*DTot, Xi_)
+        fvm::ddt(rho_, Xi_)
+      + fvm::div(phi_, Xi_)  // TODO: Xi flux?
+      - fvm::laplacian(rho_*DTot, Xi_)
      ==
-        reactionRate_.rhoU()*Gchi*Xi_
-      - reactionRate_.rhoU()*R*(Xi_-scalar(1))
+        rho_*Gchi*Xi_
+      - rho_*R*(Xi_-scalar(1))
     );
 
     // Solve equation

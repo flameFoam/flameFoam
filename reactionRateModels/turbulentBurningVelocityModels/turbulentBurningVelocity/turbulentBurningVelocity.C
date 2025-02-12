@@ -62,7 +62,8 @@ Foam::turbulentBurningVelocity::turbulentBurningVelocity
         mesh_,
         dimensionedScalar("TBV", dimVelocity, Zero)
     ),
-    laminarCorrelation_(
+    laminarCorrelation_
+    (
         laminarBurningVelocity::New
         (
             reactRate,
@@ -79,27 +80,11 @@ Foam::turbulentBurningVelocity::turbulentBurningVelocity
 Foam::turbulentBurningVelocity::~turbulentBurningVelocity()
 {}
 
-
-// NEAIŠKU AR REIKIA, GAL PRAVERS
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-Foam::tmp<Foam::volScalarField> Foam::turbulentBurningVelocity::saneEpsilon()
-{
-    return max(combModel_.turbulence().epsilon(), dimensionedScalar(dimVelocity*dimAcceleration, SMALL));
-}
-
 const Foam::volScalarField& Foam::turbulentBurningVelocity::getLaminarBurningVelocity()
 {
     return laminarCorrelation_().burningVelocity();
 }
-
-
-
-// bool Foam::turbulentBurningVelocity::read(const dictionary& dict)
-// {
-//     dict.lookup("fuel") >> fuel_;
-//
-//     return true;
-// }
 
 
 // ************************************************************************* //
