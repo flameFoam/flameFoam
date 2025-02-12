@@ -23,7 +23,7 @@ Disclaimer
 
 \*---------------------------------------------------------------------------*/
 
-#include "transport.H"
+#include "wFTransport.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fvmDiv.H"
 #include "fvmLaplacian.H"
@@ -35,11 +35,11 @@ namespace Foam
 {
 namespace wrinklingFactorModels
 {
-    defineTypeNameAndDebug(transport, 0);
+    defineTypeNameAndDebug(wFTransport, 0);
     addToRunTimeSelectionTable
     (
         wrinklingFactor,
-        transport,
+        wFTransport,
         dictionary
     );
 }
@@ -48,7 +48,7 @@ namespace wrinklingFactorModels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::wrinklingFactorModels::transport::transport
+Foam::wrinklingFactorModels::wFTransport::wFTransport
 (
     const word modelType,
     const reactionRate& reactRate,
@@ -89,36 +89,36 @@ Foam::wrinklingFactorModels::transport::transport
     debug_(coeffDict_.lookupOrDefault("debug", false)),
     Sct_("Sct", dimless, 0)
 {
-    IOdictionary thermophysicalTransportDict
+    IOdictionary thermophysicalwFTransportDict
     (
         IOobject
         (
-            "thermophysicalTransport",
+            "thermophysicalwFTransport",
             mesh_.time().constant(),
             mesh_,
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
     );
-    Sct_ = thermophysicalTransportDict.lookup<scalar>("Sct");
+    Sct_ = thermophysicalwFTransportDict.lookup<scalar>("Sct");
 
-    appendInfo("\tWrinkling factor estimation method: transport equation");
+    appendInfo("\tWrinkling factor estimation method: wFTransport equation");
 }
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::wrinklingFactorModels::transport::~transport()
+Foam::wrinklingFactorModels::wFTransport::~wFTransport()
 {}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-void Foam::wrinklingFactorModels::transport::correct()
+void Foam::wrinklingFactorModels::wFTransport::correct()
 {
     if (debug_)
     {
-        Info << "\t\ttransport correct:" << endl;
+        Info << "\t\twFTransport correct:" << endl;
         Info << "\t\t\tInitial average TBV: "  << average(sTurbulent_).value() << endl;
     }
 
@@ -127,7 +127,7 @@ void Foam::wrinklingFactorModels::transport::correct()
     const volScalarField uPrime(sqrt((2.0/3.0)*combModel_.turbulence().k()));
     const volScalarField tauEta(sqrt(reactionRate_.nuU()/reactionRate_.saneEpsilon()));
 
-    // TODO: should be done by taking thermophysicalTransport.DEff()
+    // TODO: should be done by taking thermophysicalwFTransport.DEff()
     const volScalarField DL(reactionRate_.muU()/(reactionRate_.rhoU()*0.7));
     const volScalarField DT(combModel_.turbulence().nut()/Sct_);
     const volScalarField DTot(DL + DT);
@@ -164,11 +164,11 @@ void Foam::wrinklingFactorModels::transport::correct()
     {
         Info<< "Min/max Xi: " << min(Xi_).value()
             << " " << max(Xi_).value() << endl;
-        Info << "\t\t\ttransport correct finished" << endl;
+        Info << "\t\t\twFTransport correct finished" << endl;
     }
 }
 
-char const *Foam::wrinklingFactorModels::transport::getInfo()
+char const *Foam::wrinklingFactorModels::wFTransport::getInfo()
 {
     infoString_.append(laminarCorrelation_().getInfo());
     laminarCorrelation_().clearInfo();
