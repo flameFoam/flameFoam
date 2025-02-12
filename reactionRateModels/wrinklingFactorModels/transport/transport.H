@@ -61,18 +61,6 @@ class transport
         //subgrid scale flame wrinkling factor
         volScalarField Xi_;
 
-        //- Xi model coefficient
-        scalar XiCoef_;
-
-        //- Xi shape coefficient
-        scalar XiShapeCoef_;
-
-        //- Turbulence coefficient
-        scalar uPrimeCoef_;
-
-        //- Strain rate coefficient
-        dimensionedScalar sigmaExt_;
-
         //- Le
         dimensionedScalar Le_;
 

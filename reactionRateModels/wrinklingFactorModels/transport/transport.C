@@ -79,7 +79,6 @@ Foam::wrinklingFactorModels::transport::transport
         dimensionedScalar("Xi", dimless, Zero)
     ),
 
-    sigmaExt_("sigmaExt", dimless/dimTime, dict.lookupOrDefault<scalar>("sigmaExt", 500)),
     Le_("Le", dimless, this->coeffDict_),
     // TODO: ReT is set to 1 for now, needs to be implemented
     ReT_("ReT", dimless, this->coeffDict_.lookupOrDefault<scalar>("ReT", 1.0)),
