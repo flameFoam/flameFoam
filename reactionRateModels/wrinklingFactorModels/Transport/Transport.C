@@ -1,0 +1,178 @@
+/*---------------------------------------------------------------------------*\
+
+ flameFoam
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
+
+ -------------------------------------------------------------------------------
+License
+    This file is part of flameFoam, derivative work of OpenFOAM.
+
+    flameFoam is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    flameFoam is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    <http://www.gnu.org/licenses/> for more details.
+
+Disclaimer
+    flameFoam is not approved or endorsed by neither the OpenFOAM Foundation
+    Limited nor OpenCFD Limited.
+
+\*---------------------------------------------------------------------------*/
+
+#include "Transport.H"
+#include "addToRunTimeSelectionTable.H"
+#include "fvmDdt.H"
+#include "fvmLaplacian.H"
+
+
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+namespace Foam
+{
+namespace wrinklingFactorModels
+{
+    defineTypeNameAndDebug(Transport, 0);
+    addToRunTimeSelectionTable
+    (
+        wrinklingFactor,
+        Transport,
+        dictionary
+    );
+}
+}
+
+
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+Foam::wrinklingFactorModels::Transport::Transport
+(
+    const word modelType,
+    const reactionRate& reactRate,
+    const dictionary& dict
+    
+):
+    wrinklingFactor(modelType, reactRate, dict),
+    laminarCorrelation_(
+        laminarBurningVelocity::New
+        (
+            reactRate,
+            combModel_.coeffs()
+        )
+    ),
+
+    Xi_
+    (
+        IOobject
+        (
+            "Xi", 
+            mesh_.time().name(),
+            mesh_,
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh_,
+        dimensionedScalar("Xi", dimless, Zero)
+    ),
+
+    XiCoef_(dict.lookupOrDefault<scalar>("XiCoef", 0.5)),
+    XiShapeCoef_(dict.lookupOrDefault<scalar>("XiShapeCoef", 0.5)),
+    uPrimeCoef_(dict.lookupOrDefault<scalar>("uPrimeCoef", 1.0)),
+    sigmaExt_("sigmaExt", dimless/dimTime, dict.lookupOrDefault<scalar>("sigmaExt", 500)),
+    Le_("Le", dimless, this->coeffDict_),
+    // TODO: ReT is set to 1 for now, needs to be implemented
+    ReT_("ReT", dimless, this->coeffDict_.lookupOrDefault<scalar>("ReT", 1.0)),
+    p_(mesh_.lookupObject<volScalarField>("p")),
+    p0_("p0", dimPressure, this->coeffDict_.lookupOrDefault<scalar>("p0", 101325.0)),
+    debug_(coeffDict_.lookupOrDefault("debug", false))
+{
+    appendInfo("\tWrinkling factor estimation method: Transport correlation");
+}
+
+
+// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
+
+Foam::wrinklingFactorModels::Transport::~Transport()
+{}
+
+
+// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+
+void Foam::wrinklingFactorModels::Transport::correct()
+{
+     if (debug_)
+    {
+        Info << "\t\tCharlette correct:" << endl;
+        Info << "\t\t\tInitial average TBV: "  << average(sTurbulent_).value() << endl;
+    }
+
+    laminarCorrelation_->correct();
+
+   const volScalarField epsilon
+    (
+        pow(uPrimeCoef_, 3)*combModel_.turbulence().epsilon()
+    );
+
+    const volScalarField up(uPrimeCoef_*sqrt((2.0/3.0)*combModel_.turbulence().k()));
+    const volScalarField tauEta(sqrt(reactionRate_.muU()/(reactionRate_.rhoU()*epsilon)));
+     const volScalarField Reta
+    (
+        up
+      / (
+            sqrt(epsilon*tauEta)
+          + dimensionedScalar(up.dimensions(), 1e-8)
+        )
+    );
+   const volScalarField DL(reactionRate_.muU()/(reactionRate_.rhoU()*0.7));
+   const volScalarField DT(combModel_.turbulence().nut()/0.7);
+   const volScalarField DTot(DL + DT);
+
+    const volScalarField uPrime(pow(2*combModel_.turbulence().k()/3, 0.5));
+    
+    const volScalarField XiEq
+    (
+        scalar(1) 
+        + 0.46/Le_*pow(ReT_, 0.25)*pow(uPrime/laminarCorrelation_->burningVelocity(), 0.3)*pow(p_/p0_, 0.2)
+    );
+
+   const volScalarField Gchi(0.28/tauEta);
+   const volScalarField R(Gchi*XiEq/(XiEq - scalar(1)));
+
+    // Create Xi equation
+    fvScalarMatrix XiEqn
+    (
+        fvm::ddt(reactionRate_.rhoU(), Xi_)                         
+    //   + fvm::div(reactionRate_.rhoU()*uPrime, Xi_)  
+      - fvm::laplacian(reactionRate_.rhoU()*DTot, Xi_)     
+     ==
+        reactionRate_.rhoU()*Gchi*Xi_                     
+      - reactionRate_.rhoU()*R*(Xi_-scalar(1))                                   
+    );
+
+    // Solve equation
+    XiEqn.relax();
+    XiEqn.solve();
+
+    // Bound Xi_ to be >= 1
+    Xi_.max(1.0);
+    sTurbulent_ = Xi_*laminarCorrelation_->burningVelocity();
+
+    if (debug_)
+    {
+        Info<< "Min/max Xi: " << min(Xi_).value() 
+            << " " << max(Xi_).value() << endl;
+        Info << "\t\t\tTransport correct finished" << endl;
+    }
+}
+
+char const *Foam::wrinklingFactorModels::Transport::getInfo()
+{
+    infoString_.append(laminarCorrelation_().getInfo());
+    laminarCorrelation_().clearInfo();
+    return infoString_.c_str();
+}
+
+// ************************************************************************* //
