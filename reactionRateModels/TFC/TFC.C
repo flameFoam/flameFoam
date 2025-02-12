@@ -59,7 +59,6 @@ Foam::reactionRateModels::TFC::TFC
             *this
         )
     )
-
 {
     appendInfo("Reaction rate model: TFC");
 }

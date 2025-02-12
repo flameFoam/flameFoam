@@ -59,7 +59,8 @@ Foam::turbulentBurningVelocity::turbulentBurningVelocity
         reactionRate_.mesh(),
         dimensionedScalar(dimVelocity, 0)
     ),
-    laminarCorrelation_(
+    laminarCorrelation_
+    (
         laminarBurningVelocity::New
         (
             combustionProperties_.subDict("reactionRate"),
@@ -78,11 +79,6 @@ Foam::turbulentBurningVelocity::~turbulentBurningVelocity()
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-Foam::tmp<Foam::volScalarField> Foam::turbulentBurningVelocity::saneEpsilon()
-{
-    return max(combModel_.turbulence().epsilon(), dimensionedScalar(dimVelocity*dimAcceleration, SMALL));
-}
-
 const Foam::volScalarField& Foam::turbulentBurningVelocity::getLaminarBurningVelocity()
 {
     return laminarCorrelation_().burningVelocity();

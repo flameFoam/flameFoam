@@ -79,6 +79,9 @@ class transport
         //- ReT
         dimensionedScalar ReT_;
 
+        const volScalarField& rho_;
+        const surfaceScalarField& phi_;
+
         //- Pressure
         const volScalarField& p_;
 
@@ -88,6 +91,15 @@ class transport
         //- Debug flag
         const Switch debug_;
 
+
+protected:
+
+    // Protected data
+
+        // Model coefficients
+
+            //- Turbulent Schmidt number []
+            dimensionedScalar Sct_;
 public:
 
     //- Runtime type information
