@@ -22,18 +22,18 @@ Disclaimer
     Limited nor OpenCFD Limited.
 
 Class
-    Foam::wrinklingFactorModels::Transport
+    Foam::wrinklingFactorModels::transport
 
 Description
-    Transport correlation of flame wrinkling factor
+    transport equation for flame wrinkling factor
 
 SourceFiles
-    Transport.C
+    transport.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef Transport_H
-#define Transport_H
+#ifndef transport_H
+#define transport_H
 
 #include "reactionRate.H"
 #include "wrinklingFactor.H"
@@ -47,10 +47,10 @@ namespace wrinklingFactorModels
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class Transport Declaration
+                         Class transport Declaration
 \*---------------------------------------------------------------------------*/
 
-class Transport
+class transport
 :
     public wrinklingFactor
 {
@@ -60,16 +60,16 @@ class Transport
 
         //subgrid scale flame wrinkling factor
         volScalarField Xi_;
-        
+
         //- Xi model coefficient
         scalar XiCoef_;
-        
+
         //- Xi shape coefficient
         scalar XiShapeCoef_;
-        
+
         //- Turbulence coefficient
         scalar uPrimeCoef_;
-        
+
         //- Strain rate coefficient
         dimensionedScalar sigmaExt_;
 
@@ -91,13 +91,13 @@ class Transport
 public:
 
     //- Runtime type information
-    TypeName("Transport");
+    TypeName("transport");
 
 
     // Constructors
 
         //- Construct from dictionary, mesh and combustion model
-        Transport
+        transport
         (
             const word modelType,
             const reactionRate& reactRate,
@@ -105,12 +105,12 @@ public:
         );
 
         //- Disallow default bitwise copy construction
-        Transport(const Transport&) = delete;
+        transport(const transport&) = delete;
 
 
     // Destructor
 
-        virtual ~Transport();
+        virtual ~transport();
 
 
     // Member Functions
@@ -121,7 +121,7 @@ public:
     // Member Operators
 
         //- Disallow default bitwise assignment
-        void operator=(const Transport&) = delete;
+        void operator=(const transport&) = delete;
         //- Return infoString_
         virtual char const *getInfo();
 };

@@ -23,7 +23,7 @@ Disclaimer
 
 \*---------------------------------------------------------------------------*/
 
-#include "Transport.H"
+#include "transport.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fvmDdt.H"
 #include "fvmLaplacian.H"
@@ -35,11 +35,11 @@ namespace Foam
 {
 namespace wrinklingFactorModels
 {
-    defineTypeNameAndDebug(Transport, 0);
+    defineTypeNameAndDebug(transport, 0);
     addToRunTimeSelectionTable
     (
         wrinklingFactor,
-        Transport,
+        transport,
         dictionary
     );
 }
@@ -48,12 +48,12 @@ namespace wrinklingFactorModels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::wrinklingFactorModels::Transport::Transport
+Foam::wrinklingFactorModels::transport::transport
 (
     const word modelType,
     const reactionRate& reactRate,
     const dictionary& dict
-    
+
 ):
     wrinklingFactor(modelType, reactRate, dict),
     laminarCorrelation_(
@@ -68,7 +68,7 @@ Foam::wrinklingFactorModels::Transport::Transport
     (
         IOobject
         (
-            "Xi", 
+            "Xi",
             mesh_.time().name(),
             mesh_,
             IOobject::NO_READ,
@@ -89,19 +89,19 @@ Foam::wrinklingFactorModels::Transport::Transport
     p0_("p0", dimPressure, this->coeffDict_.lookupOrDefault<scalar>("p0", 101325.0)),
     debug_(coeffDict_.lookupOrDefault("debug", false))
 {
-    appendInfo("\tWrinkling factor estimation method: Transport correlation");
+    appendInfo("\tWrinkling factor estimation method: transport correlation");
 }
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::wrinklingFactorModels::Transport::~Transport()
+Foam::wrinklingFactorModels::transport::~transport()
 {}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-void Foam::wrinklingFactorModels::Transport::correct()
+void Foam::wrinklingFactorModels::transport::correct()
 {
      if (debug_)
     {
@@ -131,10 +131,10 @@ void Foam::wrinklingFactorModels::Transport::correct()
    const volScalarField DTot(DL + DT);
 
     const volScalarField uPrime(pow(2*combModel_.turbulence().k()/3, 0.5));
-    
+
     const volScalarField XiEq
     (
-        scalar(1) 
+        scalar(1)
         + 0.46/Le_*pow(ReT_, 0.25)*pow(uPrime/laminarCorrelation_->burningVelocity(), 0.3)*pow(p_/p0_, 0.2)
     );
 
@@ -144,12 +144,12 @@ void Foam::wrinklingFactorModels::Transport::correct()
     // Create Xi equation
     fvScalarMatrix XiEqn
     (
-        fvm::ddt(reactionRate_.rhoU(), Xi_)                         
-    //   + fvm::div(reactionRate_.rhoU()*uPrime, Xi_)  
-      - fvm::laplacian(reactionRate_.rhoU()*DTot, Xi_)     
+        fvm::ddt(reactionRate_.rhoU(), Xi_)
+    //   + fvm::div(reactionRate_.rhoU()*uPrime, Xi_)
+      - fvm::laplacian(reactionRate_.rhoU()*DTot, Xi_)
      ==
-        reactionRate_.rhoU()*Gchi*Xi_                     
-      - reactionRate_.rhoU()*R*(Xi_-scalar(1))                                   
+        reactionRate_.rhoU()*Gchi*Xi_
+      - reactionRate_.rhoU()*R*(Xi_-scalar(1))
     );
 
     // Solve equation
@@ -162,13 +162,13 @@ void Foam::wrinklingFactorModels::Transport::correct()
 
     if (debug_)
     {
-        Info<< "Min/max Xi: " << min(Xi_).value() 
+        Info<< "Min/max Xi: " << min(Xi_).value()
             << " " << max(Xi_).value() << endl;
-        Info << "\t\t\tTransport correct finished" << endl;
+        Info << "\t\t\ttransport correct finished" << endl;
     }
 }
 
-char const *Foam::wrinklingFactorModels::Transport::getInfo()
+char const *Foam::wrinklingFactorModels::transport::getInfo()
 {
     infoString_.append(laminarCorrelation_().getInfo());
     laminarCorrelation_().clearInfo();

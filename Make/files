@@ -23,7 +23,7 @@ reactionRateModels/DDT/DDT.C
 reactionRateModels/laminarBurningVelocityModels/ANN/ANN.C
 reactionRateModels/autoIgnition/autoIgnition.C
 reactionRateModels/autoIgnition/autoIgnitionNew.C
-reactionRateModels/wrinklingFactorModels/Transport/Transport.C
+reactionRateModels/wrinklingFactorModels/transport/transport.C
 flameFoam.C
 
 LIB = $(FOAM_USER_LIBBIN)/flameFoam-12.2.0-DDT
