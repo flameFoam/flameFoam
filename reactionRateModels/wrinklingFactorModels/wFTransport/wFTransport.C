@@ -91,7 +91,7 @@ Foam::wrinklingFactorModels::wFTransport::wFTransport
     (
         IOobject
         (
-            "thermophysicalwFTransport",
+            "thermophysicalTransport",
             mesh_.time().constant(),
             mesh_,
             IOobject::MUST_READ,
