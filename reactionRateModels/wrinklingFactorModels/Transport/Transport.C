@@ -23,7 +23,7 @@ Disclaimer
 
 \*---------------------------------------------------------------------------*/
 
-#include "wrinklingFactorTransport.H"
+#include "Transport.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fvmDdt.H"
 #include "fvmLaplacian.H"
@@ -35,11 +35,11 @@ namespace Foam
 {
 namespace wrinklingFactorModels
 {
-    defineTypeNameAndDebug(wrinklingFactorTransport, 0);
+    defineTypeNameAndDebug(Transport, 0);
     addToRunTimeSelectionTable
     (
         wrinklingFactor,
-        wrinklingFactorTransport,
+        Transport,
         dictionary
     );
 }
@@ -48,7 +48,7 @@ namespace wrinklingFactorModels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::wrinklingFactorModels::wrinklingFactorTransport::wrinklingFactorTransport
+Foam::wrinklingFactorModels::Transport::Transport
 (
     const word modelType,
     const reactionRate& reactRate,
@@ -89,19 +89,19 @@ Foam::wrinklingFactorModels::wrinklingFactorTransport::wrinklingFactorTransport
     p0_("p0", dimPressure, this->coeffDict_.lookupOrDefault<scalar>("p0", 101325.0)),
     debug_(coeffDict_.lookupOrDefault("debug", false))
 {
-    appendInfo("\tWrinkling factor estimation method: wrinklingFactorTransport correlation");
+    appendInfo("\tWrinkling factor estimation method: Transport correlation");
 }
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::wrinklingFactorModels::wrinklingFactorTransport::~wrinklingFactorTransport()
+Foam::wrinklingFactorModels::Transport::~Transport()
 {}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-void Foam::wrinklingFactorModels::wrinklingFactorTransport::correct()
+void Foam::wrinklingFactorModels::Transport::correct()
 {
      if (debug_)
     {
@@ -164,11 +164,11 @@ void Foam::wrinklingFactorModels::wrinklingFactorTransport::correct()
     {
         Info<< "Min/max Xi: " << min(Xi_).value() 
             << " " << max(Xi_).value() << endl;
-        Info << "\t\t\twrinklingFactorTransport correct finished" << endl;
+        Info << "\t\t\tTransport correct finished" << endl;
     }
 }
 
-char const *Foam::wrinklingFactorModels::wrinklingFactorTransport::getInfo()
+char const *Foam::wrinklingFactorModels::Transport::getInfo()
 {
     infoString_.append(laminarCorrelation_().getInfo());
     laminarCorrelation_().clearInfo();

@@ -22,18 +22,18 @@ Disclaimer
     Limited nor OpenCFD Limited.
 
 Class
-    Foam::wrinklingFactorModels::wrinklingFactorTransport
+    Foam::wrinklingFactorModels::Transport
 
 Description
-    wrinklingFactorTransport correlation of flame wrinkling factor
+    Transport correlation of flame wrinkling factor
 
 SourceFiles
-    wrinklingFactorTransport.C
+    Transport.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef wrinklingFactorTransport_H
-#define wrinklingFactorTransport_H
+#ifndef Transport_H
+#define Transport_H
 
 #include "reactionRate.H"
 #include "wrinklingFactor.H"
@@ -47,10 +47,10 @@ namespace wrinklingFactorModels
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class wrinklingFactorTransport Declaration
+                         Class Transport Declaration
 \*---------------------------------------------------------------------------*/
 
-class wrinklingFactorTransport
+class Transport
 :
     public wrinklingFactor
 {
@@ -91,13 +91,13 @@ class wrinklingFactorTransport
 public:
 
     //- Runtime type information
-    TypeName("wrinklingFactorTransport");
+    TypeName("Transport");
 
 
     // Constructors
 
         //- Construct from dictionary, mesh and combustion model
-        wrinklingFactorTransport
+        Transport
         (
             const word modelType,
             const reactionRate& reactRate,
@@ -105,12 +105,12 @@ public:
         );
 
         //- Disallow default bitwise copy construction
-        wrinklingFactorTransport(const wrinklingFactorTransport&) = delete;
+        Transport(const Transport&) = delete;
 
 
     // Destructor
 
-        virtual ~wrinklingFactorTransport();
+        virtual ~Transport();
 
 
     // Member Functions
@@ -121,7 +121,7 @@ public:
     // Member Operators
 
         //- Disallow default bitwise assignment
-        void operator=(const wrinklingFactorTransport&) = delete;
+        void operator=(const Transport&) = delete;
         //- Return infoString_
         virtual char const *getInfo();
 };
