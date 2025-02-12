@@ -81,24 +81,10 @@ Foam::wrinklingFactorModels::wrinklingFactorTransport::wrinklingFactorTransport
         mesh_,
         dimensionedScalar("Xi", dimless, Zero)
     ),
-    SuMin_("SuMin", dimVelocity, dict.lookupOrDefault<scalar>("SuMin", 0.01)),
-    SuMax_("SuMax", dimVelocity, dict.lookupOrDefault<scalar>("SuMax", 4.0)),
     XiCoef_(dict.lookupOrDefault<scalar>("XiCoef", 0.5)),
     XiShapeCoef_(dict.lookupOrDefault<scalar>("XiShapeCoef", 0.5)),
     uPrimeCoef_(dict.lookupOrDefault<scalar>("uPrimeCoef", 1.0)),
     sigmaExt_("sigmaExt", dimless/dimTime, dict.lookupOrDefault<scalar>("sigmaExt", 500)),
-    Su
-    (
-        IOobject
-        (
-            "Su",
-            mesh_.time().name(),
-            mesh_,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh_
-    ),
     Le_("Le", dimless, this->coeffDict_),
     // TODO: ReT is set to 1 for now, needs to be implemented
     ReT_("ReT", dimless, this->coeffDict_.lookupOrDefault<scalar>("ReT", 1.0)),
@@ -146,10 +132,7 @@ void Foam::wrinklingFactorModels::wrinklingFactorTransport::correct()
    const volScalarField DL(reactionRate_.muU()/(reactionRate_.rhoU()*0.7));
    const volScalarField DT(combModel_.turbulence().nut()/0.7);
    const volScalarField DTot(DL + DT);
-   const volScalarField XiEqStar
-        (
-            scalar(1.001) + XiCoef_*sqrt(up/(Su + SuMin_))*Reta
-        );
+
     const volScalarField uPrime(pow(2*combModel_.turbulence().k()/3, 0.5));
     
     const volScalarField XiEq

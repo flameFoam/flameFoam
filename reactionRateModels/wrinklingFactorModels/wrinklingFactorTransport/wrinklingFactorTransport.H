@@ -60,12 +60,6 @@ class wrinklingFactorTransport
 
         //subgrid scale flame wrinkling factor
         volScalarField Xi_;
-
-        //- Minimum laminar flame speed
-        dimensionedScalar SuMin_;
-        
-        //- Maximum laminar flame speed
-        dimensionedScalar SuMax_;
         
         //- Xi model coefficient
         scalar XiCoef_;
@@ -78,9 +72,6 @@ class wrinklingFactorTransport
         
         //- Strain rate coefficient
         dimensionedScalar sigmaExt_;
-
-        //- Laminar burning velocity field
-        volScalarField Su;
 
         //- Le
         dimensionedScalar Le_;
