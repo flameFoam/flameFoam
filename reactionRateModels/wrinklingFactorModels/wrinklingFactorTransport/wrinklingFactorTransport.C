@@ -99,12 +99,10 @@ Foam::wrinklingFactorModels::wrinklingFactorTransport::wrinklingFactorTransport
         ),
         mesh_
     ),
-    b_(&combModel_.thermo().Y("b")),
     Le_("Le", dimless, this->coeffDict_),
     // TODO: ReT is set to 1 for now, needs to be implemented
     ReT_("ReT", dimless, this->coeffDict_.lookupOrDefault<scalar>("ReT", 1.0)),
-    // TODO: p and is set to 101325.0 for now, needs to be implemented
-    p_("p", dimPressure, this->coeffDict_.lookupOrDefault<scalar>("p", 101325.0)),
+    p_(mesh_.lookupObject<volScalarField>("p")),
     p0_("p0", dimPressure, this->coeffDict_.lookupOrDefault<scalar>("p0", 101325.0)),
     debug_(coeffDict_.lookupOrDefault("debug", false))
 {

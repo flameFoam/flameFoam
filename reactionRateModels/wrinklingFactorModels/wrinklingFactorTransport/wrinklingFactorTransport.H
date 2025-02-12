@@ -81,9 +81,6 @@ class wrinklingFactorTransport
 
         //- Laminar burning velocity field
         volScalarField Su;
-        
-        //- Progress variable field (usually from composition)
-        const volScalarField* b_;
 
         //- Le
         dimensionedScalar Le_;
@@ -92,10 +89,10 @@ class wrinklingFactorTransport
         dimensionedScalar ReT_;
 
         //- Pressure
-        dimensionedScalar p_;
+        const volScalarField& p_;
 
         //- Pressure
-        dimensionedScalar p0_;
+        const dimensionedScalar p0_;
 
         //- Debug flag
         const Switch debug_;
