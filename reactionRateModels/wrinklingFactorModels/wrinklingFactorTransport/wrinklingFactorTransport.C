@@ -68,7 +68,8 @@ Foam::wrinklingFactorModels::wrinklingFactorTransport::wrinklingFactorTransport
             combModel_.coeffs()
         )
     ),
-       Xi_
+
+    Xi_
     (
         IOobject
         (
@@ -81,6 +82,7 @@ Foam::wrinklingFactorModels::wrinklingFactorTransport::wrinklingFactorTransport
         mesh_,
         dimensionedScalar("Xi", dimless, Zero)
     ),
+    
     XiCoef_(dict.lookupOrDefault<scalar>("XiCoef", 0.5)),
     XiShapeCoef_(dict.lookupOrDefault<scalar>("XiShapeCoef", 0.5)),
     uPrimeCoef_(dict.lookupOrDefault<scalar>("uPrimeCoef", 1.0)),
