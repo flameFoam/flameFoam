@@ -6,6 +6,7 @@ ThermopysicalTransportModels/nonUnityLewisViscosityEddyDiffusivity/makePhaseFlui
 reactionRateModels/wrinklingFactorModels/wrinklingFactor/wrinklingFactor.C
 reactionRateModels/wrinklingFactorModels/wrinklingFactor/wrinklingFactorNew.C
 reactionRateModels/wrinklingFactorModels/Charlette/Charlette.C
+reactionRateModels/wrinklingFactorModels/transport/transport.C
 reactionRateModels/turbulentBurningVelocityModels/turbulentBurningVelocity/turbulentBurningVelocity.C
 reactionRateModels/turbulentBurningVelocityModels/turbulentBurningVelocity/turbulentBurningVelocityNew.C
 reactionRateModels/turbulentBurningVelocityModels/Bradley/Bradley.C
@@ -14,16 +15,15 @@ reactionRateModels/turbulentBurningVelocityModels/Bray/Bray.C
 reactionRateModels/laminarBurningVelocityModels/laminarBurningVelocity/laminarBurningVelocity.C
 reactionRateModels/laminarBurningVelocityModels/laminarBurningVelocity/laminarBurningVelocityNew.C
 reactionRateModels/laminarBurningVelocityModels/Malet/Malet.C
+reactionRateModels/laminarBurningVelocityModels/ANN/ANN.C
+reactionRateModels/autoIgnitionModels/autoIgnition/autoIgnition.C
+reactionRateModels/autoIgnitionModels/autoIgnition/autoIgnitionNew.C
 reactionRateModels/reactionRate/reactionRate.C
 reactionRateModels/reactionRate/reactionRateNew.C
 reactionRateModels/TFC/TFC.C
 reactionRateModels/ETFC/ETFC.C
 reactionRateModels/FSD/FSD.C
 reactionRateModels/DDT/DDT.C
-reactionRateModels/laminarBurningVelocityModels/ANN/ANN.C
-reactionRateModels/autoIgnition/autoIgnition.C
-reactionRateModels/autoIgnition/autoIgnitionNew.C
-reactionRateModels/wrinklingFactorModels/transport/transport.C
 flameFoam.C
 
 LIB = $(FOAM_USER_LIBBIN)/flameFoam-12.2.0-DDT
