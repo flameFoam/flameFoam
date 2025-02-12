@@ -158,9 +158,8 @@ void Foam::wrinklingFactorModels::wrinklingFactorTransport::correct()
         + 0.46/Le_*pow(ReT_, 0.25)*pow(uPrime/laminarCorrelation_->burningVelocity(), 0.3)*pow(p_/p0_, 0.2)
     );
 
-   const volScalarField Gstar(0.28/tauEta);
-   const volScalarField R(Gstar*XiEqStar/(XiEqStar - scalar(1)));
-   const volScalarField G(R*(XiEq - scalar(1.001))/XiEq);
+   const volScalarField Gchi(0.28/tauEta);
+   const volScalarField R(Gchi*XiEq/(XiEq - scalar(1)));
 
     // Create Xi equation
     fvScalarMatrix XiEqn
@@ -169,7 +168,7 @@ void Foam::wrinklingFactorModels::wrinklingFactorTransport::correct()
     //   + fvm::div(reactionRate_.rhoU()*uPrime, Xi_)  
       - fvm::laplacian(reactionRate_.rhoU()*DTot, Xi_)     
      ==
-        reactionRate_.rhoU()*Gstar*Xi_                     
+        reactionRate_.rhoU()*Gchi*Xi_                     
       - reactionRate_.rhoU()*R*(Xi_-scalar(1))                                   
     );
 
