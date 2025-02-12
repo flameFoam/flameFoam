@@ -22,18 +22,18 @@ Disclaimer
     Limited nor OpenCFD Limited.
 
 Class
-    Foam::wrinklingFactorModels::transport
+    Foam::wrinklingFactorModels::wFTransport
 
 Description
     transport equation for flame wrinkling factor
 
 SourceFiles
-    transport.C
+    wFTransport.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef transport_H
-#define transport_H
+#ifndef wFTransport_H
+#define wFTransport_H
 
 #include "reactionRate.H"
 #include "wrinklingFactor.H"
@@ -47,10 +47,10 @@ namespace wrinklingFactorModels
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class transport Declaration
+                         Class wFTransport Declaration
 \*---------------------------------------------------------------------------*/
 
-class transport
+class wFTransport
 :
     public wrinklingFactor
 {
@@ -91,13 +91,13 @@ protected:
 public:
 
     //- Runtime type information
-    TypeName("transport");
+    TypeName("wFTransport");
 
 
     // Constructors
 
         //- Construct from dictionary, mesh and combustion model
-        transport
+        wFTransport
         (
             const word modelType,
             const reactionRate& reactRate,
@@ -105,12 +105,12 @@ public:
         );
 
         //- Disallow default bitwise copy construction
-        transport(const transport&) = delete;
+        wFTransport(const wFTransport&) = delete;
 
 
     // Destructor
 
-        virtual ~transport();
+        virtual ~wFTransport();
 
 
     // Member Functions
@@ -121,7 +121,7 @@ public:
     // Member Operators
 
         //- Disallow default bitwise assignment
-        void operator=(const transport&) = delete;
+        void operator=(const wFTransport&) = delete;
         //- Return infoString_
         virtual char const *getInfo();
 };
