@@ -80,8 +80,6 @@ Foam::wrinklingFactorModels::wFTransport::wFTransport
     ),
 
     Le_("Le", dimless, this->coeffDict_),
-    // TODO: ReT is set to 1 for now, needs to be implemented
-    ReT_("ReT", dimless, this->coeffDict_.lookupOrDefault<scalar>("ReT", 1.0)),
     rho_(combModel_.rho()),
     phi_(mesh_.lookupObject<surfaceScalarField>("phi")),
     p_(mesh_.lookupObject<volScalarField>("p")),
@@ -127,6 +125,10 @@ void Foam::wrinklingFactorModels::wFTransport::correct()
     const volScalarField uPrime(sqrt((2.0/3.0)*combModel_.turbulence().k()));
     const volScalarField tauEta(sqrt(reactionRate_.nuU()/reactionRate_.saneEpsilon()));
 
+    // TODO: also used in Bradley and elsewhere, probably should be in the reactionRate
+    const volScalarField lT(pow(combModel_.turbulence().k(), 1.5)/reactionRate_.saneEpsilon());
+    const volScalarField ReT(uPrime*lT/reactionRate_.nuU());
+
     // TODO: should be done by taking thermophysicalwFTransport.DEff()
     const volScalarField DL(reactionRate_.muU()/(reactionRate_.rhoU()*0.7));
     const volScalarField DT(combModel_.turbulence().nut()/Sct_);
@@ -135,7 +137,7 @@ void Foam::wrinklingFactorModels::wFTransport::correct()
     const volScalarField XiEq
     (
         scalar(1)
-        + 0.46/Le_*pow(ReT_, 0.25)*pow(uPrime/laminarCorrelation_->burningVelocity(), 0.3)*pow(p_/p0_, 0.2)
+        + 0.46/Le_*pow(ReT, 0.25)*pow(uPrime/laminarCorrelation_->burningVelocity(), 0.3)*pow(p_/p0_, 0.2)
     );
 
     const volScalarField G(0.28/tauEta);
