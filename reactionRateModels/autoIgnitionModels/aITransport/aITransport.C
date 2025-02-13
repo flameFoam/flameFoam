@@ -71,6 +71,7 @@ Foam::autoIgnitionModels::aITransport::aITransport
         mesh_,
         dimensionedScalar("ADT", dimTime, scalar(1))
     ),
+    dataTable(),
     debug_(coeffDict_.lookupOrDefault("debug", false)),
     Sct_("Sct", dimless, 0)
 {
@@ -87,6 +88,12 @@ Foam::autoIgnitionModels::aITransport::aITransport
     );
     Sct_ = thermophysicalTransportDict.lookup<scalar>("Sct");
     appendInfo("\tAutoignition estimation method: aITransport equation");
+
+    // Create sample data
+    HashTable<scalar> table1000;
+    table1000.insert(word("300"), 1.5e-3);
+    table1000.insert(word("400"), 1.0e-3);
+    dataTable.insert(word("1000"), table1000);
 }
 
 
@@ -114,20 +121,9 @@ void Foam::autoIgnitionModels::aITransport::correct()
     volScalarField& TU = reactionRate_.TU().ref();
     forAll (mesh_.C(), celli)
     {
-        const scalar pRounded = round(p_[celli]/1000)*1000;
-        const scalar TRounded = round(TU[celli]);
-        // Info << pRounded.value() << " " << TRounded.value() << endl;
-        // ADT_[celli] = dataTable(pRounded, TRounded);
-        ADT_[celli] = TRounded/pRounded;
-        if (ADT_[celli] == 0)
-        {
-            ADT_[celli] = 1e9;
-        }
-        else if (ADT_[celli] < 1e-10)
-        {
-            ADT_[celli] = 1e-10;
-        }
-        // Info << ADT_[celli] << endl;
+        const word pRounded(Foam::name(round(p_[celli]/1000)*1000));
+        const word TRounded(Foam::name(round(TU[celli])));
+        ADT_[celli] = dataTable[pRounded][TRounded];
     }
 
     fvScalarMatrix tauEqn
