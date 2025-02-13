@@ -48,7 +48,7 @@ Foam::autoIgnition::autoIgnition
     const reactionRate& reactRate,
     const dictionary& dict
 )
-:   
+:
 
     reactionRate_(reactRate),
     coeffDict_(dict),
@@ -62,11 +62,10 @@ Foam::autoIgnition::autoIgnition
             "tau",
             mesh_.time().name(),
             mesh_,
-            IOobject::NO_READ,
+            IOobject::MUST_READ,
             IOobject::AUTO_WRITE
         ),
-        mesh_,
-        dimensionedScalar("tau", dimTime, 0.0)
+        mesh_
     )
 {
     Info << "flameFoam autoIgnition object initialized" << endl;
@@ -77,4 +76,4 @@ Foam::autoIgnition::autoIgnition
 Foam::autoIgnition::~autoIgnition()
 {}
 
-// ************************************************************************* // 
+// ************************************************************************* //

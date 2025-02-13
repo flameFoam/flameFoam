@@ -72,11 +72,10 @@ Foam::wrinklingFactorModels::wFTransport::wFTransport
             "Xi",
             mesh_.time().name(),
             mesh_,
-            IOobject::NO_READ,
+            IOobject::MUST_READ,
             IOobject::AUTO_WRITE
         ),
-        mesh_,
-        dimensionedScalar("Xi", dimless, Zero)
+        mesh_
     ),
 
     Le_("Le", dimless, this->coeffDict_),
