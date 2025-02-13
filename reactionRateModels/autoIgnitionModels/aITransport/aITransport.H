@@ -63,6 +63,9 @@ class aITransport
 
         volScalarField ADT_;
 
+        //- ADT data table
+        HashTable<HashTable<scalar>> dataTable;
+
         //- Debug flag
         const Switch debug_;
 
