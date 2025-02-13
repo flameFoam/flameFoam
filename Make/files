@@ -19,6 +19,7 @@ reactionRateModels/laminarBurningVelocityModels/hydrogenAirPower/hydrogenAirPowe
 reactionRateModels/laminarBurningVelocityModels/ANN/ANN.C
 reactionRateModels/autoIgnitionModels/autoIgnition/autoIgnition.C
 reactionRateModels/autoIgnitionModels/autoIgnition/autoIgnitionNew.C
+reactionRateModels/autoIgnitionModels/aITransport/aITransport.C
 reactionRateModels/reactionRate/reactionRate.C
 reactionRateModels/reactionRate/reactionRateNew.C
 reactionRateModels/TFC/TFC.C
