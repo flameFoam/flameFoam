@@ -26,6 +26,9 @@ Disclaimer
 #include "aITransport.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fvmDiv.H"
+#include <dirent.h>
+#include <sstream>
+#include "IFstream.H"
 
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -46,6 +49,8 @@ namespace autoIgnitionModels
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+
 
 Foam::autoIgnitionModels::aITransport::aITransport
 (
@@ -89,11 +94,8 @@ Foam::autoIgnitionModels::aITransport::aITransport
     Sct_ = thermophysicalTransportDict.lookup<scalar>("Sct");
     appendInfo("\tAutoignition estimation method: aITransport equation");
 
-    // Create sample data
-    HashTable<scalar> table1000;
-    table1000.insert(word("300"), 1.5e-3);
-    table1000.insert(word("400"), 1.0e-3);
-    dataTable.insert(word("1000"), table1000);
+      // Load the ADT data
+    loadADTData();
 }
 
 
@@ -121,9 +123,9 @@ void Foam::autoIgnitionModels::aITransport::correct()
     volScalarField& TU = reactionRate_.TU().ref();
     forAll (mesh_.C(), celli)
     {
-        const word pRounded(Foam::name(round(p_[celli]/1000)*1000));
-        const word TRounded(Foam::name(round(TU[celli])));
-        ADT_[celli] = dataTable[pRounded][TRounded];
+        const scalar pRounded(p_[celli]/1000*1000);
+        const scalar TRounded(TU[celli]);
+        ADT_[celli] = lookupADT(pRounded, TRounded);
     }
 
     fvScalarMatrix tauEqn
@@ -145,6 +147,139 @@ void Foam::autoIgnitionModels::aITransport::correct()
             << " " << max(tau_).value() << endl;
         Info << "\t\t\taITransport correct finished" << endl;
     }
+}
+
+void Foam::autoIgnitionModels::aITransport::loadADTData()
+{
+    const char* dataPath = "constant/ADT";
+    DIR* dir = opendir(dataPath);
+    
+    if (!dir)
+    {
+        FatalErrorInFunction
+            << "Cannot open directory " << dataPath
+            << exit(FatalError);
+    }
+
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != nullptr)
+    {
+        string filename(entry->d_name);
+        
+        // Skip . and .. directories and non-.ADT files
+        if (filename == "." || filename == ".." || 
+            filename.substr(filename.length() - 4) != ".ADT")
+        {
+            continue;
+        }
+
+        // Use filename without .ADT extension as key
+        word pKey = filename.substr(0, filename.length() - 4);
+        
+        // Create inner table for this pressure
+        HashTable<scalar> innerTable;
+        
+        // Read and parse file
+        string fullPath = string(dataPath) + "/" + filename;
+        IFstream dataFile(fullPath);
+        string line;
+        
+        // Skip header (first 4 lines)
+        for(int j = 0; j < 4; j++)
+        {
+            dataFile.getLine(line);
+        }
+        
+        // Read data lines
+        while (dataFile.good())
+        {
+            dataFile.getLine(line);
+            if (line.empty()) continue;
+            
+            // Parse temperature and ignition time
+            scalar temp, igTime;
+            std::istringstream iss(line);
+            iss >> temp >> igTime;
+            
+            if (iss)
+            {
+                // Round temperature to nearest integer for table key
+                word tempKey = Foam::name(round(temp));
+                innerTable.insert(tempKey, igTime);
+            }
+        }
+        
+        // Add to main table
+        dataTable.insert(pKey, innerTable);
+    }
+    
+    closedir(dir);
+
+    if (debug_)
+    {
+        Info<< "\nLoaded ADT data for " << dataTable.size() << " pressure values" << endl;
+        
+        // Print random 10 entries of main table
+        Info<< "\nRandom 10 pressure files in main table:" << endl;
+        label count = 0;
+        forAllConstIter(HashTable<HashTable<scalar>>, dataTable, iter)
+        {
+            if (count++ >= 10) break;
+            Info<< "  " << iter.key() << endl;
+        }
+        
+        // Print random 10 entries of a random inner table
+        if (!dataTable.empty())
+        {
+            const HashTable<scalar>& firstInnerTable = dataTable.begin()();
+            Info<< "\nRandom 10 temperature entries for " << dataTable.begin().key() << ":" << endl;
+            count = 0;
+            forAllConstIter(HashTable<scalar>, firstInnerTable, innerIter)
+            {
+                if (count++ >= 10) break;
+                Info<< "  T = " << innerIter.key() << " K, tau = " << innerIter() << " s" << endl;
+            }
+        }
+        
+        Info<< endl;
+    }
+}
+
+Foam::scalar Foam::autoIgnitionModels::aITransport::lookupADT
+(
+    const scalar p,
+    const scalar T
+)
+{
+    word pKey(Foam::name(round(p)));
+    word TKey(Foam::name(round(T)));
+    
+    if (!dataTable.found(pKey))
+    {
+        WarningInFunction
+            << "No ignition delay time data found for pressure p = " << p << endl;
+        return 1e9;
+    }
+
+    const HashTable<scalar>& tempTable = dataTable[pKey];
+    if (!tempTable.found(TKey))
+    {
+        WarningInFunction
+            << "No ignition delay time data found for temperature T = " 
+            << T << " at pressure p = " << p << endl;
+        return 1e9;
+    }
+
+    scalar value = tempTable[TKey];
+    if (value < 0)
+    {
+        WarningInFunction
+            << "Zero ignition delay time found for p = " << p 
+            << " and T = " << T << endl;
+        return 1e9;
+    }
+
+    return value;
 }
 
 char const *Foam::autoIgnitionModels::aITransport::getInfo()
