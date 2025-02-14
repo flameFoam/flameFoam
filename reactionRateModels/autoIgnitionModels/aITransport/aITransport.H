@@ -111,6 +111,9 @@ public:
         //- Load ADT data from files
         void loadADTData();
 
+        //- Lookup ADT data
+        scalar lookupADT(const scalar p, const scalar T);
+
     // Member Operators
 
         //- Disallow default bitwise assignment

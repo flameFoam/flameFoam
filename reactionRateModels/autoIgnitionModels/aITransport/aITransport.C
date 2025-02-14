@@ -123,9 +123,9 @@ void Foam::autoIgnitionModels::aITransport::correct()
     volScalarField& TU = reactionRate_.TU().ref();
     forAll (mesh_.C(), celli)
     {
-        const word pRounded(Foam::name(round(p_[celli]/1000)*1000));
-        const word TRounded(Foam::name(round(TU[celli])));
-        ADT_[celli] = dataTable[pRounded][TRounded];
+        const scalar pRounded(p_[celli]/1000*1000);
+        const scalar TRounded(TU[celli]);
+        ADT_[celli] = lookupADT(pRounded, TRounded);
     }
 
     fvScalarMatrix tauEqn
@@ -243,6 +243,43 @@ void Foam::autoIgnitionModels::aITransport::loadADTData()
         
         Info<< endl;
     }
+}
+
+Foam::scalar Foam::autoIgnitionModels::aITransport::lookupADT
+(
+    const scalar p,
+    const scalar T
+)
+{
+    word pKey(Foam::name(round(p)));
+    word TKey(Foam::name(round(T)));
+    
+    if (!dataTable.found(pKey))
+    {
+        WarningInFunction
+            << "No ignition delay time data found for pressure p = " << p << endl;
+        return 1e9;
+    }
+
+    const HashTable<scalar>& tempTable = dataTable[pKey];
+    if (!tempTable.found(TKey))
+    {
+        WarningInFunction
+            << "No ignition delay time data found for temperature T = " 
+            << T << " at pressure p = " << p << endl;
+        return 1e9;
+    }
+
+    scalar value = tempTable[TKey];
+    if (value < 0)
+    {
+        WarningInFunction
+            << "Zero ignition delay time found for p = " << p 
+            << " and T = " << T << endl;
+        return 1e9;
+    }
+
+    return value;
 }
 
 char const *Foam::autoIgnitionModels::aITransport::getInfo()
