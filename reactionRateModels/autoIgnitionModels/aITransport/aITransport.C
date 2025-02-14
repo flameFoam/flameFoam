@@ -94,7 +94,7 @@ Foam::autoIgnitionModels::aITransport::aITransport
     Sct_ = thermophysicalTransportDict.lookup<scalar>("Sct");
     appendInfo("\tAutoignition estimation method: aITransport equation");
 
-    // Load the ADT data
+      // Load the ADT data
     loadADTData();
 }
 
