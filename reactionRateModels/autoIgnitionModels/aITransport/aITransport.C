@@ -26,6 +26,9 @@ Disclaimer
 #include "aITransport.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fvmDiv.H"
+#include <dirent.h>
+#include <sstream>
+#include "IFstream.H"
 
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -46,6 +49,8 @@ namespace autoIgnitionModels
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+
 
 Foam::autoIgnitionModels::aITransport::aITransport
 (
@@ -89,11 +94,8 @@ Foam::autoIgnitionModels::aITransport::aITransport
     Sct_ = thermophysicalTransportDict.lookup<scalar>("Sct");
     appendInfo("\tAutoignition estimation method: aITransport equation");
 
-    // Create sample data
-    HashTable<scalar> table1000;
-    table1000.insert(word("300"), 1.5e-3);
-    table1000.insert(word("400"), 1.0e-3);
-    dataTable.insert(word("1000"), table1000);
+    // Load the ADT data
+    loadADTData();
 }
 
 
@@ -144,6 +146,78 @@ void Foam::autoIgnitionModels::aITransport::correct()
         Info<< "Min/max tau: " << min(tau_).value()
             << " " << max(tau_).value() << endl;
         Info << "\t\t\taITransport correct finished" << endl;
+    }
+}
+
+void Foam::autoIgnitionModels::aITransport::loadADTData()
+{
+    const char* dataPath = "/run/user/1000/keybase/kbfs/team/mpgrouplei.praktika/Detonation/ADT_table_data"; // Adjust path as needed
+    DIR* dir = opendir(dataPath);
+    
+    if (!dir)
+    {
+        FatalErrorInFunction
+            << "Cannot open directory " << dataPath
+            << exit(FatalError);
+    }
+
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != nullptr)
+    {
+        string filename(entry->d_name);
+        
+        // Skip . and .. directories and non-.ADT files
+        if (filename == "." || filename == ".." || 
+            filename.substr(filename.length() - 4) != ".ADT")
+        {
+            continue;
+        }
+
+        // Extract pressure from filename (assuming format like 100000.ADT)
+        word pKey = filename.substr(0, filename.length() - 4);
+        
+        // Create inner table for this pressure
+        HashTable<scalar> innerTable;
+        
+        // Read and parse file
+        string fullPath = string(dataPath) + "/" + filename;
+        IFstream dataFile(fullPath);
+        string line;
+        
+        // Skip header (first 4 lines)
+        for(int j = 0; j < 4; j++)
+        {
+            dataFile.getLine(line);
+        }
+        
+        // Read data lines
+        while (dataFile.good())
+        {
+            dataFile.getLine(line);
+            if (line.empty()) continue;
+            
+            // Parse temperature and ignition time
+            scalar temp, igTime;
+            std::istringstream iss(line);
+            iss >> temp >> igTime;
+            
+            if (iss)
+            {
+                // Round temperature to nearest integer for table key
+                word tempKey = Foam::name(round(temp));
+                innerTable.insert(tempKey, igTime);
+            }
+        }
+        
+        // Add to main table
+        dataTable.insert(pKey, innerTable);
+    }
+    
+    closedir(dir);
+
+    if (debug_)
+    {
+        Info<< "Loaded ADT data for " << dataTable.size() << " pressure values" << endl;
     }
 }
 

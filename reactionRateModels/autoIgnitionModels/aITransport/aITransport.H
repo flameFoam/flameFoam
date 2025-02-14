@@ -77,6 +77,7 @@ protected:
 
             //- Turbulent Schmidt number []
             dimensionedScalar Sct_;
+
 public:
 
     //- Runtime type information
@@ -106,6 +107,9 @@ public:
 
         //- Correct TBV
         virtual void correct();
+
+        //- Load ADT data from files
+        void loadADTData();
 
     // Member Operators
 
