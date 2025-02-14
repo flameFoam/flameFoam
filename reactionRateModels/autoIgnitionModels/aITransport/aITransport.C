@@ -173,7 +173,7 @@ void Foam::autoIgnitionModels::aITransport::loadADTData()
             continue;
         }
 
-        // Extract pressure from filename (assuming format like 100000.ADT)
+        // Use filename without .ADT extension as key
         word pKey = filename.substr(0, filename.length() - 4);
         
         // Create inner table for this pressure
@@ -217,7 +217,31 @@ void Foam::autoIgnitionModels::aITransport::loadADTData()
 
     if (debug_)
     {
-        Info<< "Loaded ADT data for " << dataTable.size() << " pressure values" << endl;
+        Info<< "\nLoaded ADT data for " << dataTable.size() << " pressure values" << endl;
+        
+        // Print random 10 entries of main table
+        Info<< "\nRandom 10 pressure files in main table:" << endl;
+        label count = 0;
+        forAllConstIter(HashTable<HashTable<scalar>>, dataTable, iter)
+        {
+            if (count++ >= 10) break;
+            Info<< "  " << iter.key() << endl;
+        }
+        
+        // Print random 10 entries of a random inner table
+        if (!dataTable.empty())
+        {
+            const HashTable<scalar>& firstInnerTable = dataTable.begin()();
+            Info<< "\nRandom 10 temperature entries for " << dataTable.begin().key() << ":" << endl;
+            count = 0;
+            forAllConstIter(HashTable<scalar>, firstInnerTable, innerIter)
+            {
+                if (count++ >= 10) break;
+                Info<< "  T = " << innerIter.key() << " K, tau = " << innerIter() << " s" << endl;
+            }
+        }
+        
+        Info<< endl;
     }
 }
 
