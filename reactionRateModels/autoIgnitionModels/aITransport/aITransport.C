@@ -151,7 +151,7 @@ void Foam::autoIgnitionModels::aITransport::correct()
 
 void Foam::autoIgnitionModels::aITransport::loadADTData()
 {
-    const char* dataPath = "/run/user/1000/keybase/kbfs/team/mpgrouplei.praktika/Detonation/ADT_table_data"; // Adjust path as needed
+    const char* dataPath = "constant/ADT";
     DIR* dir = opendir(dataPath);
     
     if (!dir)
