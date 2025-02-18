@@ -77,6 +77,7 @@ Foam::autoIgnitionModels::aITransport::aITransport
         dimensionedScalar("ADT", dimTime, scalar(1))
     ),
     dataTable(),
+    warnedCases_(),
     debug_(coeffDict_.lookupOrDefault("debug", false)),
     Sct_("Sct", dimless, 0)
 {
@@ -251,31 +252,45 @@ Foam::scalar Foam::autoIgnitionModels::aITransport::lookupADT
     const scalar T
 )
 {
-    word pKey(Foam::name(round(p)));
+    word pKey(Foam::name(round(p/1000)*1000));
     word TKey(Foam::name(round(T)));
     
     if (!dataTable.found(pKey))
     {
-        WarningInFunction
-            << "No ignition delay time data found for pressure p = " << p << endl;
+        if (!warnedCases_.found(pKey))
+        {
+            warnedCases_.insert(pKey);
+            WarningInFunction
+                << "No ignition delay time data found for pressure p = " << p << endl;
+        }
         return 1e9;
     }
 
     const HashTable<scalar>& tempTable = dataTable[pKey];
+    word ptCombo(pKey + "_" + TKey);
+    
     if (!tempTable.found(TKey))
     {
-        WarningInFunction
-            << "No ignition delay time data found for temperature T = " 
-            << T << " at pressure p = " << p << endl;
+        if (!warnedCases_.found(ptCombo))
+        {
+            warnedCases_.insert(ptCombo);
+            WarningInFunction
+                << "No ignition delay time data found for temperature T = " 
+                << T << " at pressure p = " << p << endl;
+        }
         return 1e9;
     }
 
     scalar value = tempTable[TKey];
     if (value < 0)
     {
-        WarningInFunction
-            << "Zero ignition delay time found for p = " << p 
-            << " and T = " << T << endl;
+        if (!warnedCases_.found(ptCombo))
+        {
+            warnedCases_.insert(ptCombo);
+            WarningInFunction
+                << "Zero ignition delay time found for p = " << p 
+                << " and T = " << T << endl;
+        }
         return 1e9;
     }
 
