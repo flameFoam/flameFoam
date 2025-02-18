@@ -282,16 +282,16 @@ Foam::scalar Foam::autoIgnitionModels::aITransport::lookupADT
     }
 
     scalar value = tempTable[TKey];
-    if (value < 0)
+    if (value <= 0)
     {
         if (!warnedCases_.found(ptCombo))
         {
             warnedCases_.insert(ptCombo);
             WarningInFunction
-                << "Zero ignition delay time found for p = " << p 
+                << "Zero or negative ignition delay time found for p = " << p 
                 << " and T = " << T << endl;
+            return 1e9;
         }
-        return 1e9;
     }
 
     return value;
