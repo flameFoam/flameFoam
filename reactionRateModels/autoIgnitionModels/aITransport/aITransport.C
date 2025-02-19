@@ -124,9 +124,7 @@ void Foam::autoIgnitionModels::aITransport::correct()
     volScalarField& TU = reactionRate_.TU().ref();
     forAll (mesh_.C(), celli)
     {
-        const scalar pRounded(p_[celli]/1000*1000);
-        const scalar TRounded(TU[celli]);
-        ADT_[celli] = lookupADT(pRounded, TRounded);
+        ADT_[celli] = lookupADT(p_[celli], TU[celli]);
     }
 
     fvScalarMatrix tauEqn
@@ -252,8 +250,8 @@ Foam::scalar Foam::autoIgnitionModels::aITransport::lookupADT
     const scalar T
 )
 {
-    word pKey(Foam::name(round(p/1000)*1000));
-    word TKey(Foam::name(round(T)));
+    word pKey(Foam::name(round(p/10000.0)*10000));
+    word TKey(Foam::name(round(T/10.0)*10.0));
     
     if (!dataTable.found(pKey))
     {
@@ -261,9 +259,10 @@ Foam::scalar Foam::autoIgnitionModels::aITransport::lookupADT
         {
             warnedCases_.insert(pKey);
             WarningInFunction
-                << "No ignition delay time data found for pressure p = " << p << endl;
+                << "No ignition delay time data found for pressure p = " << p 
+                << " (rounded to " << pKey << ")" << endl;
         }
-        return 1e9;
+        return 1e8;
     }
 
     const HashTable<scalar>& tempTable = dataTable[pKey];
@@ -276,9 +275,11 @@ Foam::scalar Foam::autoIgnitionModels::aITransport::lookupADT
             warnedCases_.insert(ptCombo);
             WarningInFunction
                 << "No ignition delay time data found for temperature T = " 
-                << T << " at pressure p = " << p << endl;
+                << T << " at pressure p = " << p 
+                << " (rounded to " << TKey << ")" 
+                << " and " << pKey << endl;
         }
-        return 1e9;
+        return 1e8;
     }
 
     scalar value = tempTable[TKey];
@@ -287,10 +288,12 @@ Foam::scalar Foam::autoIgnitionModels::aITransport::lookupADT
         if (!warnedCases_.found(ptCombo))
         {
             warnedCases_.insert(ptCombo);
-            WarningInFunction
+            FatalErrorInFunction
                 << "Zero or negative ignition delay time found for p = " << p 
-                << " and T = " << T << endl;
-            return 1e9;
+                << " and T = " << T 
+                << " (rounded to " << TKey << ")" 
+                << " and " << pKey << endl;
+            return 1e8;
         }
     }
 
