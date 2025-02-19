@@ -251,7 +251,7 @@ Foam::scalar Foam::autoIgnitionModels::aITransport::lookupADT
 )
 {
     word pKey(Foam::name(round(p/10000.0)*10000));
-    word TKey(Foam::name(round(T/10.0)*10.0));
+    word TKey(Foam::name(round(T/1.0)*1.0));
     
     if (!dataTable.found(pKey))
     {
