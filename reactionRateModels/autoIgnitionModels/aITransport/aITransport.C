@@ -276,8 +276,8 @@ Foam::scalar Foam::autoIgnitionModels::aITransport::lookupADT
             WarningInFunction
                 << "No ignition delay time data found for temperature T = " 
                 << T << " at pressure p = " << p 
-                << " (rounded to " << TKey << ")" 
-                << " and " << pKey << endl;
+                << " (rounded to " << TKey  
+                << " and " << pKey << ")" << endl;
         }
         return 1e8;
     }
@@ -291,8 +291,8 @@ Foam::scalar Foam::autoIgnitionModels::aITransport::lookupADT
             FatalErrorInFunction
                 << "Zero or negative ignition delay time found for p = " << p 
                 << " and T = " << T 
-                << " (rounded to " << TKey << ")" 
-                << " and " << pKey << endl;
+                << " (rounded to " << TKey 
+                << " and " << pKey << ")" << endl;
             return 1e8;
         }
     }
