@@ -58,9 +58,9 @@ class LBVPower
         //- Fraction of steam
         const scalar X_H2_0_;
         const scalar X_H2O_;
-        const scalar powerDil;
-        const scalar powerT;
-        const scalar powerD;
+        const scalar _;powerDil
+        const scalar powerT_;
+        const scalar powerD_;
         const scalar ER_;
         const dimensionedScalar sLaminar0_;
         const dimensionedScalar pRef_;

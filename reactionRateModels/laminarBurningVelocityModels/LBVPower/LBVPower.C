@@ -86,81 +86,13 @@ void Foam::laminarBurningVelocityModels::LBVPower::correct
         Info << "\t\t\t\tInitial average S_L: "  << average(sLaminar_).value() << endl;
     }
 
-    sLaminar_ = sLaminar0_ * pow(1 - X_H2O_, powerDil) * pow(reactionRate_.TU() / TRef_, powerT) * pow(p_ / pRef_, powerP);
+    sLaminar_ = sLaminar0_ * pow(1 - X_H2O_, powerDil_) * pow(reactionRate_.TU() / TRef_, powerT_) * pow(p_ / pRef_, powerP_);
 
     if (debug_)
     {
         Info << "\t\t\t\tObtained average S_L: "  << average(sLaminar_).value() << endl;
         Info << "\t\t\t\tLBVPower correct finished" << endl;
     }
-
-
-    // dimensionedScalar omega0
-    // (
-    //     "omega0",
-    //     dimensionSet(1, -2, -1, 0, 0, 0, 0),
-    //     correlation_.omega0()
-    // );
-    //
-    // dimensionedScalar sigmaExt
-    // (
-    //     "sigmaExt",
-    //     dimensionSet(0, 0, -1, 0, 0, 0, 0),
-    //     correlation_.sigmaExt()
-    // );
-    //
-    // dimensionedScalar omegaMin
-    // (
-    //     "omegaMin",
-    //     omega0.dimensions(),
-    //     1e-4
-    // );
-    //
-    // dimensionedScalar kMin
-    // (
-    //     "kMin",
-    //     sqr(dimVelocity),
-    //     small
-    // );
-    //
-    // const compressibleMomentumTransportModel& turbulence =
-    //     combModel_.turbulence();
-    //
-    // // Total strain
-    // const volScalarField sigmaTotal
-    // (
-    //     sigma + alpha_*turbulence.epsilon()/(turbulence.k() + kMin)
-    // );
-    //
-    // const volScalarField omegaInf(correlation_.omega0Sigma(sigmaTotal));
-    //
-    // dimensionedScalar sigma0("sigma0", sigma.dimensions(), 0.0);
-    //
-    // const volScalarField tau(C_*mag(sigmaTotal));
-    //
-    // volScalarField Rc
-    // (
-    //     (tau*omegaInf*(omega0 - omegaInf) + sqr(omegaMin)*sigmaExt)
-    //    /(sqr(omega0 - omegaInf) + sqr(omegaMin))
-    // );
-    //
-    // const volScalarField& rho = combModel_.rho();
-    // const tmp<surfaceScalarField> tphi = combModel_.phi();
-    // const surfaceScalarField& phi = tphi();
-    //
-    // solve
-    // (
-    //      fvm::ddt(rho, omega_)
-    //    + fvm::div(phi, omega_)
-    //   ==
-    //      rho*Rc*omega0
-    //    - fvm::SuSp(rho*(tau + Rc), omega_)
-    // );
-    //
-    // omega_.min(omega0);
-    // omega_.max(0.0);
-
-
 }
 
 
