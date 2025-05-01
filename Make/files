@@ -14,6 +14,7 @@ reactionRateModels/turbulentBurningVelocityModels/Bray/Bray.C
 reactionRateModels/laminarBurningVelocityModels/laminarBurningVelocity/laminarBurningVelocity.C
 reactionRateModels/laminarBurningVelocityModels/laminarBurningVelocity/laminarBurningVelocityNew.C
 reactionRateModels/laminarBurningVelocityModels/Malet/Malet.C
+reactionRateModels/laminarBurningVelocityModels/LBVPower/LBVPower.C
 reactionRateModels/reactionRate/reactionRate.C
 reactionRateModels/reactionRate/reactionRateNew.C
 reactionRateModels/TFC/TFC.C
