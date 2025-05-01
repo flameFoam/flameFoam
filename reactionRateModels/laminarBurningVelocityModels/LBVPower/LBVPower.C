@@ -1,0 +1,166 @@
+/*---------------------------------------------------------------------------*\
+
+ flameFoam
+ Copyright (C) 2021-2024 Lithuanian Energy Institute
+
+ -------------------------------------------------------------------------------
+License
+    This file is part of flameFoam, derivative work of OpenFOAM.
+
+    flameFoam is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    flameFoam is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    <http://www.gnu.org/licenses/> for more details.
+
+Disclaimer
+    flameFoam is not approved or endorsed by neither the OpenFOAM Foundation
+    Limited nor OpenCFD Limited.
+
+\*---------------------------------------------------------------------------*/
+
+#include "LBVPower.H"
+#include "addToRunTimeSelectionTable.H"
+
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+namespace Foam
+{
+namespace laminarBurningVelocityModels
+{
+    defineTypeNameAndDebug(LBVPower, 0);
+    addToRunTimeSelectionTable
+    (
+        laminarBurningVelocity,
+        LBVPower,
+        dictionary
+    );
+}
+}
+
+
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+Foam::laminarBurningVelocityModels::LBVPower::LBVPower
+(
+    const word modelType,
+    const reactionRate& reactRate,
+    const dictionary& dict
+):
+    laminarBurningVelocity(modelType, reactRate, dict),
+    X_H2_0_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("X_H2_0")),
+    X_H2O_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("X_H2O")),
+
+    powerDil_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("powerDil")),
+    powerT_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("powerT")),
+    powerP_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("powerP")),
+
+    ER_(0.705*X_H2_0_/(0.295*(1-X_H2_0_-X_H2O_))),
+    sLaminar0_(dimensionedScalar(dimVelocity, 1.44*ER_*ER_+1.07*ER_-0.29)),
+    pRef_(dimensionedScalar(dimPressure, 100000)),
+    TRef_(dimensionedScalar(dimTemperature, 298)),
+    p_(mesh_.lookupObject<volScalarField>("p"))
+{
+    appendInfo("\tLBV estimation method: LBVPower correlation");
+}
+
+
+// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
+
+Foam::laminarBurningVelocityModels::LBVPower::~LBVPower()
+{}
+
+
+// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+
+void Foam::laminarBurningVelocityModels::LBVPower::correct
+()
+{
+    if (debug_)
+    {
+        Info << "\t\t\tLBVPower correct:" << endl;
+        Info << "\t\t\t\tInitial average S_L: "  << average(sLaminar_).value() << endl;
+    }
+
+    sLaminar_ = sLaminar0_ * pow(1 - X_H2O_, powerDil) * pow(reactionRate_.TU() / TRef_, powerT) * pow(p_ / pRef_, powerP);
+
+    if (debug_)
+    {
+        Info << "\t\t\t\tObtained average S_L: "  << average(sLaminar_).value() << endl;
+        Info << "\t\t\t\tLBVPower correct finished" << endl;
+    }
+
+
+    // dimensionedScalar omega0
+    // (
+    //     "omega0",
+    //     dimensionSet(1, -2, -1, 0, 0, 0, 0),
+    //     correlation_.omega0()
+    // );
+    //
+    // dimensionedScalar sigmaExt
+    // (
+    //     "sigmaExt",
+    //     dimensionSet(0, 0, -1, 0, 0, 0, 0),
+    //     correlation_.sigmaExt()
+    // );
+    //
+    // dimensionedScalar omegaMin
+    // (
+    //     "omegaMin",
+    //     omega0.dimensions(),
+    //     1e-4
+    // );
+    //
+    // dimensionedScalar kMin
+    // (
+    //     "kMin",
+    //     sqr(dimVelocity),
+    //     small
+    // );
+    //
+    // const compressibleMomentumTransportModel& turbulence =
+    //     combModel_.turbulence();
+    //
+    // // Total strain
+    // const volScalarField sigmaTotal
+    // (
+    //     sigma + alpha_*turbulence.epsilon()/(turbulence.k() + kMin)
+    // );
+    //
+    // const volScalarField omegaInf(correlation_.omega0Sigma(sigmaTotal));
+    //
+    // dimensionedScalar sigma0("sigma0", sigma.dimensions(), 0.0);
+    //
+    // const volScalarField tau(C_*mag(sigmaTotal));
+    //
+    // volScalarField Rc
+    // (
+    //     (tau*omegaInf*(omega0 - omegaInf) + sqr(omegaMin)*sigmaExt)
+    //    /(sqr(omega0 - omegaInf) + sqr(omegaMin))
+    // );
+    //
+    // const volScalarField& rho = combModel_.rho();
+    // const tmp<surfaceScalarField> tphi = combModel_.phi();
+    // const surfaceScalarField& phi = tphi();
+    //
+    // solve
+    // (
+    //      fvm::ddt(rho, omega_)
+    //    + fvm::div(phi, omega_)
+    //   ==
+    //      rho*Rc*omega0
+    //    - fvm::SuSp(rho*(tau + Rc), omega_)
+    // );
+    //
+    // omega_.min(omega0);
+    // omega_.max(0.0);
+
+
+}
+
+
