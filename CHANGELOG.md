@@ -1,5 +1,9 @@
 # Changelog
 
+## [12.3.0] - 2025-05-02
+### Added
+- Initial version of generalized LBV power law correlation LBVPower with user-defined powers
+
 ## [12.2.0] - 2024-11-07
 ### Changed
 - Added new switches to control optional correction of unburnt mixture temperature and debug field writing
