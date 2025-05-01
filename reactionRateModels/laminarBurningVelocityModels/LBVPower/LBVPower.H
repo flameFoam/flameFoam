@@ -60,7 +60,7 @@ class LBVPower
         const scalar X_H2O_;
         const scalar powerDil_;
         const scalar powerT_;
-        const scalar powerD_;
+        const scalar powerP_;
         const scalar ER_;
         const dimensionedScalar sLaminar0_;
         const dimensionedScalar pRef_;
