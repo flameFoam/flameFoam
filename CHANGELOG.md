@@ -1,5 +1,9 @@
 # Changelog
 
+## [12.3.0-dev] - 2025-08-27
+### Added
+- Initial version of constant LBV
+
 ## [12.3.0] - 2025-05-02
 ### Added
 - Initial version of generalized LBV power law correlation LBVPower with user-defined powers

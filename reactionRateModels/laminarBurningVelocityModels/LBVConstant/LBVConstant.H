@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -22,18 +22,18 @@ Disclaimer
     Limited nor OpenCFD Limited.
 
 Class
-    Foam::laminarBurningVelocityModels::LBVPower
+    Foam::laminarBurningVelocityModels::LBVConstant
 
 Description
-    Generalized power law correlation of laminar burning velocity
+    Constant value for laminar burning velocity
 
 SourceFiles
-    LBVPower.C
+    LBVConstant.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef LBVPower_H
-#define LBVPower_H
+#ifndef LBVConstant_H
+#define LBVConstant_H
 
 #include "laminarBurningVelocity.H"
 
@@ -45,38 +45,28 @@ namespace laminarBurningVelocityModels
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class LBVPower Declaration
+                         Class LBVConstant Declaration
 \*---------------------------------------------------------------------------*/
 
-class LBVPower
+class LBVConstant
 :
     public laminarBurningVelocity
 {
 
     // Private data
 
-        //- Fraction of steam
-        const scalar X_H2_0_;
-        const scalar X_H2O_;
-        const scalar powerDil_;
-        const scalar powerT_;
-        const scalar powerP_;
-        const scalar ER_;
-        const dimensionedScalar sLaminar0_;
-        const dimensionedScalar pRef_;
-        const dimensionedScalar TRef_;
-        const volScalarField& p_;
+        scalar sLaminar0_;
 
 public:
 
     //- Runtime type information
-    TypeName("LBVPower");
+    TypeName("LBVConstant");
 
 
     // Constructors
 
         //- Construct from dictionary and reaction rate
-        LBVPower
+        LBVConstant
         (
             const word modelType,
             const reactionRate& reactRate,
@@ -84,12 +74,12 @@ public:
         );
 
         //- Disallow default bitwise copy construction
-        LBVPower(const LBVPower&) = delete;
+        LBVConstant(const LBVConstant&) = delete;
 
 
     // Destructor
 
-        virtual ~LBVPower();
+        virtual ~LBVConstant();
 
 
     // Member Functions
@@ -100,7 +90,7 @@ public:
     // Member Operators
 
         //- Disallow default bitwise assignment
-        void operator=(const LBVPower&) = delete;
+        void operator=(const LBVConstant&) = delete;
 };
 
 
