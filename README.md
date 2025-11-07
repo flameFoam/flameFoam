@@ -25,6 +25,7 @@ Preparation in progress, please contact through e-mail
 - Lead developer: Mantas Povilaitis, 2019 - current, mantas.povilaitis@lei.lt
 - Co-developer: [Julius Venckus](https://github.com/jolonas), 2022 - current
 - DNN model development and implementation: Andrius Ambrutis, 2022 - current
+- Co-development of detonation model: [Stephen Adesina](https://github.com/Adstefnum), 2025
 - Initial implementation of LBVPower class: [Mariia Nikolaieva](https://github.com/MariiaNikolaieva), 2025
 - Porting to OpenFOAM-11: [Ilaryon Saladkou](https://github.com/IlaryonSaladkou), 2024
 - Initial co-developer: Justina Jaseliūnaitė, 2019 - 2022
