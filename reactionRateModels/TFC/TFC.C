@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -47,24 +47,19 @@ namespace reactionRateModels
 
 Foam::reactionRateModels::TFC::TFC
 (
-    const word modelType,
     const dictionary& dict,
     const combustionModel& combModel
 )
 :
-    reactionRate(modelType, dict, combModel),
+    reactionRate(combModel),
     turbulentCorrelation_(
         turbulentBurningVelocity::New
         (
-            *this,
-            dict
+            dict,
+            *this
         )
     )
-    // C_(dict.optionalSubDict(typeName + "Coeffs").lookup<scalar>("C")),
-    // alpha_
-    // (
-    //     dict.optionalSubDict(typeName + "Coeffs").lookup<scalar>("alpha")
-    // )
+
 {
     appendInfo("Reaction rate model: TFC");
 }
@@ -88,6 +83,8 @@ void Foam::reactionRateModels::TFC::correct
         Info << "\t\tInitial min/avg/max cSource: " << min(cSource_).value() << " " << average(cSource_).value() << " " << max(cSource_).value() << endl;
     }
 
+    this->correctUnburntProperties();
+
     turbulentCorrelation_->correct();
     cSource_ = rhoU()*max(turbulentCorrelation_->burningVelocity(), turbulentCorrelation_->getLaminarBurningVelocity())*mag(fvc::grad(combModel_.thermo().Y("c")));
 
@@ -105,27 +102,5 @@ char const *Foam::reactionRateModels::TFC::getInfo()
     return infoString_.c_str();
 }
 
-
-// bool  Foam::reactionRateModels::TFC::read
-// (
-//     const dictionary& dict
-// )
-// {
-//     if (reactionRateFlameArea::read(dict))
-//     {
-//         coeffDict_ = dict.optionalSubDict(typeName + "Coeffs");
-//         coeffDict_.lookup("C") >> C_;
-//         coeffDict_.lookup("alpha") >> alpha_;
-//         correlation_.read
-//         (
-//             coeffDict_.subDict(fuel_)
-//         );
-//         return true;
-//     }
-//     else
-//     {
-//         return false;
-//     }
-// }
 
 // ************************************************************************* //

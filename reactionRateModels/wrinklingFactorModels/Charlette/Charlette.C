@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -49,24 +49,14 @@ namespace wrinklingFactorModels
 
 Foam::wrinklingFactorModels::Charlette::Charlette
 (
-    const word modelType,
-    const reactionRate& reactRate,
-    const dictionary& dict
+    const dictionary& dict,
+    const reactionRate& reactRate
 ):
-    wrinklingFactor(modelType, reactRate, dict),
-    U_(mesh_.lookupObject<volVectorField>("U")),
-    delta_(mesh_.objectRegistry::lookupObject<volScalarField>("delta")),
-    laminarCorrelation_(
-        laminarBurningVelocity::New
-        (
-            reactRate,
-            combModel_.coeffs()
-        )
-    ),
-    c2_(0.5),
+    wrinklingFactor(reactRate),
+    c2_(2.0),
     Ck_(1.5),
-    Ck_mult1_(0.245454545454545), // 27/110
-    Ck_mult2_(0.648567745274438), // 4*sqrt(27/110)*18/55
+    Ck_mult1_(27.0/110.0),
+    Ck_mult2_(4*pow(Ck_mult1_, 0.5)*18.0/55.0),
     n43_(4.0/3.0),
     pi43_(Foam::pow(Foam::constant::mathematical::pi, n43_)),
     beta_(0.5)
@@ -90,6 +80,11 @@ void Foam::wrinklingFactorModels::Charlette::correct()
         Info << "\t\tCharlette correct:" << endl;
         Info << "\t\t\tInitial average TBV: "  << average(sTurbulent_).value() << endl;
     }
+
+    const fvMesh& mesh_(reactionRate_.mesh());
+
+    const volVectorField& U_ = mesh_.lookupObject<volVectorField>("U");
+    const volScalarField& delta_ = mesh_.objectRegistry::lookupObject<volScalarField>("delta");
 
     laminarCorrelation_->correct();
 

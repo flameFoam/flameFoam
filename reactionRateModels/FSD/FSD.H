@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -26,6 +26,13 @@ Class
 
 Description
     FSD model for combustion progress variable equation closure
+
+    References:
+    \verbatim
+        Gubba, S. R., Ibrahim, S., Malalasekera, W., & Masri, A. R. (2007).
+        LES modelling of propagating turbulent premixed flames using
+        a dynamic flame surface density model.
+    \endverbatim
 
 SourceFiles
     FSD.C
@@ -58,13 +65,6 @@ class FSD
         //- Auto pointer to reaction rate model
         autoPtr<wrinklingFactor> wrinklingCorrelation_;
 
-        //- Proportionality constant for time scale in the FSD Eq.
-        // scalar C_;
-
-        //- Proportionality constant for sub-grid strain
-        // scalar alpha_;
-
-
 public:
 
     //- Runtime type information
@@ -76,8 +76,7 @@ public:
         //- Construct from dictionary, mesh and combustion model
         FSD
         (
-            const word modelType,
-            const dictionary& dictCoeffs,
+            const dictionary& dict,
             const combustionModel& combModel
         );
 
@@ -100,9 +99,6 @@ public:
 
 
     // IO
-
-        //- Update properties from given dictionary
-        // virtual bool read(const dictionary& dictProperties);
 
         //- Return infoString_
         virtual char const *getInfo();

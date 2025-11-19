@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -39,13 +39,11 @@ namespace Foam
 
 Foam::reactionRate::reactionRate
 (
-    const word& modelType,
-    const dictionary& dict,
     const combustionModel& combModel
 )
 :
-    coeffDict_(dict.optionalSubDict(modelType + "Coeffs")),
     combModel_(combModel),
+    combustionProperties_(combModel_.coeffs()),
     mesh_(combModel_.mesh()),
 
     // fields
@@ -60,42 +58,59 @@ Foam::reactionRate::reactionRate
             IOobject::AUTO_WRITE
         ),
         mesh_,
-        dimensionedScalar("cSource", dimDensity/dimTime, Zero)
+        dimensionedScalar(dimDensity/dimTime, 0)
     ),
     p_(mesh_.lookupObject<volScalarField>("p")),
     T_(mesh_.lookupObject<volScalarField>("T")),
 
     // indices and switches
     yIndex_(combModel_.thermo().specieIndex(combModel_.thermo().Y("b"))),
-    Tu_(coeffDict_.lookup<Switch>("Tu")),
-    debug_(coeffDict_.lookupOrDefault<Switch>("debug", false)), // reiktų perduot iš flameFoam
-    debugFields_(coeffDict_.lookupOrDefault<Switch>("debugFields", false)), // reiktų perduot iš flameFoam
+    Tu_(combustionProperties_.lookup<Switch>("Tu")),
+    debug_(combustionProperties_.lookupOrDefault<Switch>("debug", false)), // reiktų perduot iš flameFoam
+    debugFields_(combustionProperties_.lookupOrDefault<Switch>("debugFields", false)), // reiktų perduot iš flameFoam
 
     // model constants
     p0_(mesh_.time().value()==0 ?
-        dimensionedScalar("p0", average(p_))
-        : dimensionedScalar("p0", dimPressure, coeffDict_.lookup<scalar>("p0"))),
+        average(p_)
+        : dimensionedScalar("p0", dimPressure, combustionProperties_)),
 
     rho0_(mesh_.time().value()==0 ?
-        dimensionedScalar("rho0", average(combModel_.rho()))
-        : dimensionedScalar("rho0", dimDensity, coeffDict_.lookup<scalar>("rho0"))),
+        average(combModel_.rho())
+        : dimensionedScalar("rho0", dimDensity, combustionProperties_)),
 
     // HEff estimation
-    WH2_(dimensionedScalar("WH2", dimMass/dimMoles, 2)),
+    WH2_(dimMass/dimMoles, 2.016),
     WU_(combModel_.thermo().Wi(yIndex_)),
 
-    X_H2_0_(coeffDict_.lookup<scalar>("X_H2_0")),
-    Y_H2_99_(coeffDict_.lookup<scalar>("Y_H2_99")),
-    Y_H2_0_(dimensionedScalar("Y_H2_0", X_H2_0_*WH2_/WU_).value()),
+    X_H2_0_("X_H2_0", dimless, combustionProperties_),
+    Y_H2_99_("Y_H2_99", dimless, combustionProperties_),
+    Y_H2_0_(X_H2_0_*WH2_/WU_),
 
-    H0_(coeffDict_.lookup<scalar>("H0")),
-    HEff_(dimensionedScalar("Heff", dimEnergy/dimMass, (Y_H2_0_-Y_H2_99_)*H0_))
+    H0_("H0", dimEnergy/dimMass, combustionProperties_),
+    HEff_((Y_H2_0_-Y_H2_99_)*H0_),
+
+    rhoU_(rho0_*pow(p_/p0_, 1/combModel_.thermo().gamma())),
+    TU_(WU_*p_/(rhoU_*constant::physicoChemical::RR)),
+    muU_(combModel_.thermo().mui(yIndex_, p_, TU_)),
+
+    alphaU_(
+        IOobject(
+            "alphaU",
+            mesh_.time().name(),
+            mesh_,
+            IOobject::MUST_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh_,
+        dimensionedScalar("alpha_u", dimKinematicViscosity, combustionProperties_)),
+    calculateAlphaU_(combustionProperties_.lookup<scalar>("alpha_u") <= 0.0)
 
 {
     Info << "flameFoam reactionRate object initialized" << endl;
     Info << "Unburnt mixture temperature correction: ";
     Info << Tu_.asText() << endl;
     appendInfo(std::string("Unburnt mixture temperature correction: ") + Tu_.asText());
+    appendInfo(std::string("Unburnt mixture thermal diffusivity correction: ") + calculateAlphaU_.asText());
 }
 
 
@@ -106,31 +121,28 @@ Foam::reactionRate::~reactionRate()
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField>
-Foam::reactionRate::TU() const
+void Foam::reactionRate::correctUnburntProperties()
 {
+    rhoU_ = rho0_*pow(p_/p0_, 1/combModel_.thermo().gamma());
+
     if (Tu_)
     {
-        return WU_*p_/(rhoU()*constant::physicoChemical::RR);
+        TU_ = WU_*p_/(rhoU_*constant::physicoChemical::RR);
     }
     else
     {
-        return T_;
+        TU_ = T_;
+    }
+
+    muU_ = combModel_.thermo().mui(yIndex_, p_, TU_);
+
+    if (calculateAlphaU_)
+    {
+        alphaU_ =
+            combModel_.thermo().kappai(yIndex_, p_, TU_)
+            /(rhoU_*combModel_.thermo().Cpi(yIndex_, p_, TU_));
     }
 }
-
-Foam::tmp<Foam::volScalarField>
-Foam::reactionRate::rhoU() const
-{
-    return rho0_*pow(p_/p0_, 1/combModel_.thermo().gamma());
-}
-
-Foam::tmp<Foam::volScalarField>
-Foam::reactionRate::muU() const
-{
-    return combModel_.thermo().mui(yIndex_, p_, TU());
-}
-
 
 Foam::tmp<Foam::volScalarField::Internal>
 Foam::reactionRate::R(const label speciei) const
@@ -183,14 +195,5 @@ Foam::reactionRate::Qdot() const
     return hSource;
 };
 
-
-
-// NEAIŠKU AR REIKIA, GAL PRAVERS
-// bool Foam::reactionRate::read(const dictionary& dict)
-// {
-//     dict.lookup("fuel") >> fuel_;
-//
-//     return true;
-// }
 
 // ************************************************************************* //

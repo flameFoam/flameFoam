@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -56,10 +56,9 @@ nonUnityLewisViscosityETFCDiffusivity
         false
     ),
 
-    Sct_("Sct", dimless, this->coeffDict_),
+    Sct_("Sct", dimless, this->coeffDict()),
     DEffByRho_(this->momentumTransport().mesh().objectRegistry::lookupObject<volScalarField>("DEffByRho"))
 {
-    this->printCoeffs(typeName);
 }
 
 

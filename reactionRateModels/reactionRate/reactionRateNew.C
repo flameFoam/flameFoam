@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -29,39 +29,33 @@ Disclaimer
 
 Foam::autoPtr<Foam::reactionRate> Foam::reactionRate::New
 (
-    const dictionary& dict,
+    const dictionary& combustionProperties,
     const combustionModel& combModel
 )
 {
-    word reactionRateType
-    (
-        dict.lookup("reactionRate")
-    );
+    const dictionary& reactRateProperties =
+        combustionProperties.subDict("reactionRate");
+
+    word modelType(reactRateProperties.lookup("model"));
 
     Info<< "Selecting reaction rate model "
-        << reactionRateType << endl;
+        << modelType << endl;
 
     dictionaryConstructorTable::iterator cstrIter =
-        dictionaryConstructorTablePtr_->find(reactionRateType);
+        dictionaryConstructorTablePtr_->find(modelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())
     {
-        FatalIOErrorInFunction
-        (
-            dict
-        )   << "Unknown reactionRate type "
-            << reactionRateType << endl << endl
+        FatalIOErrorInFunction(reactRateProperties)
+            << "Unknown reactionRate type "
+            << modelType << nl << nl
             << "Valid reaction rate types are :" << endl
-            << dictionaryConstructorTablePtr_->toc()
+            << dictionaryConstructorTablePtr_->sortedToc()
             << exit(FatalIOError);
     }
 
-    const label tempOpen = reactionRateType.find('<');
-
-    const word className = reactionRateType(0, tempOpen);
-
     return autoPtr<reactionRate>
-        (cstrIter()(className, dict, combModel));
+        (cstrIter()(reactRateProperties, combModel));
 }
 
 

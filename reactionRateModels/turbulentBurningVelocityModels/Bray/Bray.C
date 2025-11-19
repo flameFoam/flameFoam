@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -47,11 +47,11 @@ namespace turbulentBurningVelocityModels
 
 Foam::turbulentBurningVelocityModels::Bray::Bray
 (
-    const word modelType,
-    const reactionRate& reactRate,
-    const dictionary& dict
+    const dictionary& dict,
+    const reactionRate& reactRate
 ):
-    turbulentBurningVelocity(modelType, reactRate, dict)
+    turbulentBurningVelocity(reactRate),
+    c1_(0.875 * pow(0.157, -0.392) * pow(2.0/3.0, 0.206))
 {
     appendInfo("\tTBV estimation method: Bray correlation");
 }
@@ -74,7 +74,11 @@ void Foam::turbulentBurningVelocityModels::Bray::correct()
     }
 
     laminarCorrelation_->correct();
-    sTurbulent_ = 0.875*pow( 0.157*2/3/pow(laminarCorrelation_->burningVelocity(), 2)*pow(pow(pow(3/2,-1), 0.5)/saneEpsilon()/reactionRate_.muU()*reactionRate_.rhoU() ,-0.5) ,-0.392)*pow(2.0/3*combModel_.turbulence().k(), 0.5);
+    sTurbulent_ =
+        c1_
+        *pow(combModel_.turbulence().k(), 0.5)
+        *pow(laminarCorrelation_->burningVelocity(), 0.784)
+        *pow(saneEpsilon()*reactionRate_.muU()/reactionRate_.rhoU(), -0.196);
 
     if (debug_)
     {

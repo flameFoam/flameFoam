@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -29,39 +29,33 @@ Disclaimer
 
 Foam::autoPtr<Foam::turbulentBurningVelocity> Foam::turbulentBurningVelocity::New
 (
-    const reactionRate& reactRate,
-    const dictionary& dict
+    const dictionary& reactionRateProperties,
+    const reactionRate& reactRate
 )
 {
-    word turbulentBurningVelocityType
-    (
-        dict.lookup("turbulentBurningVelocity")
-    );
+    const dictionary& turbulentBurningVelocityProperties =
+        reactionRateProperties.subDict("turbulentBurningVelocity");
+
+    const word modelType(turbulentBurningVelocityProperties.lookup("model"));
 
     Info<< "Selecting turbulent correlation "
-        << turbulentBurningVelocityType << endl;
+        << modelType << endl;
 
     dictionaryConstructorTable::iterator cstrIter =
-        dictionaryConstructorTablePtr_->find(turbulentBurningVelocityType);
+        dictionaryConstructorTablePtr_->find(modelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())
     {
-        FatalIOErrorInFunction
-        (
-            dict
-        )   << "Unknown turbulent burning velocity correlation "
-            << turbulentBurningVelocityType << endl << endl
+        FatalIOErrorInFunction(turbulentBurningVelocityProperties)
+            << "Unknown turbulent burning velocity correlation "
+            << modelType << nl << nl
             << "Valid turbulent burning velocity correlations are :" << endl
-            << dictionaryConstructorTablePtr_->toc()
+            << dictionaryConstructorTablePtr_->sortedToc()
             << exit(FatalIOError);
     }
 
-    const label tempOpen = turbulentBurningVelocityType.find('<');
-
-    const word className = turbulentBurningVelocityType(0, tempOpen);
-
     return autoPtr<turbulentBurningVelocity>
-        (cstrIter()(className, reactRate, dict));
+        (cstrIter()(turbulentBurningVelocityProperties.optionalSubDict(modelType), reactRate));
 }
 
 

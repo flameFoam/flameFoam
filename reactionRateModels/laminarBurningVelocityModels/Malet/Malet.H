@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -26,6 +26,14 @@ Class
 
 Description
     Malet correlation of laminar burning velocity
+
+    References:
+    \verbatim
+        Malet, F. (2005).
+        Etude expérimentale et numérique de la propagation de flammes
+        prémélangées turbulentes dans une atmosphère pauvre en hydrogène
+        et humide (Doctoral dissertation, Université d'Orléans).
+    \endverbatim
 
 SourceFiles
     Malet.C
@@ -55,14 +63,24 @@ class Malet
 
     // Private data
 
-        //- Fraction of steam
-        const scalar X_H2_0_;
-        const scalar X_H2O_;
-        const scalar ER_;
+        //- Initial molar fractions of hydrogen and steam
+        const dimensionedScalar X_H2_0_;
+        const dimensionedScalar X_H2O_;
+
+        //- Quadratic polynomial coefficients for sLaminar0
+        const dimensionedScalar a2_;
+        const dimensionedScalar a1_;
+        const dimensionedScalar a0_;
+
+        //- Equivalence ratio
+        const dimensionedScalar ER_;
+
+        //- Laminar burning velocity at pRef and TRef
         const dimensionedScalar sLaminar0_;
+
+        //- Reference pressure and temperature
         const dimensionedScalar pRef_;
         const dimensionedScalar TRef_;
-        const volScalarField& p_;
 
 public:
 
@@ -75,9 +93,8 @@ public:
         //- Construct from dictionary and reaction rate
         Malet
         (
-            const word modelType,
-            const reactionRate& reactRate,
-            const dictionary& dictCoeffs
+            const dictionary& dict,
+            const reactionRate& reactRate
         );
 
         //- Disallow default bitwise copy construction

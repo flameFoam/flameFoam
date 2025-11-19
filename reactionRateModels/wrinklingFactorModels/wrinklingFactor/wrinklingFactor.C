@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -38,29 +38,32 @@ namespace Foam
 
 Foam::wrinklingFactor::wrinklingFactor
 (
-    const word& modelType,
-    const reactionRate& reactRate,
-    const dictionary& dict
+    const reactionRate& reactRate
 )
 :
     reactionRate_(reactRate),
-    coeffDict_(dict),
-    mesh_(reactionRate_.mesh()),
-    combModel_(reactionRate_.combModel()),
+    combustionProperties_(reactionRate_.combModel().coeffs()),
+    laminarCorrelation_(
+        laminarBurningVelocity::New
+        (
+            combustionProperties_.subDict("reactionRate"),
+            reactRate
+        )
+    ),
     sTurbulent_
     (
         IOobject
         (
             "TBV",
-            mesh_.time().name(),
-            mesh_,
+            reactionRate_.mesh().time().name(),
+            reactionRate_.mesh(),
             IOobject::NO_READ,
             IOobject::AUTO_WRITE
         ),
-        mesh_,
-        dimensionedScalar("TBV", dimVelocity, Zero)
+        reactionRate_.mesh(),
+        dimensionedScalar(dimVelocity, 0)
     ),
-    debug_(coeffDict_.lookupOrDefault("debug", false))
+    debug_(combustionProperties_.lookupOrDefault("debug", false))
 {
     Info << "flameFoam wrinklingFactor object initialized" << endl;
 }

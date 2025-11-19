@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -62,11 +62,11 @@ protected:
 
     // Protected data
 
-        //- Dictionary
-        const dictionary& coeffDict_;
-
         //- Combustion model owner
         const combustionModel& combModel_;
+
+        //- Dictionary of global mixture parameters
+        const dictionary& combustionProperties_;
 
         //- Mesh reference
         const fvMesh& mesh_;
@@ -99,16 +99,24 @@ protected:
         const dimensionedScalar WU_;
 
         //- Hydrogen concentration selections
-        const scalar X_H2_0_;
-        const scalar Y_H2_99_;
-        const scalar Y_H2_0_;
+        const dimensionedScalar X_H2_0_;
+        const dimensionedScalar Y_H2_99_;
+        const dimensionedScalar Y_H2_0_;
 
         //- User supplied combustion heat
-        const scalar H0_;
+        const dimensionedScalar H0_;
 
         //- Effective combustion heat
         const dimensionedScalar HEff_;
 
+        //- Unburnt mixture properties
+        volScalarField rhoU_;
+        volScalarField TU_;
+        volScalarField muU_;
+
+        //- Unburnt thermal diffusivity and correction switch
+        volScalarField alphaU_;
+        const Switch calculateAlphaU_;
 
 
 
@@ -126,11 +134,10 @@ public:
             reactionRate,
             dictionary,
             (
-                const word modelType,
                 const dictionary& dict,
                 const combustionModel& combModel
             ),
-            (modelType, dict, combModel)
+            (dict, combModel)
         );
 
 
@@ -139,8 +146,6 @@ public:
         //- Construct from components
         reactionRate
         (
-            const word& modelType,
-            const dictionary& dict,
             const combustionModel& combModel
         );
 
@@ -152,7 +157,7 @@ public:
 
         static autoPtr<reactionRate> New
         (
-            const dictionary& dict,
+            const dictionary& combustionProperties,
             const combustionModel& combModel
         );
 
@@ -167,11 +172,28 @@ public:
         //- Correct progress variable source
         virtual void correct() = 0;
 
+        void correctUnburntProperties();
 
         //- Access functions
-        Foam::tmp<Foam::volScalarField> TU() const;
-        Foam::tmp<Foam::volScalarField> rhoU() const;
-        Foam::tmp<Foam::volScalarField> muU() const;
+        inline const volScalarField& TU() const
+        {
+            return TU_;
+        }
+
+        inline const volScalarField& rhoU() const
+        {
+            return rhoU_;
+        }
+
+        inline const volScalarField& muU() const
+        {
+            return muU_;
+        }
+
+        inline const volScalarField& alphaU() const
+        {
+            return alphaU_;
+        }
 
         inline const fvMesh& mesh() const
         {
@@ -192,9 +214,6 @@ public:
         //- Return heat release rate [kg/m/s^3]
         virtual tmp<volScalarField> Qdot() const;
 
-        // NEAIŠKU AR REIKIA, GAL PRAVERS
-        //- Update from dictionary
-        // virtual bool read(const dictionary& dictProperties);
 
     // Member Operators
 

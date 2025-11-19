@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -26,6 +26,14 @@ Class
 
 Description
     Bradley correlation of turbulent burning velocity
+
+    References:
+    \verbatim
+        Bradley, D., Lau, A. K. C., & Lawes, M. (1992).
+        Flame stretch rate as a determinant of turbulent burning velocity.
+        Philosophical Transactions of the Royal Society of London. Series A:
+        Physical and Engineering Sciences, 338(1650), 359-387.
+    \endverbatim
 
 SourceFiles
     Bradley.C
@@ -56,7 +64,7 @@ class Bradley
     // Private Data
 
         //- Molecular Lewis number of fresh mixture
-        scalar Le_;
+        const dimensionedScalar Le_;
 
 public:
 
@@ -69,9 +77,8 @@ public:
         //- Construct from dictionary, mesh and combustion model
         Bradley
         (
-            const word modelType,
-            const reactionRate& reactRate,
-            const dictionary& dict
+            const dictionary& dict,
+            const reactionRate& reactRate
         );
 
         //- Disallow default bitwise copy construction

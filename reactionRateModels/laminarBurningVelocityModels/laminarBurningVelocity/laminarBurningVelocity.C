@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -38,29 +38,25 @@ namespace Foam
 
 Foam::laminarBurningVelocity::laminarBurningVelocity
 (
-    const word& modelType,
-    const reactionRate& reactRate,
-    const dictionary& dict
+    const reactionRate& reactRate
 )
 :
     reactionRate_(reactRate),
-    coeffDict_(dict.optionalSubDict(modelType + "Coeffs")),
-    mesh_(reactionRate_.mesh()),
-    combModel_(reactionRate_.combModel()),
-    debug_(dict.lookupOrDefault("debug", false)),
-    debugFields_(dict.lookupOrDefault("debugFields", false)),
+    combustionProperties_(reactionRate_.combModel().coeffs()),
+    debug_(combustionProperties_.lookupOrDefault("debug", false)),
+    debugFields_(combustionProperties_.lookupOrDefault("debugFields", false)),
     sLaminar_
     (
         IOobject
         (
             "LBV",
-            mesh_.time().name(),
-            mesh_,
+            reactionRate_.mesh().time().name(),
+            reactionRate_.mesh(),
             IOobject::NO_READ,
             debugFields_ ? IOobject::AUTO_WRITE : IOobject::NO_WRITE
         ),
-        mesh_,
-        dimensionedScalar("LBV", dimVelocity, Zero)
+        reactionRate_.mesh(),
+        dimensionedScalar(dimVelocity, 0)
     )
 {
     Info << "flameFoam laminarBurningVelocity object initialized" << endl;
@@ -71,17 +67,6 @@ Foam::laminarBurningVelocity::laminarBurningVelocity
 
 Foam::laminarBurningVelocity::~laminarBurningVelocity()
 {}
-
-
-// NEAIŠKU AR REIKIA, GAL PRAVERS
-// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-
-// bool Foam::laminarBurningVelocity::read(const dictionary& dict)
-// {
-//     dict.lookup("fuel") >> fuel_;
-//
-//     return true;
-// }
 
 
 // ************************************************************************* //

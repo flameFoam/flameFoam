@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -26,6 +26,14 @@ Class
 
 Description
     ETFC model for combustion progress variable equation closure
+
+    References:
+    \verbatim
+        Lipatnikov, A. N., & Chomiak, J. (2002).
+        Turbulent flame speed and thickness: phenomenology,
+        evaluation, and application in multi-dimensional simulations.
+        Progress in energy and combustion science, 28(1), 1-74.
+    \endverbatim
 
 SourceFiles
     ETFC.C
@@ -61,8 +69,6 @@ class ETFC
 
         autoPtr<laminarBurningVelocity> laminarCorrelation_;
 
-	const volScalarField& c_;
-
 	volScalarField Dt_inf_;
 
 	volScalarField DEffByRho_;
@@ -82,9 +88,7 @@ protected:
             //- Turbulent Schmidt number []
             dimensionedScalar Sct_;
 
-            dimensionedScalar alpha_u_;
-
-            dimensionedScalar Le_;
+            const dimensionedScalar Le_;
 
 public:
 
@@ -97,8 +101,7 @@ public:
         //- Construct from dictionary, mesh and combustion model
         ETFC
         (
-            const word modelType,
-            const dictionary& dictCoeffs,
+            const dictionary& dict,
             const combustionModel& combModel
         );
 
@@ -117,9 +120,6 @@ public:
         virtual void correct();
 
     // IO
-
-        //- Update properties from given dictionary
-        // virtual bool read(const dictionary& dictProperties);
 
         //- Return infoString_
         virtual char const *getInfo();

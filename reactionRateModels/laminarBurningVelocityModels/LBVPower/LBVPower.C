@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -47,23 +47,25 @@ namespace laminarBurningVelocityModels
 
 Foam::laminarBurningVelocityModels::LBVPower::LBVPower
 (
-    const word modelType,
-    const reactionRate& reactRate,
-    const dictionary& dict
+    const dictionary& dict,
+    const reactionRate& reactRate
 ):
-    laminarBurningVelocity(modelType, reactRate, dict),
-    X_H2_0_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("X_H2_0")),
-    X_H2O_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("X_H2O")),
+    laminarBurningVelocity(reactRate),
+    X_H2_0_("X_H2_0", dimless, combustionProperties_),
+    X_H2O_("X_H2O", dimless, combustionProperties_),
 
-    powerDil_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("powerDil")),
-    powerT_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("powerT")),
-    powerP_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("powerP")),
+    powerDil_("powerDil", dimless, dict),
+    powerT_("powerT", dimless, dict),
+    powerP_("powerP", dimless, dict),
+
+    a2_("a2", dimVelocity, dict),
+    a1_("a1", dimVelocity, dict),
+    a0_("a0", dimVelocity, dict),
 
     ER_(0.705*X_H2_0_/(0.295*(1-X_H2_0_-X_H2O_))),
-    sLaminar0_(dimensionedScalar(dimVelocity, 1.44*ER_*ER_+1.07*ER_-0.29)),
-    pRef_(dimensionedScalar(dimPressure, 100000)),
-    TRef_(dimensionedScalar(dimTemperature, 298)),
-    p_(mesh_.lookupObject<volScalarField>("p"))
+    sLaminar0_((a2_*ER_*ER_ + a1_*ER_ + a0_) * pow(1 - X_H2O_, powerDil_)),
+    pRef_("pRef", dimPressure, dict),
+    TRef_("TRef", dimTemperature, dict)
 {
     appendInfo("\tLBV estimation method: LBVPower correlation");
 }
@@ -86,7 +88,10 @@ void Foam::laminarBurningVelocityModels::LBVPower::correct
         Info << "\t\t\t\tInitial average S_L: "  << average(sLaminar_).value() << endl;
     }
 
-    sLaminar_ = sLaminar0_ * pow(1 - X_H2O_, powerDil_) * pow(reactionRate_.TU() / TRef_, powerT_) * pow(p_ / pRef_, powerP_);
+    const fvMesh& mesh(reactionRate_.mesh());
+    const volScalarField& p = mesh.lookupObject<volScalarField>("p");
+
+    sLaminar_ = sLaminar0_ * pow(reactionRate_.TU() / TRef_, powerT_) * pow(p / pRef_, powerP_);
 
     if (debug_)
     {

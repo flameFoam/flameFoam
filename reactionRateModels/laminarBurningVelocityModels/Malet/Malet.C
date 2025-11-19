@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -47,18 +47,19 @@ namespace laminarBurningVelocityModels
 
 Foam::laminarBurningVelocityModels::Malet::Malet
 (
-    const word modelType,
-    const reactionRate& reactRate,
-    const dictionary& dict
+    const dictionary& dict,
+    const reactionRate& reactRate
 ):
-    laminarBurningVelocity(modelType, reactRate, dict),
-    X_H2_0_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("X_H2_0")),
-    X_H2O_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("X_H2O")),
+    laminarBurningVelocity(reactRate),
+    X_H2_0_("X_H2_0", dimless, combustionProperties_),
+    X_H2O_("X_H2O", dimless, combustionProperties_),
+    a2_(dimVelocity, 1.44),
+    a1_(dimVelocity, 1.07),
+    a0_(dimVelocity, -0.29),
     ER_(0.705*X_H2_0_/(0.295*(1-X_H2_0_-X_H2O_))),
-    sLaminar0_(dimensionedScalar(dimVelocity, 1.44*ER_*ER_+1.07*ER_-0.29)),
-    pRef_(dimensionedScalar(dimPressure, 100000)),
-    TRef_(dimensionedScalar(dimTemperature, 298)),
-    p_(mesh_.lookupObject<volScalarField>("p"))
+    sLaminar0_((a2_*ER_*ER_ + a1_*ER_ + a0_) * pow(1-X_H2O_,4)),
+    pRef_(dimPressure, 100000),
+    TRef_(dimTemperature, 298)
 {
     appendInfo("\tLBV estimation method: Malet correlation");
 }
@@ -81,7 +82,10 @@ void Foam::laminarBurningVelocityModels::Malet::correct
         Info << "\t\t\t\tInitial average S_L: "  << average(sLaminar_).value() << endl;
     }
 
-    sLaminar_ = sLaminar0_*pow(1-X_H2O_,4)*pow(reactionRate_.TU()/TRef_,2.2)*pow(p_/pRef_,-0.5);
+    const fvMesh& mesh(reactionRate_.mesh());
+    const volScalarField& p = mesh.lookupObject<volScalarField>("p");
+
+    sLaminar_ = sLaminar0_*pow(reactionRate_.TU()/TRef_,2.2)*pow(p/pRef_,-0.5);
 
     if (debug_)
     {
@@ -89,96 +93,7 @@ void Foam::laminarBurningVelocityModels::Malet::correct
         Info << "\t\t\t\tMalet correct finished" << endl;
     }
 
-
-    // dimensionedScalar omega0
-    // (
-    //     "omega0",
-    //     dimensionSet(1, -2, -1, 0, 0, 0, 0),
-    //     correlation_.omega0()
-    // );
-    //
-    // dimensionedScalar sigmaExt
-    // (
-    //     "sigmaExt",
-    //     dimensionSet(0, 0, -1, 0, 0, 0, 0),
-    //     correlation_.sigmaExt()
-    // );
-    //
-    // dimensionedScalar omegaMin
-    // (
-    //     "omegaMin",
-    //     omega0.dimensions(),
-    //     1e-4
-    // );
-    //
-    // dimensionedScalar kMin
-    // (
-    //     "kMin",
-    //     sqr(dimVelocity),
-    //     small
-    // );
-    //
-    // const compressibleMomentumTransportModel& turbulence =
-    //     combModel_.turbulence();
-    //
-    // // Total strain
-    // const volScalarField sigmaTotal
-    // (
-    //     sigma + alpha_*turbulence.epsilon()/(turbulence.k() + kMin)
-    // );
-    //
-    // const volScalarField omegaInf(correlation_.omega0Sigma(sigmaTotal));
-    //
-    // dimensionedScalar sigma0("sigma0", sigma.dimensions(), 0.0);
-    //
-    // const volScalarField tau(C_*mag(sigmaTotal));
-    //
-    // volScalarField Rc
-    // (
-    //     (tau*omegaInf*(omega0 - omegaInf) + sqr(omegaMin)*sigmaExt)
-    //    /(sqr(omega0 - omegaInf) + sqr(omegaMin))
-    // );
-    //
-    // const volScalarField& rho = combModel_.rho();
-    // const tmp<surfaceScalarField> tphi = combModel_.phi();
-    // const surfaceScalarField& phi = tphi();
-    //
-    // solve
-    // (
-    //      fvm::ddt(rho, omega_)
-    //    + fvm::div(phi, omega_)
-    //   ==
-    //      rho*Rc*omega0
-    //    - fvm::SuSp(rho*(tau + Rc), omega_)
-    // );
-    //
-    // omega_.min(omega0);
-    // omega_.max(0.0);
-
-
 }
 
-
-// bool  Foam::laminarBurningVelocityModels::Malet::read
-// (
-//     const dictionary& dict
-// )
-// {
-//     if (reactionRateFlameArea::read(dict))
-//     {
-//         coeffDict_ = dict.optionalSubDict(typeName + "Coeffs");
-//         coeffDict_.lookup("C") >> C_;
-//         coeffDict_.lookup("alpha") >> alpha_;
-//         correlation_.read
-//         (
-//             coeffDict_.subDict(fuel_)
-//         );
-//         return true;
-//     }
-//     else
-//     {
-//         return false;
-//     }
-// }
 
 // ************************************************************************* //

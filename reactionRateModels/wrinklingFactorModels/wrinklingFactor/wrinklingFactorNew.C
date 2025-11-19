@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -29,39 +29,33 @@ Disclaimer
 
 Foam::autoPtr<Foam::wrinklingFactor> Foam::wrinklingFactor::New
 (
-    const reactionRate& reactRate,
-    const dictionary& dict
+    const dictionary& reactionRateProperties,
+    const reactionRate& reactRate
 )
 {
-    word wrinklingFactorType
-    (
-        dict.lookup("wrinklingFactor")
-    );
+    const dictionary& wrinklingFactorProperties =
+        reactionRateProperties.subDict("wrinklingFactor");
+
+    const word modelType(wrinklingFactorProperties.lookup("model"));
 
     Info<< "Selecting wrinkling factor correlation "
-        << wrinklingFactorType << endl;
+        << modelType << endl;
 
     dictionaryConstructorTable::iterator cstrIter =
-        dictionaryConstructorTablePtr_->find(wrinklingFactorType);
+        dictionaryConstructorTablePtr_->find(modelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())
     {
-        FatalIOErrorInFunction
-        (
-            dict
-        )   << "Unknown turbulent burning velocity correlation "
-            << wrinklingFactorType << endl << endl
-            << "Valid turbulent burning velocity correlations are :" << endl
-            << dictionaryConstructorTablePtr_->toc()
+        FatalIOErrorInFunction(wrinklingFactorProperties)
+            << "Unknown wrinkling factor correlation "
+            << modelType << nl << nl
+            << "Valid wrinkling factor correlations are :" << endl
+            << dictionaryConstructorTablePtr_->sortedToc()
             << exit(FatalIOError);
     }
 
-    const label tempOpen = wrinklingFactorType.find('<');
-
-    const word className = wrinklingFactorType(0, tempOpen);
-
     return autoPtr<wrinklingFactor>
-        (cstrIter()(className, reactRate, dict));
+        (cstrIter()(wrinklingFactorProperties.optionalSubDict(modelType), reactRate));
 }
 
 

@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -27,6 +27,14 @@ Class
 Description
     Charlette correlation of flame wrinkling factor
 
+    References:
+    \verbatim
+        Charlette, F., Meneveau, C., & Veynante, D. (2002).
+        A power-law flame wrinkling model for LES of premixed
+        turbulent combustion Part I: non-dynamic formulation and
+        initial tests. Combustion and Flame, 131(1-2), 159-180.
+    \endverbatim
+
 SourceFiles
     Charlette.C
 
@@ -36,7 +44,6 @@ SourceFiles
 #define Charlette_H
 
 #include "wrinklingFactor.H"
-#include "laminarBurningVelocity.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -55,25 +62,19 @@ class Charlette
 {
     // Private Data
 
-        const volVectorField& U_;
+        const scalar c2_;
 
-        const volScalarField& delta_;
+        const scalar Ck_;
 
-        autoPtr<laminarBurningVelocity> laminarCorrelation_;
+        const scalar Ck_mult1_;
 
-        scalar c2_;
+        const scalar Ck_mult2_;
 
-        scalar Ck_;
+        const scalar n43_;
 
-        scalar Ck_mult1_;
+        const scalar pi43_;
 
-        scalar Ck_mult2_;
-
-        scalar n43_;
-
-        scalar pi43_;
-
-        scalar beta_;
+        const scalar beta_;
 
 public:
 
@@ -86,9 +87,8 @@ public:
         //- Construct from dictionary, mesh and combustion model
         Charlette
         (
-            const word modelType,
-            const reactionRate& reactRate,
-            const dictionary& dict
+            const dictionary& dict,
+            const reactionRate& reactRate
         );
 
         //- Disallow default bitwise copy construction

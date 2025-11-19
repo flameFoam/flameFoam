@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -26,6 +26,13 @@ Class
 
 Description
     ANN correlation of laminar burning velocity
+
+    References:
+    \verbatim
+        Ambrutis, A., & Povilaitis, M. (2022).
+        Development of a CFD-suitable deep neural network model
+        for laminar burning velocity. Applied Sciences, 12(15), 7460.
+    \endverbatim
 
 SourceFiles
     ANN.C
@@ -54,6 +61,10 @@ class ANN
 {
 
     // Private data
+
+        //- Mesh reference
+
+        const fvMesh& mesh_;
 
         //- Fraction of steam
         const scalar X_H2_0_;
@@ -111,9 +122,8 @@ public:
         //- Construct from dictionary and reaction rate
         ANN
         (
-            const word modelType,
-            const reactionRate& reactRate,
-            const dictionary& dictCoeffs
+            const dictionary& dict,
+            const reactionRate& reactRate
         );
 
         //- Disallow default bitwise copy construction

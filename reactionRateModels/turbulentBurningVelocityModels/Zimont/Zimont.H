@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -26,6 +26,14 @@ Class
 
 Description
     Zimont correlation of turbulent burning velocity
+
+    References:
+    \verbatim
+        Zimont, V. L. (2000).
+        Gas premixed combustion at high turbulence.
+        Turbulent flame closure combustion model.
+        Experimental thermal and fluid science, 21(1-3), 179-186.
+    \endverbatim
 
 SourceFiles
     Zimont.C
@@ -56,11 +64,9 @@ class Zimont
     // Private Data
 
         //- Molecular Lewis number of fresh mixture
-        const scalar ZimontA_;
+        const dimensionedScalar ZimontA_;
 
-        const dimensionedScalar alpha_u_;
-
-        const scalar Le_;
+        const dimensionedScalar Le_;
 
         const dimensionedScalar ACalpha_;
 
@@ -75,9 +81,8 @@ public:
         //- Construct from dictionary, mesh and combustion model
         Zimont
         (
-            const word modelType,
-            const reactionRate& reactRate,
-            const dictionary& dict
+            const dictionary& dict,
+            const reactionRate& reactRate
         );
 
         //- Disallow default bitwise copy construction

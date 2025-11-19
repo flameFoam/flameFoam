@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -47,13 +47,13 @@ namespace laminarBurningVelocityModels
 
 Foam::laminarBurningVelocityModels::ANN::ANN
 (
-    const word modelType,
-    const reactionRate& reactRate,
-    const dictionary& dict
+    const dictionary& dict,
+    const reactionRate& reactRate
 ):
-    laminarBurningVelocity(modelType, reactRate, dict),
-    X_H2_0_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("X_H2_0")),
-    X_H2O_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("X_H2O")),
+    laminarBurningVelocity(reactRate),
+    mesh_(reactionRate_.mesh()),
+    X_H2_0_(combustionProperties_.lookup<scalar>("X_H2_0")),
+    X_H2O_(combustionProperties_.lookup<scalar>("X_H2O")),
     ER_(0.705*X_H2_0_/(0.295*(1-X_H2_0_-X_H2O_))),
     p_(mesh_.lookupObject<volScalarField>("p")),
 
@@ -316,7 +316,7 @@ Foam::laminarBurningVelocityModels::ANN::ANN
     -3.055608272552490234e+00
     }})),
 
-    B4_(dimensionedScalar(dimVelocity, 1.684066504240036011e-01)),
+    B4_(dimVelocity, 1.684066504240036011e-01),
 
     // Input layer
     L0_(PtrList<volScalarField>(7)),
@@ -396,7 +396,7 @@ Foam::laminarBurningVelocityModels::ANN::ANN
                 IOobject::AUTO_WRITE
             ),
             mesh_,
-            dimensionedScalar("TU", dimTemperature, Zero)
+            dimensionedScalar(dimTemperature, 0)
         )
     );
 

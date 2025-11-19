@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -29,39 +29,33 @@ Disclaimer
 
 Foam::autoPtr<Foam::laminarBurningVelocity> Foam::laminarBurningVelocity::New
 (
-    const reactionRate& reactRate,
-    const dictionary& dict
+    const dictionary& reactRateProperties,
+    const reactionRate& reactRate
 )
 {
-    word laminarBurningVelocityType
-    (
-        dict.lookup("laminarBurningVelocity")
-    );
+    const dictionary& laminarBurningVelocityDict =
+        reactRateProperties.subDict("laminarBurningVelocity");
+
+    const word modelType(laminarBurningVelocityDict.lookup("model"));
 
     Info<< "Selecting laminar correlation "
-        << laminarBurningVelocityType << endl;
+        << modelType << endl;
 
     dictionaryConstructorTable::iterator cstrIter =
-        dictionaryConstructorTablePtr_->find(laminarBurningVelocityType);
+        dictionaryConstructorTablePtr_->find(modelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())
     {
-        FatalIOErrorInFunction
-        (
-            dict
-        )   << "Unknown laminar burning velocity correlation "
-            << laminarBurningVelocityType << endl << endl
+        FatalIOErrorInFunction(reactRateProperties)
+            << "Unknown laminar burning velocity correlation "
+            << modelType << nl << nl
             << "Valid laminar burning velocity correlations are :" << endl
-            << dictionaryConstructorTablePtr_->toc()
+            << dictionaryConstructorTablePtr_->sortedToc()
             << exit(FatalIOError);
     }
 
-    const label tempOpen = laminarBurningVelocityType.find('<');
-
-    const word className = laminarBurningVelocityType(0, tempOpen);
-
     return autoPtr<laminarBurningVelocity>
-        (cstrIter()(className, reactRate, dict));
+        (cstrIter()(laminarBurningVelocityDict.optionalSubDict(modelType), reactRate));
 }
 
 

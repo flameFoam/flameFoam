@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -26,6 +26,14 @@ Class
 
 Description
     TFC model for combustion progress variable equation closure
+
+    References:
+    \verbatim
+        Zimont, V. L. (2000).
+        Gas premixed combustion at high turbulence.
+        Turbulent flame closure combustion model.
+        Experimental thermal and fluid science, 21(1-3), 179-186.
+    \endverbatim
 
 SourceFiles
     TFC.C
@@ -58,12 +66,6 @@ class TFC
         //- Auto pointer to reaction rate model
         autoPtr<turbulentBurningVelocity> turbulentCorrelation_;
 
-        //- Proportionality constant for time scale in the TFC Eq.
-        // scalar C_;
-
-        //- Proportionality constant for sub-grid strain
-        // scalar alpha_;
-
 
 public:
 
@@ -76,8 +78,7 @@ public:
         //- Construct from dictionary, mesh and combustion model
         TFC
         (
-            const word modelType,
-            const dictionary& dictCoeffs,
+            const dictionary& dict,
             const combustionModel& combModel
         );
 
@@ -96,9 +97,6 @@ public:
         virtual void correct();
 
     // IO
-
-        //- Update properties from given dictionary
-        // virtual bool read(const dictionary& dictProperties);
 
         //- Return infoString_
         virtual char const *getInfo();

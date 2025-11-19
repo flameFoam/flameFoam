@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -44,6 +44,7 @@ SourceFiles
 #include "fvmSup.H"
 #include "infoPass.H"
 #include "reactionRate.H"
+#include "laminarBurningVelocity.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -65,19 +66,15 @@ protected:
 
         const reactionRate& reactionRate_;
 
-        //- Dictionary
-        dictionary coeffDict_;
+        //- Full combustionProperties dictionary
+        const dictionary& combustionProperties_;
 
-        //- Mesh reference
-        const fvMesh& mesh_;
-
-        //- Combustion model owner
-        const combustionModel& combModel_;
+        autoPtr<laminarBurningVelocity> laminarCorrelation_;
 
         //- Wrinkling factor
         volScalarField sTurbulent_;
 
-        bool debug_;
+        const Switch debug_;
 
 
 public:
@@ -94,11 +91,10 @@ public:
             wrinklingFactor,
             dictionary,
             (
-                const word modelType,
-                const reactionRate& reactRate,
-                const dictionary& dict
+                const dictionary& dict,
+                const reactionRate& reactRate
             ),
-            (modelType, reactRate, dict)
+            (dict, reactRate)
         );
 
 
@@ -107,9 +103,7 @@ public:
         //- Construct from components
         wrinklingFactor
         (
-            const word& modelType,
-            const reactionRate& reactRate,
-            const dictionary& dict
+            const reactionRate& reactRate
         );
 
         //- Disallow default bitwise copy construction
@@ -120,8 +114,8 @@ public:
 
         static autoPtr<wrinklingFactor> New
         (
-            const reactionRate& reactRate,
-            const dictionary& dict
+            const dictionary& reactionRateProperties,
+            const reactionRate& reactRate
         );
 
 
@@ -142,7 +136,6 @@ public:
 
 
         //- Correct progress variable source
-        // virtual void correct() = 0;
 
         virtual void correct() = 0;
 

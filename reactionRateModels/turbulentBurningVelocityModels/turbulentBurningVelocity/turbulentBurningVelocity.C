@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -38,35 +38,32 @@ namespace Foam
 
 Foam::turbulentBurningVelocity::turbulentBurningVelocity
 (
-    const word& modelType,
-    const reactionRate& reactRate,
-    const dictionary& dict
+    const reactionRate& reactRate
 )
 :
     reactionRate_(reactRate),
-    coeffDict_(dict),
-    mesh_(reactionRate_.mesh()),
     combModel_(reactionRate_.combModel()),
-    debug_(dict.lookupOrDefault("debug", false)),
-    debugFields_(dict.lookupOrDefault("debugFields", false)),
+    combustionProperties_(combModel_.coeffs()),
+    debug_(combustionProperties_.lookupOrDefault("debug", false)),
+    debugFields_(combustionProperties_.lookupOrDefault("debugFields", false)),
     sTurbulent_
     (
         IOobject
         (
             "TBV",
-            mesh_.time().name(),
-            mesh_,
+            reactionRate_.mesh().time().name(),
+            reactionRate_.mesh(),
             IOobject::NO_READ,
             debugFields_ ? IOobject::AUTO_WRITE : IOobject::NO_WRITE
         ),
-        mesh_,
-        dimensionedScalar("TBV", dimVelocity, Zero)
+        reactionRate_.mesh(),
+        dimensionedScalar(dimVelocity, 0)
     ),
     laminarCorrelation_(
         laminarBurningVelocity::New
         (
-            reactRate,
-            combModel_.coeffs()
+            combustionProperties_.subDict("reactionRate"),
+            reactRate
         )
     )
 {
@@ -80,7 +77,6 @@ Foam::turbulentBurningVelocity::~turbulentBurningVelocity()
 {}
 
 
-// NEAIŠKU AR REIKIA, GAL PRAVERS
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 Foam::tmp<Foam::volScalarField> Foam::turbulentBurningVelocity::saneEpsilon()
 {
@@ -91,15 +87,6 @@ const Foam::volScalarField& Foam::turbulentBurningVelocity::getLaminarBurningVel
 {
     return laminarCorrelation_().burningVelocity();
 }
-
-
-
-// bool Foam::turbulentBurningVelocity::read(const dictionary& dict)
-// {
-//     dict.lookup("fuel") >> fuel_;
-//
-//     return true;
-// }
 
 
 // ************************************************************************* //

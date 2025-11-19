@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -26,11 +26,12 @@ Class
 
 Description
     Collection of combustion models for turbulent premixed combustion of
-    hydrogen/air mixtures for OpenFOAM-12.
+    hydrogen/air mixtures for OpenFOAM-13.
 
     Models provided for laminar burning velocity estimation:
         Constant, user defined value
         Malet correlation for lean mixtures [1]
+        Power law correlation with user defined coefficients
         Deep neural network model based on experimental data [2]
 
     Models provided for turbulent burning velocity estimation:

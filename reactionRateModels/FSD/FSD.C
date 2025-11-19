@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -47,17 +47,16 @@ namespace reactionRateModels
 
 Foam::reactionRateModels::FSD::FSD
 (
-    const word modelType,
     const dictionary& dict,
     const combustionModel& combModel
 )
 :
-    reactionRate(modelType, dict, combModel),
+    reactionRate(combModel),
     wrinklingCorrelation_(
         wrinklingFactor::New
         (
-            *this,
-            dict
+            dict,
+            *this
         )
     )
 {
@@ -83,6 +82,8 @@ void Foam::reactionRateModels::FSD::correct
         Info << "\tFSD correct:" << endl;
         Info << "\t\tInitial min/avg/max cSource: " << min(cSource_).value() << " " << average(cSource_).value() << " " << max(cSource_).value() << endl;
     }
+
+    this->correctUnburntProperties();
 
     wrinklingCorrelation_->correct();
 

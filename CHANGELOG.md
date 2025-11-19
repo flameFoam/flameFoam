@@ -1,5 +1,10 @@
 # Changelog
 
+## [13.0.0] - 2025-11-19
+### Changed
+- Ported to OpenFOAM-13 - minor changes, refactoring and improvements
+- Refactored expected combustionProperties structure
+
 ## [12.3.0] - 2025-05-02
 ### Added
 - Initial version of generalized LBV power law correlation LBVPower with user-defined powers

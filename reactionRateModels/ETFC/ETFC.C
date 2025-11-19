@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -47,20 +47,18 @@ namespace reactionRateModels
 
 Foam::reactionRateModels::ETFC::ETFC
 (
-    const word modelType,
     const dictionary& dict,
     const combustionModel& combModel
 )
 :
-    reactionRate(modelType, dict, combModel),
+    reactionRate(combModel),
     turbulentCorrelation_(
         turbulentBurningVelocity::New
         (
-            *this,
-            dict
+            dict,
+            *this
         )
     ),
-    c_(combModel_.thermo().Y("c")),
     Dt_inf_
     (
     	IOobject
@@ -72,7 +70,7 @@ Foam::reactionRateModels::ETFC::ETFC
             debug_ ? IOobject::AUTO_WRITE : IOobject::NO_WRITE
         ),
         mesh_,
-        dimensionedScalar("Dt_inf", dimKinematicViscosity, Zero)
+        dimensionedScalar(dimKinematicViscosity, 0)
     ),
     DEffByRho_
     (
@@ -85,7 +83,7 @@ Foam::reactionRateModels::ETFC::ETFC
             debugFields_ ? IOobject::AUTO_WRITE : IOobject::NO_WRITE
         ),
         mesh_,
-        dimensionedScalar("DEffByRho", dimKinematicViscosity, Zero)
+        dimensionedScalar(dimKinematicViscosity, 0)
     ),
     TauByT_
     (
@@ -98,7 +96,7 @@ Foam::reactionRateModels::ETFC::ETFC
             debug_ ? IOobject::AUTO_WRITE : IOobject::NO_WRITE
         ),
         mesh_,
-        dimensionedScalar("TauByT", dimless, Zero)
+        dimensionedScalar(dimless, 0)
     ),
     expFactor_
     (
@@ -111,7 +109,7 @@ Foam::reactionRateModels::ETFC::ETFC
             debug_ ? IOobject::AUTO_WRITE : IOobject::NO_WRITE
         ),
         mesh_,
-        dimensionedScalar("expFactor", dimless, Zero)
+        dimensionedScalar(dimless, 0)
     ),
     cLam_
     (
@@ -124,11 +122,10 @@ Foam::reactionRateModels::ETFC::ETFC
             debugFields_ ? IOobject::AUTO_WRITE : IOobject::NO_WRITE
         ),
         mesh_,
-        dimensionedScalar("cLam", dimDensity/dimTime, Zero)
+        dimensionedScalar(dimDensity/dimTime, 0)
     ),
     Sct_("Sct", dimless, 0),
-    alpha_u_("alpha_u", dimKinematicViscosity, this->coeffDict_),
-    Le_("Le", dimless, this->coeffDict_)
+    Le_("Le", dimless, combustionProperties_)
 {
     IOdictionary thermophysicalTransportDict
     (
@@ -141,7 +138,7 @@ Foam::reactionRateModels::ETFC::ETFC
             IOobject::NO_WRITE
         )
     );
-    Sct_ = thermophysicalTransportDict.lookup<scalar>("Sct");
+    Sct_ = thermophysicalTransportDict.subDict("RAS").lookup<scalar>("Sct");
 
     appendInfo("Reaction rate model: ETFC");
 }
@@ -165,6 +162,10 @@ void Foam::reactionRateModels::ETFC::correct
         Info << "\t\tInitial min/avg/max cSource: " << min(cSource_).value() << " " << average(cSource_).value() << " " << max(cSource_).value() << endl;
     }
 
+    this->correctUnburntProperties();
+
+    const volScalarField& c = combModel_.thermo().Y("c");
+
     turbulentCorrelation_->correct();
 
     Dt_inf_ = combModel_.turbulence().nut()/Sct_; // TODO: check against dev2-efix-ZimontLe-no0-fix2/
@@ -173,16 +174,16 @@ void Foam::reactionRateModels::ETFC::correct
 
     expFactor_ = 1 - exp(-1/TauByT_);
 
-    DEffByRho_ = alpha_u_/Le_+Dt_inf_*expFactor_;
+    DEffByRho_ = this->alphaU()/Le_+Dt_inf_*expFactor_;
 
     cLam_ = 0.25*pow(turbulentCorrelation_->getLaminarBurningVelocity(), 2)*
-        rhoU()*max(c_-SMALL*mesh_.time().deltaT().value(),0.0)*(1-c_)/            // TODO: check if deltaT or absolute value should be used
+        rhoU()*max(c-SMALL*mesh_.time().deltaT().value(),0.0)*(1-c)/            // TODO: check if deltaT or absolute value should be used
         DEffByRho_;
 
     cSource_ =
         rhoU()*
         turbulentCorrelation_->burningVelocity()*
-        mag(fvc::grad(c_))*
+        mag(fvc::grad(c))*
         pow((max(1-expFactor_*TauByT_, 0.0)),0.5)  + cLam_;
 
     if (debug_)

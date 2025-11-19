@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2025 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -26,6 +26,14 @@ Class
 
 Description
     Bray correlation of turbulent burning velocity
+
+    References:
+    \verbatim
+        Bray, K. N. C. (1990).
+        Studies of the turbulent burning velocity.
+        Proceedings of the Royal Society of London. Series A:
+        Mathematical and Physical Sciences, 431(1882), 315-335.
+    \endverbatim
 
 SourceFiles
     Bray.C
@@ -54,9 +62,7 @@ class Bray
     public turbulentBurningVelocity
 {
     // Private Data
-
-        //- Molecular Lewis number of fresh mixture
-        scalar Le_;
+    const scalar c1_;
 
 public:
 
@@ -69,9 +75,8 @@ public:
         //- Construct from dictionary, mesh and combustion model
         Bray
         (
-            const word modelType,
-            const reactionRate& reactRate,
-            const dictionary& dict
+            const dictionary& dict,
+            const reactionRate& reactRate
         );
 
         //- Disallow default bitwise copy construction
