@@ -1,20 +1,20 @@
 # flameFoam
 
-Hydrogen-air premixed turbulent combustion model for OpenFOAM-12:
+Hydrogen-air premixed turbulent combustion model for OpenFOAM-13:
 - Progress variable approach
 - TFC and ETFC models for RANS with Zimont, Bradley and Bray correlations
 - Laminar burning velocity can be set by user (constant value) or estimated using Malet correlation (for lean mixtures only) or (custom DNN model: pending) (for dry mixtures only)
 - FSD model for LES with Charlette correlation
 
 ## Compilation
-Library is compiled using **wmake** command. [OpenFOAM-12](https://openfoam.org/release/12/) needs to be installed.
+Library is compiled using **wmake** command. [OpenFOAM-13](https://openfoam.org/release/13/) needs to be installed.
 
 ## Activation
 Library needs to be included in controlDict:
 ```C
 libs
 (
-  "flameFoam-12.3.0.so"
+  "flameFoam-13.0.0.so"
 );
 ```
 
