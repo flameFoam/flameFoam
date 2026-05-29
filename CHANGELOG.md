@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.12.3] - 2026-05-28
+## [0.12.3] - 2026-05-29
 ### Added
 - Quenching and wall quenching models for RANS
 - Unburnt mixture temperature estimation
