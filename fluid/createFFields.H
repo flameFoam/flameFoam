@@ -1,6 +1,8 @@
 // Initialise fluid field pointer lists
 PtrList<fluidReactionThermo> thermoFluid(fluidRegions.size());
 PtrList<volScalarField> rhoFluid(fluidRegions.size());
+PtrList<volScalarField> dFactorFluid(fluidRegions.size());
+PtrList<volScalarField> cLamFluid(fluidRegions.size());
 PtrList<volVectorField> UFluid(fluidRegions.size());
 PtrList<surfaceScalarField> phiFluid(fluidRegions.size());
 PtrList<uniformDimensionedVectorField> gFluid(fluidRegions.size());
@@ -18,23 +20,35 @@ PtrList<volScalarField> dpdtFluid(fluidRegions.size());
 PtrList<multivariateSurfaceInterpolationScheme<scalar>::fieldTable>
     fieldsFluid(fluidRegions.size());
 List<scalar> rho0_value(fluidRegions.size());
+List<scalar> p0_value(fluidRegions.size());
 List<scalar> mu_u_value(fluidRegions.size());
 List<scalar> Tref_value(fluidRegions.size());
 List<scalar> pref_value(fluidRegions.size());
+List<scalar> gcr_value(fluidRegions.size());
 List<scalar> ScT(fluidRegions.size());
 List<scalar> X_H2_0(fluidRegions.size());
-List<scalar> X_H2_99(fluidRegions.size());
 List<dimensionedScalar> Y_H2_0(fluidRegions.size());
 List<dimensionedScalar> Y_H2_99(fluidRegions.size());
 List<scalar> X_H2O(fluidRegions.size());
 List<scalar> LBV_param_value(fluidRegions.size());
 List<scalar> Le(fluidRegions.size());
 List<Switch> ignite(fluidRegions.size());
-List<Switch> visciousDis(fluidRegions.size());
+List<Switch> viscousDis(fluidRegions.size());
+List<Switch> quenching(fluidRegions.size());
+List<Switch> Tu(fluidRegions.size());
+List<Switch> wallQuenching(fluidRegions.size());
 PtrList<volScalarField> S_LFluid(fluidRegions.size());
 PtrList<volScalarField> S_TFluid(fluidRegions.size());
+PtrList<volScalarField> GFluid(fluidRegions.size());
 PtrList<volScalarField> cSourceFluid(fluidRegions.size());
 PtrList<volScalarField> XiFluid(fluidRegions.size());
+PtrList<volScalarField> TunFluid(fluidRegions.size());
+PtrList<volScalarField> Pe_QFluid(fluidRegions.size());
+PtrList<volScalarField> PeFluid(fluidRegions.size());
+PtrList<volScalarField> D_QFluid(fluidRegions.size());
+PtrList<volScalarField> quenchAlphaFluid(fluidRegions.size());
+PtrList<volScalarField> I_QRFluid(fluidRegions.size());
+PtrList<volScalarField> wallDistanceFluid(fluidRegions.size());
 List<word> Correlation(fluidRegions.size());
 List<word> CorrelationL(fluidRegions.size());
 List<word> turbulenceType(fluidRegions.size());
@@ -45,6 +59,10 @@ List<scalar> ignX(fluidRegions.size());
 List<scalar> ignY(fluidRegions.size());
 List<scalar> ignZ(fluidRegions.size());
 List<scalar> ignR2(fluidRegions.size());
+List<scalar> W_u_value(fluidRegions.size());
+List<scalar> ER(fluidRegions.size());
+List<scalar> Pe_max_value(fluidRegions.size());
+List<scalar> quenchBeta_value(fluidRegions.size());
 
 #include <ctime>
 std::time_t t = std::time(nullptr);
@@ -96,12 +114,48 @@ forAll(fluidRegions, i)
     volScalarField& Ydefault = thermoFluid[i].composition().Y(1);
     thermoFluid[i].correct();
 
+    dFactorFluid.set
+    (
+        i,
+        new volScalarField
+        (
+            IOobject
+            (
+                "dFactor",
+                runTime.timeName(),
+                fluidRegions[i],
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            fluidRegions[i],
+            dimensionedScalar("dFactor", dimViscosity*dimDensity, 0)
+        )
+    );
+    cLamFluid.set
+    (
+        i,
+        new volScalarField
+        (
+            IOobject
+            (
+                "cLam",
+                runTime.timeName(),
+                fluidRegions[i],
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            fluidRegions[i],
+            dimensionedScalar("cLam", dimDensity/dimTime, 0)
+        )
+    );
+
     if ((cFluid[i].name() != "c") or (Ydefault.name() != "Ydefault"))
     {
         FatalErrorInFunction
         << "Wrong order of mixture components." <<  endl
         << exit(FatalError);
     }
+    W_u_value[i] = thermoFluid[i].composition().Wi(1)/1000.0;
 
     Info<< "    Adding to rhoFluid\n" << endl;
     rhoFluid.set
@@ -267,6 +321,10 @@ forAll(fluidRegions, i)
 
     fluidRegions[i].setFluxRequired(p_rghFluid[i].name());
 
+    dimensionedScalar p0 = thermoFluid[i].p().average();
+    p0_value[i] = p0.value();
+    run_info << "p0 : " << p0 << endl;
+
     Info<< "    Adding to KFluid\n" << endl;
     KFluid.set
     (
@@ -341,4 +399,10 @@ forAll(fluidRegions, i)
     run_info << "mu_u : " << mu_u << endl;
 
     #include "initCombustion.H"
+
+    run_info << "Y_H2_0 : " << Y_H2_0[i] << endl;
+    run_info << "mu_u : " << mu_u << endl;
+    run_info << "rho0 : " << rho0 << endl;
+    run_info << "p0 : " << p0 << endl;
+    run_info << "runtime : " << runTime.time().value() << endl;
 }

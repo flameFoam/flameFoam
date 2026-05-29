@@ -1,0 +1,30 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  9
+     \\/     M anipulation  |                                               |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system/Fluid";
+    object      decomposeParDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+numberOfSubdomains  4;
+
+method          simple;
+
+simpleCoeffs
+{
+    n           (1 1 4);
+}
+// We recommend to divide the mesh along the Z axis to minimize processor
+// boundary faces, since the mesh is a lot longer in the Z direction compared to
+// X. In this example, the mesh is divided into 4 subdomains along the Z axis.
+
+// ************************************************************************* //

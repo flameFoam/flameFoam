@@ -18,7 +18,7 @@ par.set
         LBV_param/7.16
     )
 );
-par.set(2, new volScalarField("T_dimless", T/864.0));
+par.set(2, new volScalarField("T_dimless", T_u/864.0));
 
 par[0].dimensions().reset(dimless);
 par[2].dimensions().reset(dimless);

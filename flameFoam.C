@@ -46,12 +46,14 @@ Description
 
 #include "physicoChemicalConstants.H"
 
+#include "wallDist.H"
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 int main(int argc, char *argv[])
 {
 
-    string VERSION = "0.12.2";
+    string VERSION = "0.12.3";
 
     #define NO_CONTROL
     #define CREATE_MESH createMeshesPostProcess.H
