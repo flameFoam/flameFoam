@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.12.3] - 2026-05-29
+### Added
+- Quenching and wall quenching models for RANS
+- Unburnt mixture temperature estimation
+- Lewis number dependence for Zimont correlation
+- Support for resuming previously interrupted simulations
+- Tutorial case
+### Changed
+- Fixed ETFC mass diffusivity term
+- Minor changes, fixes and clean-ups
+
 ## [0.12.2] - 2022-06-14
 ### Added
 - Artificial neuron network based model of laminar burning velocity

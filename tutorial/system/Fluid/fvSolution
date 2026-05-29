@@ -1,0 +1,89 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  9
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format          ascii;
+    class           dictionary;
+    object          fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    "(rhoFinal|rho)"
+    {
+        solver          diagonal;
+    }
+    not_p
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-06;
+        relTol          0.01;
+        maxIter         50;
+    }
+    "(U|c|h|k|epsilon|omega)"
+    {
+        $not_p          ;
+    }
+    "(UFinal|cFinal|hFinal|kFinal|epsilonFinal|omegaFinal)"
+    {
+        $not_p          ;
+        tolerance       1e-07;
+        relTol          0;
+    }
+    p_rgh
+    {
+        solver          GAMG;
+        smoother        GaussSeidel;
+        tolerance       1e-05;
+        relTol          0.01;
+        maxIter         50;
+    }
+    p_rghFinal
+    {
+        $p_rgh          ;
+        relTol          0;
+    }
+    yPsi
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-6;
+        relTol          0;
+    }
+    "(yPsiFinal)"
+    {
+        $yPsi           ;
+        tolerance       1e-07;
+        relTol          0;
+    }
+}
+
+PIMPLE
+{
+    turbOnFinalIterOnly yes;
+    momentumPredictor no;
+    nCorrectors     1;
+    nNonOrthogonalCorrectors 1;
+    outerCorrectorResidualControl
+    {
+        all
+        {
+            relTol      0;
+            tolerance   1e-5;
+        }
+        "(U|c|h|p_rgh|k|epsilon|omega|yPsi|yWall)"
+        {
+            $all        ;
+        }
+    }
+}
+
+
+// ************************************************************************* //

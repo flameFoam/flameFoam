@@ -1,0 +1,55 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  9
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format          ascii;
+    class           dictionary;
+    location        "constant";
+    object          combustionProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+X_H2O           0.0;
+
+X_H2_0          0.13;
+
+Y_H2_99         0.0;
+
+Le              0.365;
+
+alpha           3.2322e-5;
+
+LBV_prediction  Malet;
+
+correlation     Zimont;
+
+ZimontA         0.52;
+
+model           ETFC;
+
+quenching       off;
+
+Tu              on;
+
+ignite          on;
+
+ignitionRadius  0.05;
+
+ignX            0;
+
+ignY            0;
+
+ignZ            0;
+
+viscousDis     false;
+
+p0              100000;
+
+wallQuenching   on;
+
+// ************************************************************************* //

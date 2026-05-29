@@ -25,7 +25,7 @@
       + fvModels.source(rho, he)
     );
 
-    if (visciousDis[i])
+    if (viscousDis[i])
     {
         volTensorField gradU = fvc::grad(U);
         volTensorField tau = turbulence.muEff() * (gradU + gradU.T());

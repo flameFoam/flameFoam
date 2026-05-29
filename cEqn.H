@@ -1,3 +1,10 @@
+volScalarField& T_u = (Tu[i]) ? TunFluid[i] : thermo.T();
+Info << "Min p value: " << min(p).value();
+if (Tu[i])
+{
+    T_u = W_u*p/(rho0*constant::physicoChemical::R*pow(p/p0,1.0/thermo.gamma()));
+}
+
 if (ignite[i])
 {
     run_info << "Ignition activated:\n" << "\tIgnition radius:\t" << Foam::sqrt(ignR2[i]) << endl;
@@ -35,8 +42,13 @@ else
     S_L = S_L0;
     if (CorrelationL[i] == "Malet")
     {
-        S_L = S_L*pow(1-X_H2O[i],4)*pow(T/Tref,2.2)*pow(p/pref,-0.5);
+        S_L = S_L*pow(1-X_H2O[i],4)*pow(T_u/Tref,2.2)*pow(p/pref,-0.5);
     }
+}
+
+if (model[i] != "ETFC")
+{
+    dFactor = turbulence.muEff()/ScT[i];
 }
 
 if (turbulenceType[i] == "RAS")
@@ -57,9 +69,10 @@ fvScalarMatrix cEqn
 (
     fvm::ddt(rho, c) + mvConvection->fvmDiv(phi, c)
   ==
-    fvm::laplacian(turbulence.muEff()/ScT[i], c)
+    fvm::laplacian(dFactor, c)
   + cSource
 );
 
 cEqn.relax();
 cEqn.solve();
+c = c*max(c - 1E-9, scalar(0)) / (max(c - 1E-9, scalar(0)) + VSMALL);

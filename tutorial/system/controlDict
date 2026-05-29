@@ -1,0 +1,66 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  9
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format          ascii;
+    class           dictionary;
+    location        "system";
+    object          controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     flameFoam;
+
+startFrom       latestTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         0.1;
+
+deltaT          1e-05;
+
+maxDeltaT       0.02;
+
+writeControl    adjustableRunTime;
+
+writeInterval   0.001;
+
+purgeWrite      0;
+
+writeFormat     binary;
+
+writeCompression no;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+adjustTimeStep  yes;
+
+maxCo           0.20;
+
+functions
+{
+    #includeFunc    probes(funcName=pressure, p, region=Fluid, points=((0.05 0.01 0.15) (0.05 0.01 1.05)), writeControl=timeStep)
+    #includeFunc    probes(funcName=temperature, T, region=Fluid, points=((0.09 0.01 0.2) (0.09 0.01 0.4) (0.09 0.01 0.6) (0.09 0.01 0.8) (0.09 0.01 1.0)), writeControl=timeStep)
+    #includeFunc    graphCell(funcName=cProfile, start=(0.001 0.01 0.001), end=(0.001 0.01 1.199), c, region=Fluid, axis=z, writeControl=timeStep, writeInterval=100)
+}
+
+OptimisationSwitches
+{
+    fileHandler     collated;
+    maxThreadFileBufferSize 2e+09;
+    maxMasterFileBufferSize 2e+09;
+}
+
+
+// ************************************************************************* //
