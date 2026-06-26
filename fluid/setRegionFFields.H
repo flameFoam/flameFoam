@@ -64,7 +64,7 @@ const dimensionedScalar W_u("W_u", dimMass/dimMoles, W_u_value[i]);
 const dimensionedScalar Tref("Tref", dimTemperature, Tref_value[i]);
 const dimensionedScalar pref("pref", dimPressure, pref_value[i]);
 const dimensionedScalar gcr("gcr", dimless/dimTime, gcr_value[i]);
-const dimensionedScalar H0("H0", dimEnergy/dimMass, 1.418e+8);
+const dimensionedScalar H0("H0", dimEnergy/dimMass, 1.1996e+8);
 const dimensionedScalar alpha_u("alpha_u", dimViscosity, alpha_u_value[i]);
 const dimensionedScalar ACalpha("ACalpha", pow(dimViscosity, -0.25), ACalpha_value[i]);
 const dimensionedScalar k_SMALL("k_SMALL", pow(dimVelocity, 2), SMALL);
