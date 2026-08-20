@@ -67,7 +67,7 @@ Foam::laminarBurningVelocityModels::LBVPower::LBVPower
     pRef_("pRef", dimPressure, dict),
     TRef_("TRef", dimTemperature, dict)
 {
-    appendInfo("\tLBV estimation method: LBVPower correlation");
+    reactionRate_.appendInfo("\tLBV estimation method: LBVPower correlation");
 }
 
 

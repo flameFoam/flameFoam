@@ -96,11 +96,4 @@ void Foam::reactionRateModels::FSD::correct
     }
 }
 
-char const *Foam::reactionRateModels::FSD::getInfo()
-{
-    infoString_.append(wrinklingCorrelation_().getInfo());
-    wrinklingCorrelation_().clearInfo();
-    return infoString_.c_str();
-}
-
 // ************************************************************************* //

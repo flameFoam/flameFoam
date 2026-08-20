@@ -58,12 +58,13 @@ Foam::wrinklingFactor::wrinklingFactor
             reactionRate_.mesh().time().name(),
             reactionRate_.mesh(),
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            debugFields_ ? IOobject::AUTO_WRITE : IOobject::NO_WRITE
         ),
         reactionRate_.mesh(),
         dimensionedScalar(dimVelocity, 0)
     ),
-    debug_(combustionProperties_.lookupOrDefault("debug", false))
+    debug_(reactRate.debugSwitch()),
+    debugFields_(reactRate.debugFieldsSwitch())
 {
     Info << "flameFoam wrinklingFactor object initialized" << endl;
 }

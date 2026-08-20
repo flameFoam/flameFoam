@@ -53,6 +53,7 @@ flameFoam.C
 #include "combustionModel.H"
 #include "reactionRate.H"
 #include "OFstream.H"
+#include "string.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -80,7 +81,11 @@ class flameFoam
 
         OFstream runInfo_;
 
-        bool debug_;
+        Switch debug_;
+        Switch debugFields_;
+
+        //- Write a critical diagnostic line to both Info and runInfo_
+        void logCritical(const string& msg);
 
 
 public:

@@ -42,7 +42,6 @@ SourceFiles
 #include "volFields.H"
 #include "combustionModel.H"
 #include "fvmSup.H"
-#include "infoPass.H"
 #include "reactionRate.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -55,8 +54,6 @@ namespace Foam
 \*---------------------------------------------------------------------------*/
 
 class laminarBurningVelocity
-:
-    public infoPass
 {
 
 protected:
@@ -69,7 +66,7 @@ protected:
         //- Full combustionProperties dictionary
         const dictionary& combustionProperties_;
 
-        //- Debug switches
+        //- Debug switches taken from reactionRate (flameFoamCoeffs)
         const Switch debug_;
         const Switch debugFields_;
 
