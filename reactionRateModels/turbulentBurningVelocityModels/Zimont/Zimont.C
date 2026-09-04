@@ -55,8 +55,8 @@ Foam::turbulentBurningVelocityModels::Zimont::Zimont
     Le_("Le", dimless, combustionProperties_),
     ACalpha_(ZimontA_*Foam::pow(0.37, 0.25)*Foam::pow(Le_, -0.3))
 {
-    appendInfo("\tTBV estimation method: Zimont correlation");
-    appendInfo("\t\tLe: " + name(Le_.value()));
+    reactionRate_.appendInfo("\tTBV estimation method: Zimont correlation");
+    reactionRate_.appendInfo("\t\tLe: " + name(Le_.value()));
 }
 
 
@@ -89,11 +89,4 @@ void Foam::turbulentBurningVelocityModels::Zimont::correct()
         Info << "\t\t\tObtained average S_T: "  << average(sTurbulent_).value() << endl;
         Info << "\t\t\tZimont correct finished" << endl;
     }
-}
-
-char const *Foam::turbulentBurningVelocityModels::Zimont::getInfo()
-{
-    infoString_.append(laminarCorrelation_().getInfo());
-    laminarCorrelation_().clearInfo();
-    return infoString_.c_str();
 }

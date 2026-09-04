@@ -42,7 +42,6 @@ SourceFiles
 #include "volFields.H"
 #include "combustionModel.H"
 #include "fvmSup.H"
-#include "infoPass.H"
 #include "reactionRate.H"
 #include "laminarBurningVelocity.H"
 
@@ -56,8 +55,6 @@ namespace Foam
 \*---------------------------------------------------------------------------*/
 
 class wrinklingFactor
-:
-    public infoPass
 {
 
 protected:
@@ -75,6 +72,7 @@ protected:
         volScalarField sTurbulent_;
 
         const Switch debug_;
+        const Switch debugFields_;
 
 
 public:

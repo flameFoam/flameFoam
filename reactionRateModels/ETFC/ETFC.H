@@ -85,10 +85,12 @@ protected:
 
         // Model coefficients
 
-            //- Turbulent Schmidt number []
+            //- Turbulent Schmidt number [] (read from registry on first correct)
             dimensionedScalar Sct_;
 
             const dimensionedScalar Le_;
+
+            void ensureSct();
 
 public:
 
@@ -118,11 +120,6 @@ public:
 
         //- Correct combustion source
         virtual void correct();
-
-    // IO
-
-        //- Return infoString_
-        virtual char const *getInfo();
 
 
     // Member Operators

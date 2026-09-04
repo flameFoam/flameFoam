@@ -94,15 +94,6 @@ public:
         //- Correct combustion source
         virtual void correct();
 
-    // Access functions
-
-
-
-    // IO
-
-        //- Return infoString_
-        virtual char const *getInfo();
-
 
     // Member Operators
 

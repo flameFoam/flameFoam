@@ -59,22 +59,30 @@ Foam::combustionModels::flameFoam::flameFoam
     ),
     cIndex_(thermo.specieIndex(thermo.Y("c"))),
     runInfo_("flameFoam." + this->mesh().name() + ".combustionInfo"),
-    debug_(this->coeffs().lookupOrDefault("debug", false))
+    debug_(this->coeffs().lookupOrDefault("debug", false)),
+    debugFields_(this->coeffs().lookupOrDefault("debugFields", false))
 {
-    // Log flameFoam combustion model information
-    runInfo_ << "flameFoam combustion model selected" << endl;
-
     #include "../version.H"
-    runInfo_ << "flameFoam library version: " << flameFoamVersion << endl;
 
-    runInfo_ << "\nMesh size: " << returnReduce(this->mesh().cells().size(), sumOp<label>()) << endl;
+    logCritical("flameFoam combustion model selected");
+    logCritical(string("flameFoam library version: ") + flameFoamVersion);
+    logCritical
+    (
+        string("Mesh size: ")
+      + Foam::name(returnReduce(this->mesh().cells().size(), sumOp<label>()))
+    );
 
-    runInfo_ << "\nAverage initial values:" << endl;
-    runInfo_ << "\tp_rgh: " << average(db().lookupObject<volScalarField>("p_rgh")).value() << endl;
-    runInfo_ << "\tT: "     << average(thermo.T()).value() << endl;
-    runInfo_ << "\trho: "   << average(thermo.rho()).value() << endl;
-    runInfo_ << "\tmu: "    << average(thermo.mu()).value() << endl;
-    runInfo_ << "\tc: "     << average(thermo.Y("c")).value() << endl;
+    logCritical("Average initial values:");
+    logCritical(string("\tp_rgh: ") + Foam::name(average(db().lookupObject<volScalarField>("p_rgh")).value()));
+    logCritical(string("\tT: ") + Foam::name(average(thermo.T()).value()));
+    logCritical(string("\trho: ") + Foam::name(average(thermo.rho()).value()));
+    logCritical(string("\tmu: ") + Foam::name(average(thermo.mu()).value()));
+    logCritical(string("\tc: ") + Foam::name(average(thermo.Y("c")).value()));
+    logCritical
+    (
+        string("debug: ") + Switch(debug_).asText()
+      + ", debugFields: " + Switch(debugFields_).asText()
+    );
 
     outputSubInfo();
 }
@@ -154,11 +162,20 @@ Foam::combustionModels::flameFoam::Qdot() const
     return reactionRate_->Qdot();
 }
 
+void Foam::combustionModels::flameFoam::logCritical(const string& msg)
+{
+    Info<< msg << endl;
+    runInfo_ << msg.c_str() << endl;
+}
+
+
 void Foam::combustionModels::flameFoam::outputSubInfo()
 {
-    if (strcmp(reactionRate_().getInfo(), "") != 0)
+    const char* info = reactionRate_().getInfo();
+    if (info && info[0] != '\0')
     {
-        runInfo_ << reactionRate_().getInfo() << endl;
+        Info<< info << endl;
+        runInfo_ << info << endl;
         reactionRate_().clearInfo();
     }
 }

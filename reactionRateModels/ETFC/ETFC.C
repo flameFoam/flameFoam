@@ -25,6 +25,8 @@ Disclaimer
 
 #include "ETFC.H"
 #include "addToRunTimeSelectionTable.H"
+#include "lookupSct.H"
+#include "fvcGrad.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -124,22 +126,9 @@ Foam::reactionRateModels::ETFC::ETFC
         mesh_,
         dimensionedScalar(dimDensity/dimTime, 0)
     ),
-    Sct_("Sct", dimless, 0),
+    Sct_("Sct", dimless, -1),
     Le_("Le", dimless, combustionProperties_)
 {
-    IOdictionary thermophysicalTransportDict
-    (
-        IOobject
-        (
-            "thermophysicalTransport",
-            mesh_.time().constant(),
-            mesh_,
-            IOobject::MUST_READ,
-            IOobject::NO_WRITE
-        )
-    );
-    Sct_ = thermophysicalTransportDict.subDict("RAS").lookup<scalar>("Sct");
-
     appendInfo("Reaction rate model: ETFC");
 }
 
@@ -152,10 +141,21 @@ Foam::reactionRateModels::ETFC::~ETFC()
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
+void Foam::reactionRateModels::ETFC::ensureSct()
+{
+    if (Sct_.value() < 0)
+    {
+        Sct_ = lookupSctFromRegistry(mesh_);
+    }
+}
+
+
 void Foam::reactionRateModels::ETFC::correct
 (
 )
 {
+    ensureSct();
+
     if (debug_)
     {
         Info << "\tETFC correct:" << endl;
@@ -168,16 +168,16 @@ void Foam::reactionRateModels::ETFC::correct
 
     turbulentCorrelation_->correct();
 
-    Dt_inf_ = combModel_.turbulence().nut()/Sct_; // TODO: check against dev2-efix-ZimontLe-no0-fix2/
+    Dt_inf_ = combModel_.turbulence().nut()/Sct_;
 
-    TauByT_ = max(1.5* Dt_inf_/(combModel_.turbulence().k()*mesh_.time()), SMALL);  // TODO: check against dev2-efix-ZimontLe-no0-fix2/
+    TauByT_ = max(1.5* Dt_inf_/(combModel_.turbulence().k()*mesh_.time()), SMALL);
 
     expFactor_ = 1 - exp(-1/TauByT_);
 
     DEffByRho_ = this->alphaU()/Le_+Dt_inf_*expFactor_;
 
     cLam_ = 0.25*pow(turbulentCorrelation_->getLaminarBurningVelocity(), 2)*
-        rhoU()*max(c-SMALL*mesh_.time().deltaT().value(),0.0)*(1-c)/            // TODO: check if deltaT or absolute value should be used
+        rhoU()*max(c-SMALL*mesh_.time().deltaT().value(),0.0)*(1-c)/
         DEffByRho_;
 
     cSource_ =
@@ -191,11 +191,4 @@ void Foam::reactionRateModels::ETFC::correct
         Info << "\t\tObtained min/avg/max cSource: " << min(cSource_).value() << " " << average(cSource_).value() << " " << max(cSource_).value() << endl;
         Info << "\t\tETFC correct finished" << endl;
     }
-}
-
-char const *Foam::reactionRateModels::ETFC::getInfo()
-{
-    infoString_.append(turbulentCorrelation_().getInfo());
-    turbulentCorrelation_().clearInfo();
-    return infoString_.c_str();
 }

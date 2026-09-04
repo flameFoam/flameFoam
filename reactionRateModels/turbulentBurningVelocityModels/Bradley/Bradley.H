@@ -99,8 +99,6 @@ public:
 
         //- Disallow default bitwise assignment
         void operator=(const Bradley&) = delete;
-        //- Return infoString_
-        virtual char const *getInfo();
 };
 
 
