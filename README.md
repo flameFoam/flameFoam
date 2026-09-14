@@ -1,4 +1,4 @@
-# flameFoam-0.12.3
+# flameFoam-0.12.4
 
 Hydrogen-air premixed turbulent combustion solver for OpenFOAM v9:
 - Progress variable approach

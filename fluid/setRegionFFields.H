@@ -54,6 +54,7 @@ volScalarField& D_Q = D_QFluid[i];
 volScalarField& quenchAlpha = quenchAlphaFluid[i];
 volScalarField& I_QR = I_QRFluid[i];
 volScalarField& wallDistance = wallDistanceFluid[i];
+volScalarField& rhoU = rhoUFluid[i];
 
 const scalar Pe_max(Pe_max_value[i]);
 const scalar quenchBeta(quenchBeta_value[i]);
