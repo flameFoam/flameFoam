@@ -43,6 +43,7 @@ PtrList<volScalarField> GFluid(fluidRegions.size());
 PtrList<volScalarField> cSourceFluid(fluidRegions.size());
 PtrList<volScalarField> XiFluid(fluidRegions.size());
 PtrList<volScalarField> TunFluid(fluidRegions.size());
+PtrList<volScalarField> rhoUFluid(fluidRegions.size());
 PtrList<volScalarField> Pe_QFluid(fluidRegions.size());
 PtrList<volScalarField> PeFluid(fluidRegions.size());
 PtrList<volScalarField> D_QFluid(fluidRegions.size());

@@ -3,7 +3,7 @@ scalar c2 = 0.5;
 
 volScalarField ud = c2*pow3(delta)*mag(fvc::curl(fvc::laplacian(U)));
 
-volScalarField lf = 4*mu_u/(S_L*rho0);
+volScalarField lf = 4*mu_u/(S_L*rhoU);
 
 volScalarField udByS_L = ud/S_L;
 volScalarField deltaBylf = delta/lf;
@@ -61,4 +61,4 @@ else
 
 S_T = S_L*Xi;
 
-cSource = rho0*S_T*mag(fvc::grad(c));
+cSource = rhoU*S_T*mag(fvc::grad(c));

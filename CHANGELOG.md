@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.12.4] - 2026-09-14
+### Added
+- Correction for unburnt mixture density rhoU
+### Changed
+- Fixed hydrogen heating value to 1.1996e+8
+
 ## [0.12.3] - 2026-05-29
 ### Added
 - Quenching and wall quenching models for RANS

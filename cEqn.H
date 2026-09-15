@@ -1,8 +1,11 @@
 volScalarField& T_u = (Tu[i]) ? TunFluid[i] : thermo.T();
 Info << "Min p value: " << min(p).value();
+
+rhoU = rho0*pow(p/p0,1.0/thermo.gamma());
+
 if (Tu[i])
 {
-    T_u = W_u*p/(rho0*constant::physicoChemical::R*pow(p/p0,1.0/thermo.gamma()));
+    T_u = W_u*p/(rhoU*constant::physicoChemical::R);
 }
 
 if (ignite[i])
@@ -62,7 +65,7 @@ else if (turbulenceType[i] == "LES")
 else
 {
     S_T = S_L;
-    cSource = rho0*S_T*mag(fvc::grad(c));
+    cSource = rhoU*S_T*mag(fvc::grad(c));
 }
 
 fvScalarMatrix cEqn

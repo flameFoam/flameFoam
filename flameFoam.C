@@ -53,7 +53,7 @@ Description
 int main(int argc, char *argv[])
 {
 
-    string VERSION = "0.12.3";
+    string VERSION = "0.12.4";
 
     #define NO_CONTROL
     #define CREATE_MESH createMeshesPostProcess.H

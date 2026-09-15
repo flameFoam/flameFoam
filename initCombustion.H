@@ -296,6 +296,23 @@ TunFluid.set
     )
 );
 
+rhoUFluid.set
+(
+    i,
+    new volScalarField
+    (
+        IOobject
+        (
+            "rhoU",
+            runTime.timeName(),
+            fluidRegions[i],
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        ),
+        thermoFluid[i].rho()
+    )
+);
+
 wallQuenching[i] = combustionProperties.lookup<Switch>("wallQuenching");
 if (wallQuenching[i])
 {
