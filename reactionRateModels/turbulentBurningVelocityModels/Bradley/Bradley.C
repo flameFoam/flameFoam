@@ -53,8 +53,8 @@ Foam::turbulentBurningVelocityModels::Bradley::Bradley
     turbulentBurningVelocity(reactRate),
     Le_("Le", dimless, combustionProperties_)
 {
-    appendInfo("\tTBV estimation method: Bradley correlation");
-    appendInfo("\t\tLe: " + name(Le_.value()));
+    reactionRate_.appendInfo("\tTBV estimation method: Bradley correlation");
+    reactionRate_.appendInfo("\t\tLe: " + name(Le_.value()));
 }
 
 
@@ -88,13 +88,6 @@ void Foam::turbulentBurningVelocityModels::Bradley::correct()
         Info << "\t\t\tBradley correct finished" << endl;
     }
 
-}
-
-char const *Foam::turbulentBurningVelocityModels::Bradley::getInfo()
-{
-    infoString_.append(laminarCorrelation_().getInfo());
-    laminarCorrelation_().clearInfo();
-    return infoString_.c_str();
 }
 
 

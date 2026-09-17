@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# Run from this directory
+cd "${0%/*}" || exit 1
+
+# Source tutorial run functions
+. "$WM_PROJECT_DIR/bin/tools/RunFunctions"
+
+rm -rf 0
+runApplication blockMesh
+runApplication subsetMesh
+runApplication refineWallLayer "(wall)" 0.333 -overwrite
+runApplication extrudeMesh
+runApplication createPatch -overwrite
+
+touch tutorial.foam
+cp -r 0.orig 0
+runApplication setFields

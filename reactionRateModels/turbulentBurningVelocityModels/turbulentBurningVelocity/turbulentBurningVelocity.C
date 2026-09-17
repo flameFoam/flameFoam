@@ -44,8 +44,8 @@ Foam::turbulentBurningVelocity::turbulentBurningVelocity
     reactionRate_(reactRate),
     combModel_(reactionRate_.combModel()),
     combustionProperties_(combModel_.coeffs()),
-    debug_(combustionProperties_.lookupOrDefault("debug", false)),
-    debugFields_(combustionProperties_.lookupOrDefault("debugFields", false)),
+    debug_(reactRate.debugSwitch()),
+    debugFields_(reactRate.debugFieldsSwitch()),
     sTurbulent_
     (
         IOobject

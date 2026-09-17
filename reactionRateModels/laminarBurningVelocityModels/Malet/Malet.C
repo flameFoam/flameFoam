@@ -61,7 +61,7 @@ Foam::laminarBurningVelocityModels::Malet::Malet
     pRef_(dimPressure, 100000),
     TRef_(dimTemperature, 298)
 {
-    appendInfo("\tLBV estimation method: Malet correlation");
+    reactionRate_.appendInfo("\tLBV estimation method: Malet correlation");
 }
 
 
