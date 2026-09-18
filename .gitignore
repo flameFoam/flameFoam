@@ -1,0 +1,32 @@
+# Editor / OS
+*~
+.*~
+.*.swp
+*.bak
+.DS_Store
+Thumbs.db
+
+# wmake objects and generated includes
+*.o
+*.dep
+*.so
+lnInclude/
+linux*Gcc*/
+linux*Clang*/
+linux*Icc*/
+darwin*Clang*/
+platforms/
+
+# Tutorial: case *sources* belong in git (0.orig, system, constant dicts, All*)
+tutorial/0/
+tutorial/0.[0-9]*/
+tutorial/[1-9]*/
+tutorial/log.*
+tutorial/postProcessing/
+tutorial/processor*/
+tutorial/processors*/
+tutorial/dynamicCode/
+tutorial/constant/polyMesh/
+tutorial/*.combustionInfo
+tutorial/*.foam
+tutorial/sed*

@@ -97,8 +97,6 @@ public:
 
         //- Disallow default bitwise assignment
         void operator=(const Bray&) = delete;
-        //- Return infoString_
-        virtual char const *getInfo();
 };
 
 

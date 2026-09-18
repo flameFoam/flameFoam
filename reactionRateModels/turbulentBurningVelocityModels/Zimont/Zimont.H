@@ -103,8 +103,6 @@ public:
 
         //- Disallow default bitwise assignment
         void operator=(const Zimont&) = delete;
-        //- Return infoString_
-        virtual char const *getInfo();
 };
 
 

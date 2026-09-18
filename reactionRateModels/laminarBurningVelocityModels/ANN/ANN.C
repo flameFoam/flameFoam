@@ -26,6 +26,45 @@ Disclaimer
 #include "ANN.H"
 #include "addToRunTimeSelectionTable.H"
 
+namespace
+{
+void initNamedFields
+(
+    const Foam::fvMesh& mesh,
+    Foam::PtrList<Foam::volScalarField>& fields,
+    Foam::List<Foam::string>& names,
+    const Foam::word& prefix,
+    const Foam::label n,
+    const Foam::IOobject::writeOption w
+)
+{
+    fields.setSize(n);
+    names.setSize(n);
+
+    for (Foam::label i = 0; i < n; i++)
+    {
+        names[i] = prefix + "_" + Foam::name(i);
+        fields.set
+        (
+            i,
+            new Foam::volScalarField
+            (
+                Foam::IOobject
+                (
+                    names[i],
+                    mesh.time().name(),
+                    mesh,
+                    Foam::IOobject::NO_READ,
+                    w
+                ),
+                mesh,
+                Foam::scalar(0)
+            )
+        );
+    }
+}
+}
+
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
@@ -54,7 +93,12 @@ Foam::laminarBurningVelocityModels::ANN::ANN
     mesh_(reactionRate_.mesh()),
     X_H2_0_(combustionProperties_.lookup<scalar>("X_H2_0")),
     X_H2O_(combustionProperties_.lookup<scalar>("X_H2O")),
-    ER_(0.705*X_H2_0_/(0.295*(1-X_H2_0_-X_H2O_))),
+    pRef_(dict.lookupOrDefault<scalar>("pRef", 3970000)),
+    ERRef_(dict.lookupOrDefault<scalar>("ERRef", 7.16)),
+    TRef_(dict.lookupOrDefault<scalar>("TRef", 864)),
+    X_H2_dryAir_(dict.lookupOrDefault<scalar>("X_H2_dryAir", 0.705)),
+    X_O2_dryAir_(dict.lookupOrDefault<scalar>("X_O2_dryAir", 0.295)),
+    ER_(X_H2_dryAir_*X_H2_0_/(X_O2_dryAir_*(1-X_H2_0_-X_H2O_))),
     p_(mesh_.lookupObject<volScalarField>("p")),
 
     par_(PtrList<volScalarField>(3)),
@@ -318,29 +362,35 @@ Foam::laminarBurningVelocityModels::ANN::ANN
 
     B4_(dimVelocity, 1.684066504240036011e-01),
 
+    nInput_(W0_.size()),
+    nL0_(W0_[0].size()),
+    nL1_(W1_[0].size()),
+    nL2_(W2_[0].size()),
+    nL3_(W3_[0].size()),
+
     // Input layer
-    L0_(PtrList<volScalarField>(7)),
-    L0_names_(List<string>(7)),
-    Y0out_(PtrList<volScalarField>(7)),
-    Y0out_names_(List<string>(7)),
+    L0_(PtrList<volScalarField>()),
+    L0_names_(List<string>()),
+    Y0out_(PtrList<volScalarField>()),
+    Y0out_names_(List<string>()),
 
     // Layer 1
-    L1_(PtrList<volScalarField>(10)),
-    L1_names_(List<string>(10)),
-    Y1out_(PtrList<volScalarField>(10)),
-    Y1out_names_(List<string>(10)),
+    L1_(PtrList<volScalarField>()),
+    L1_names_(List<string>()),
+    Y1out_(PtrList<volScalarField>()),
+    Y1out_names_(List<string>()),
 
     // Layer 2
-    L2_(PtrList<volScalarField>(7)),
-    L2_names_(List<string>(7)),
-    Y2out_(PtrList<volScalarField>(7)),
-    Y2out_names_(List<string>(7)),
+    L2_(PtrList<volScalarField>()),
+    L2_names_(List<string>()),
+    Y2out_(PtrList<volScalarField>()),
+    Y2out_names_(List<string>()),
 
     // Layer 3
-    L3_(PtrList<volScalarField>(5)),
-    L3_names_(List<string>(5)),
-    Y3out_(PtrList<volScalarField>(5)),
-    Y3out_names_(List<string>(5)),
+    L3_(PtrList<volScalarField>()),
+    L3_names_(List<string>()),
+    Y3out_(PtrList<volScalarField>()),
+    Y3out_names_(List<string>()),
 
     // Layer 4
     L4_
@@ -360,9 +410,21 @@ Foam::laminarBurningVelocityModels::ANN::ANN
         )
     )
 {
-    appendInfo("\tLBV estimation method: ANN correlation");
+    reactionRate_.appendInfo("\tLBV estimation method: ANN correlation");
+    reactionRate_.appendInfo("\t\tpRef: " + Foam::name(pRef_));
+    reactionRate_.appendInfo("\t\tERRef: " + Foam::name(ERRef_));
+    reactionRate_.appendInfo("\t\tTRef: " + Foam::name(TRef_));
+    reactionRate_.appendInfo
+    (
+        string("\t\tlayer sizes: ")
+      + Foam::name(nInput_) + " -> "
+      + Foam::name(nL0_) + " -> "
+      + Foam::name(nL1_) + " -> "
+      + Foam::name(nL2_) + " -> "
+      + Foam::name(nL3_) + " -> 1"
+    );
 
-    par_.set(0, new volScalarField("p_dimless", p_/3970000));
+    par_.set(0, new volScalarField("p_dimless", p_/pRef_));
 
     par_.set
     (
@@ -378,7 +440,7 @@ Foam::laminarBurningVelocityModels::ANN::ANN
                 IOobject::AUTO_WRITE
             ),
             mesh_,
-            ER_/7.16
+            ER_/ERRef_
         )
     );
 
@@ -402,243 +464,14 @@ Foam::laminarBurningVelocityModels::ANN::ANN
 
     par_[0].dimensions().reset(dimless);
 
-    // Input layer setup
-    L0_names_[0] = "L0_0";
-    L0_names_[1] = "L0_1";
-    L0_names_[2] = "L0_2";
-    L0_names_[3] = "L0_3";
-    L0_names_[4] = "L0_4";
-    L0_names_[5] = "L0_5";
-    L0_names_[6] = "L0_6";
-
-    Y0out_names_[0] = "Y0out_0";
-    Y0out_names_[1] = "Y0out_1";
-    Y0out_names_[2] = "Y0out_2";
-    Y0out_names_[3] = "Y0out_3";
-    Y0out_names_[4] = "Y0out_4";
-    Y0out_names_[5] = "Y0out_5";
-    Y0out_names_[6] = "Y0out_6";
-
-    forAll(L0_names_, s)
-    {
-        L0_.set
-        (
-            s,
-            new volScalarField
-            (
-                IOobject
-                (
-                    L0_names_[s],
-                    mesh_.time().name(),
-                    mesh_,
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE
-                ),
-                mesh_,
-                scalar(0)
-            )
-        );
-    }
-
-    for (int i = 0; i < 7; i++)
-    {
-        Y0out_.set
-        (
-            i,
-            new volScalarField
-            (
-                IOobject
-                (
-                    Y0out_names_[i],
-                    mesh_.time().name(),
-                    mesh_,
-                    IOobject::NO_READ,
-                    IOobject::AUTO_WRITE
-                ),
-                mesh_,
-                scalar(0)
-            )
-        );
-    }
-
-    // Layer 1 setup
-    L1_names_[0] = "L1_0";
-    L1_names_[1] = "L1_1";
-    L1_names_[2] = "L1_2";
-    L1_names_[3] = "L1_3";
-    L1_names_[4] = "L1_4";
-    L1_names_[5] = "L1_5";
-    L1_names_[6] = "L1_6";
-    L1_names_[7] = "L1_7";
-    L1_names_[8] = "L1_8";
-    L1_names_[9] = "L1_9";
-
-    Y1out_names_[0] = "Y1out_0";
-    Y1out_names_[1] = "Y1out_1";
-    Y1out_names_[2] = "Y1out_2";
-    Y1out_names_[3] = "Y1out_3";
-    Y1out_names_[4] = "Y1out_4";
-    Y1out_names_[5] = "Y1out_5";
-    Y1out_names_[6] = "Y1out_6";
-    Y1out_names_[7] = "Y1out_7";
-    Y1out_names_[8] = "Y1out_8";
-    Y1out_names_[9] = "Y1out_9";
-
-    forAll(L1_names_, s)
-    {
-        L1_.set
-        (
-            s,
-            new volScalarField
-            (
-                IOobject
-                (
-                    L1_names_[s],
-                    mesh_.time().name(),
-                    mesh_,
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE
-                ),
-                mesh_,
-                scalar(0)
-            )
-        );
-    }
-
-    for (int i = 0; i < 10; i++)
-    {
-        Y1out_.set
-        (
-            i,
-            new volScalarField
-            (
-                IOobject
-                (
-                    Y1out_names_[i],
-                    mesh_.time().name(),
-                    mesh_,
-                    IOobject::NO_READ,
-                    IOobject::AUTO_WRITE
-                ),
-                mesh_,
-                scalar(0)
-            )
-        );
-    }
-
-    // Layer 2 setup
-    L2_names_[0] = "L2_0";
-    L2_names_[1] = "L2_1";
-    L2_names_[2] = "L2_2";
-    L2_names_[3] = "L2_3";
-    L2_names_[4] = "L2_4";
-    L2_names_[5] = "L2_5";
-    L2_names_[6] = "L2_6";
-
-    Y2out_names_[0] = "Y2out_0";
-    Y2out_names_[1] = "Y2out_1";
-    Y2out_names_[2] = "Y2out_2";
-    Y2out_names_[3] = "Y2out_3";
-    Y2out_names_[4] = "Y2out_4";
-    Y2out_names_[5] = "Y2out_5";
-    Y2out_names_[6] = "Y2out_6";
-
-    forAll(L2_names_, s)
-    {
-        L2_.set
-        (
-            s,
-            new volScalarField
-            (
-                IOobject
-                (
-                    L2_names_[s],
-                    mesh_.time().name(),
-                    mesh_,
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE
-                ),
-                mesh_,
-                scalar(0)
-            )
-        );
-    }
-
-    for (int i = 0; i < 7; i++)
-    {
-        Y2out_.set
-        (
-            i,
-            new volScalarField
-            (
-                IOobject
-                (
-                    Y2out_names_[i],
-                    mesh_.time().name(),
-                    mesh_,
-                    IOobject::NO_READ,
-                    IOobject::AUTO_WRITE
-                ),
-                mesh_,
-                scalar(0)
-            )
-        );
-    }
-
-    // Layer 3 setup
-    L3_names_[0] = "L3_0";
-    L3_names_[1] = "L3_1";
-    L3_names_[2] = "L3_2";
-    L3_names_[3] = "L3_3";
-    L3_names_[4] = "L3_4";
-
-    Y3out_names_[0] = "Y3out_0";
-    Y3out_names_[1] = "Y3out_1";
-    Y3out_names_[2] = "Y3out_2";
-    Y3out_names_[3] = "Y3out_3";
-    Y3out_names_[4] = "Y3out_4";
-
-    forAll(L3_names_, s)
-    {
-        L3_.set
-        (
-            s,
-            new volScalarField
-            (
-                IOobject
-                (
-                    L3_names_[s],
-                    mesh_.time().name(),
-                    mesh_,
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE
-                ),
-                mesh_,
-                scalar(0)
-            )
-        );
-    }
-
-    for (int i = 0; i < 5; i++)
-    {
-        Y3out_.set
-        (
-            i,
-            new volScalarField
-            (
-                IOobject
-                (
-                    Y3out_names_[i],
-                    mesh_.time().name(),
-                    mesh_,
-                    IOobject::NO_READ,
-                    IOobject::AUTO_WRITE
-                ),
-                mesh_,
-                scalar(0)
-            )
-        );
-    }
+    initNamedFields(mesh_, L0_, L0_names_, "L0", nL0_, IOobject::NO_WRITE);
+    initNamedFields(mesh_, Y0out_, Y0out_names_, "Y0out", nL0_, IOobject::AUTO_WRITE);
+    initNamedFields(mesh_, L1_, L1_names_, "L1", nL1_, IOobject::NO_WRITE);
+    initNamedFields(mesh_, Y1out_, Y1out_names_, "Y1out", nL1_, IOobject::AUTO_WRITE);
+    initNamedFields(mesh_, L2_, L2_names_, "L2", nL2_, IOobject::NO_WRITE);
+    initNamedFields(mesh_, Y2out_, Y2out_names_, "Y2out", nL2_, IOobject::AUTO_WRITE);
+    initNamedFields(mesh_, L3_, L3_names_, "L3", nL3_, IOobject::NO_WRITE);
+    initNamedFields(mesh_, Y3out_, Y3out_names_, "Y3out", nL3_, IOobject::AUTO_WRITE);
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -660,25 +493,24 @@ void Foam::laminarBurningVelocityModels::ANN::correct
 
     // TU parameter setup
     par_[2].dimensions().reset(dimTemperature);
-    par_[2] = reactionRate_.TU() / 864.0;
+    par_[2] = reactionRate_.TU() / TRef_;
     par_[2].dimensions().reset(dimless);
 
     // Input layer calculations
-    for (int i = 0; i < 7; i++)
+    for (label i = 0; i < nL0_; i++)
     {
         L0_[i] = 0;
-        for (int k = 0; k < 3; k++)
+        for (label k = 0; k < nInput_; k++)
         {
             L0_[i] += W0_[k][i] * par_[k];
         }
         Y0out_[i] = tanh(L0_[i] + B0_[i]);
     }
 
-    // Layer 1 calculations
-    for (int i = 0; i < 10; i++)
+    for (label i = 0; i < nL1_; i++)
     {
         L1_[i] = 0;
-        for (int k = 0; k < 7; k++)
+        for (label k = 0; k < nL0_; k++)
         {
             L1_[i] += W1_[k][i] * Y0out_[k];
         }
@@ -686,11 +518,10 @@ void Foam::laminarBurningVelocityModels::ANN::correct
         Y1out_[i].max(0);
     }
 
-    // Layer 2 calculations
-    for (int i = 0; i < 7; i++)
+    for (label i = 0; i < nL2_; i++)
     {
         L2_[i] = 0;
-        for (int k = 0; k < 10; k++)
+        for (label k = 0; k < nL1_; k++)
         {
             L2_[i] += W2_[k][i] * Y1out_[k];
         }
@@ -698,11 +529,10 @@ void Foam::laminarBurningVelocityModels::ANN::correct
         Y2out_[i].max(0);
     }
 
-    // Layer 3 calculations
-    for (int i = 0; i < 5; i++)
+    for (label i = 0; i < nL3_; i++)
     {
         L3_[i] = 0;
-        for (int k = 0; k < 7; k++)
+        for (label k = 0; k < nL2_; k++)
         {
             L3_[i] += W3_[k][i] * Y2out_[k];
         }
@@ -710,12 +540,10 @@ void Foam::laminarBurningVelocityModels::ANN::correct
         Y3out_[i].max(0);
     }
 
-    // Layer 4 setup
     L4_.dimensions().reset(dimless);
     L4_ = 0;
 
-    // Layer 4 calculations
-    for (int k = 0; k < 5; k++)
+    for (label k = 0; k < nL3_; k++)
     {
         L4_ += W4_[0][k] * Y3out_[k];
     }

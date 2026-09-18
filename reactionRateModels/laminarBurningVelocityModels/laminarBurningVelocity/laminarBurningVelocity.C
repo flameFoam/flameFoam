@@ -43,8 +43,8 @@ Foam::laminarBurningVelocity::laminarBurningVelocity
 :
     reactionRate_(reactRate),
     combustionProperties_(reactionRate_.combModel().coeffs()),
-    debug_(combustionProperties_.lookupOrDefault("debug", false)),
-    debugFields_(combustionProperties_.lookupOrDefault("debugFields", false)),
+    debug_(reactRate.debugSwitch()),
+    debugFields_(reactRate.debugFieldsSwitch()),
     sLaminar_
     (
         IOobject

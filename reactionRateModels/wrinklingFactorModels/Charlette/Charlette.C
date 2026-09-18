@@ -61,7 +61,7 @@ Foam::wrinklingFactorModels::Charlette::Charlette
     pi43_(Foam::pow(Foam::constant::mathematical::pi, n43_)),
     beta_(0.5)
 {
-    appendInfo("\tWrinkling factor estimation method: Charlette correlation");
+    reactionRate_.appendInfo("\tWrinkling factor estimation method: Charlette correlation");
 }
 
 
@@ -128,13 +128,6 @@ void Foam::wrinklingFactorModels::Charlette::correct()
         Info << "\t\t\tCharlette correct finished" << endl;
     }
 
-}
-
-char const *Foam::wrinklingFactorModels::Charlette::getInfo()
-{
-    infoString_.append(laminarCorrelation_().getInfo());
-    laminarCorrelation_().clearInfo();
-    return infoString_.c_str();
 }
 
 // ************************************************************************* //

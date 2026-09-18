@@ -1,0 +1,70 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  9
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version         2;
+    format          ascii;
+    class           dictionary;
+    location        "constant";
+    object          combustionProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+combustionModel flameFoam;
+
+flameFoamCoeffs
+{
+    // Single source for debug/debugFields; passed to all sub-models
+    debug           false;
+    debugFields     false;
+
+    X_H2O           0.0;
+    X_H2_0          0.13;
+    Y_H2_99         0;
+
+    alpha_u           -3.2322e-5;
+    Le              0.365;
+
+    H0              1.1996e+08;
+
+    Tu              on;
+
+    p0              100000;
+
+    reactionRate
+    {
+        model   ETFC;
+
+        laminarBurningVelocity
+        {
+            model   Malet;
+            // ANN example (optional keys; defaults match the trained network):
+            // model   ANN;
+            // ANN
+            // {
+            //     pRef        3970000;
+            //     ERRef       7.16;
+            //     TRef        864;
+            //     X_H2_dryAir 0.705;
+            //     X_O2_dryAir 0.295;
+            // }
+        }
+
+        turbulentBurningVelocity
+        {
+            model   Zimont;
+            Zimont
+            {
+                ZimontA     0.52;
+            }
+        }
+    }
+
+}
+
+// ************************************************************************* //
