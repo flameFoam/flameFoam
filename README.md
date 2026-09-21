@@ -37,7 +37,7 @@ flameFoam/
 │   ├── RANS.H                  TFC / ETFC reaction-rate models + Turbulent
 |   |                           burning velocity correlations + quenching and
 |   |                           wall-quenching models
-│   ├── LES.H                   FSD model + WWrinkling factor correlations
+│   ├── LES.H                   FSD model + Wrinkling factor correlations
 │   └── ANN.H                   Artificial neural network laminar burning
 |                               velocity estimation
 ├── fluid/
@@ -84,45 +84,15 @@ wmake
 
 The executable is installed as `$FOAM_USER_APPBIN/flameFoam`.
 
-## Activate / run a case
+## Execute program
 
-No `libs` entry is required. Simply run:
+In the case directory, simply run:
 
 ```bash
 flameFoam
 ```
 
 (or use the provided `Allrun` scripts in the tutorial).
-
-`constant/Fluid/combustionProperties` example (from the tutorial):
-
-```
-X_H2O           0.0;
-X_H2_0          0.13;
-Y_H2_99         0.0;
-
-Le              0.365;
-alpha           3.2322e-5;
-
-LBV_prediction  Malet;          // or "ANN" or "none"
-correlation     Zimont;         // Zimont / Bradley / Bray (RANS)
-                                // Charlette / PitschDuchamp (LES)
-ZimontA         0.52;           // only for Zimont
-
-model           ETFC;           // TFC / ETFC (RANS) or FSD (LES)
-
-quenching       off;
-wallQuenching   on;
-Tu              on;
-
-ignite          on;
-ignitionRadius  0.05;
-ignX            0;
-ignY            0;
-ignZ            0;
-
-viscousDis      false;
-```
 
 ## Tutorial
 
