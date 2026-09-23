@@ -23,7 +23,7 @@ flameFoam/
   flameFoam.C / flameFoam.H     Combustion model entry point
   reactionRateModels/           TFC, ETFC, FSD + LBV / TBV / wrinkling
   ThermophysicalTransportModels/  non-unity Lewis diffusivity models
-  tutorial/                     Smoke-test case (OpenFOAM tutorial layout)
+  tutorial/                     Tutorial / test case
   Make/files, Make/options      wmake inputs (not the linux*Gcc* object dir)
   version.H                     Library version (13.0.0)
 ```
@@ -89,28 +89,13 @@ flameFoamCoeffs
 }
 ```
 
-ANN optional coefficients (defaults match the published trained network). Layer sizes follow the compiled weight matrices; the weights themselves stay in `ANN.C`.
+To use the ANN laminar burning velocity, set `model ANN`. Training-scale constants and network weights stay in `ANN.C` and must not be changed.
 
-```
-laminarBurningVelocity
-{
-    model   ANN;
-    ANN
-    {
-        pRef        3970000;
-        ERRef       7.16;
-        TRef        864;
-        X_H2_dryAir 0.705;
-        X_O2_dryAir 0.295;
-    }
-}
-```
+Critical startup lines are written both to the solver log (`Info`) and to `flameFoam.<region>.combustionInfo`.
 
-Critical startup lines are written both to the solver log (`Info`) and to `flameFoam.<region>.combustionInfo`. Model-selection text is collected on `reactionRate` (the old `infoPass` helper class was removed).
+ETFC reads `Sct` from the already-registered `thermophysicalTransport` object (RAS or LES sub-dictionary).
 
-ETFC reads `Sct` from the already-registered `thermophysicalTransport` object (RAS or LES sub-dictionary). It does not construct a second `IOdictionary`.
-
-## Tutorial / smoke test
+## Tutorial / test case
 
 ```bash
 cd tutorial
@@ -150,8 +135,11 @@ cd tutorial
 
 ## Publications
 
-- flameFoam: An open source CFD solver for turbulent premixed combustion https://www.sciencedirect.com/science/article/pii/S0029549321003137
-- Validation of ETFC model implementation in flameFoam https://www.sciencedirect.com/science/article/abs/pii/S0029549324008379
-- Simulation of Hydrogen-Air-Diluents Mixture Combustion in an Acceleration Tube https://www.mdpi.com/1996-1073/14/17/5504
-- RANS- and TFC-Based Simulation of Turbulent Combustion in a Small-Scale Venting Chamber https://www.mdpi.com/1996-1073/14/18/5710
-- Development of a CFD-Suitable Deep Neural Network Model for Laminar Burning Velocity https://www.mdpi.com/2076-3417/12/15/7460
+- General paper on the initial version:
+  - flameFoam: An open source CFD solver for turbulent premixed combustion https://www.sciencedirect.com/science/article/pii/S0029549321003137
+- Experiment simulations:
+  - The role of CFD combustion modelling in hydrogen safety management — IX: Validation of ETFC model implementation in flameFoam for large-scale hydrogen-air-steam deflagration https://www.sciencedirect.com/science/article/abs/pii/S0029549324008379
+  - Simulation of Hydrogen-Air-Diluents Mixture Combustion in an Acceleration Tube with FlameFoam Solver https://www.mdpi.com/1996-1073/14/17/5504
+  - RANS- and TFC-Based Simulation of Turbulent Combustion in a Small-Scale Venting Chamber https://www.mdpi.com/1996-1073/14/18/5710
+- Presentation of the deep neural network developed for the estimation of laminar burning velocity:
+  - Development of a CFD-Suitable Deep Neural Network Model for Laminar Burning Velocity https://www.mdpi.com/2076-3417/12/15/7460

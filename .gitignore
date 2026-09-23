@@ -24,7 +24,6 @@ tutorial/[1-9]*/
 tutorial/log.*
 tutorial/postProcessing/
 tutorial/processor*/
-tutorial/processors*/
 tutorial/dynamicCode/
 tutorial/constant/polyMesh/
 tutorial/*.combustionInfo

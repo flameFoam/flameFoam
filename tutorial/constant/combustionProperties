@@ -43,16 +43,6 @@ flameFoamCoeffs
         laminarBurningVelocity
         {
             model   Malet;
-            // ANN example (optional keys; defaults match the trained network):
-            // model   ANN;
-            // ANN
-            // {
-            //     pRef        3970000;
-            //     ERRef       7.16;
-            //     TRef        864;
-            //     X_H2_dryAir 0.705;
-            //     X_O2_dryAir 0.295;
-            // }
         }
 
         turbulentBurningVelocity

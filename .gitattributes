@@ -1,3 +1,7 @@
 * text=auto
+
+# eol=lf is the Unix/Linux line ending (LF, not Windows CRLF)
 tutorial/All* text eol=lf
 *.sh text eol=lf
+Make/files text eol=lf
+Make/options text eol=lf

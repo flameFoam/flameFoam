@@ -10,22 +10,22 @@ logFile="log.$(getApplication)"
 
 if [ ! -f "$logFile" ]
 then
-    echo "SMOKE TEST FAILED: missing $logFile"
+    echo "TEST CASE FAILED: missing $logFile"
     exit 1
 fi
 
 if grep -q "FOAM FATAL ERROR" "$logFile"
 then
-    echo "SMOKE TEST FAILED: FOAM FATAL ERROR in $logFile"
+    echo "TEST CASE FAILED: FOAM FATAL ERROR in $logFile"
     exit 1
 fi
 
 if grep -q "Selecting combustion model flameFoam" "$logFile" \
     && grep -q "Selecting reaction rate model ETFC" "$logFile"
 then
-    echo "SMOKE TEST PASSED: flameFoam/ETFC selected (see $logFile)"
+    echo "TEST CASE PASSED: flameFoam/ETFC selected (see $logFile)"
     exit 0
 fi
 
-echo "SMOKE TEST FAILED: expected flameFoam/ETFC banner in $logFile"
+echo "TEST CASE FAILED: expected flameFoam/ETFC banner in $logFile"
 exit 1

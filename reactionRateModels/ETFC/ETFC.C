@@ -26,7 +26,6 @@ Disclaimer
 #include "ETFC.H"
 #include "addToRunTimeSelectionTable.H"
 #include "lookupSct.H"
-#include "fvcGrad.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 

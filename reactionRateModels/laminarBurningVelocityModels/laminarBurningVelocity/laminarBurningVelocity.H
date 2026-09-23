@@ -66,7 +66,6 @@ protected:
         //- Full combustionProperties dictionary
         const dictionary& combustionProperties_;
 
-        //- Debug switches taken from reactionRate (flameFoamCoeffs)
         const Switch debug_;
         const Switch debugFields_;
 

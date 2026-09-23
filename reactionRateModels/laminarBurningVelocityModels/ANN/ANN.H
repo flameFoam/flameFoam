@@ -70,12 +70,10 @@ class ANN
         const scalar X_H2_0_;
         const scalar X_H2O_;
 
-        //- Input normalisation (dictionary, defaults from trained network)
+        //- Input normalisation from the trained network (not user-configurable)
         const scalar pRef_;
         const scalar ERRef_;
         const scalar TRef_;
-        const scalar X_H2_dryAir_;
-        const scalar X_O2_dryAir_;
 
         const scalar ER_;
 
