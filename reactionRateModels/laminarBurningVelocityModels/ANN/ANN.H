@@ -69,6 +69,12 @@ class ANN
         //- Fraction of steam
         const scalar X_H2_0_;
         const scalar X_H2O_;
+
+        //- Input normalisation from the trained network (not user-configurable)
+        const scalar pRef_;
+        const scalar ERRef_;
+        const scalar TRef_;
+
         const scalar ER_;
 
         const volScalarField& p_;
@@ -83,6 +89,13 @@ class ANN
         const scalarList B3_;
         const scalarListList W4_;
         const dimensionedScalar B4_;
+
+        //- Hidden layer sizes derived from weight matrices
+        const label nInput_;
+        const label nL0_;
+        const label nL1_;
+        const label nL2_;
+        const label nL3_;
 
         // Input layer
         PtrList<volScalarField> L0_;

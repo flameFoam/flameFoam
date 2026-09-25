@@ -66,8 +66,8 @@ Foam::reactionRate::reactionRate
     // indices and switches
     yIndex_(combModel_.thermo().specieIndex(combModel_.thermo().Y("b"))),
     Tu_(combustionProperties_.lookup<Switch>("Tu")),
-    debug_(combustionProperties_.lookupOrDefault<Switch>("debug", false)), // reiktų perduot iš flameFoam
-    debugFields_(combustionProperties_.lookupOrDefault<Switch>("debugFields", false)), // reiktų perduot iš flameFoam
+    debug_(combustionProperties_.lookupOrDefault<Switch>("debug", false)),
+    debugFields_(combustionProperties_.lookupOrDefault<Switch>("debugFields", false)),
 
     // model constants
     p0_(mesh_.time().value()==0 ?
@@ -182,7 +182,7 @@ Foam::reactionRate::Qdot() const
     tmp<volScalarField> hSource = volScalarField::New
     (
         combModel_.thermo().phasePropertyName(typedName("Qdot")),
-        cSource_*HEff_*min(mag(min(c, scalar(1))-c.oldTime())/max(mag(c-c.oldTime()), VSMALL), scalar(1)) // renormalized to max c = 1
+        cSource_*HEff_*min(mag(min(c, scalar(1))-c.oldTime())/max(mag(c-c.oldTime()), VSMALL), scalar(1))
     );
     c.min(1);
     if (debug_)
@@ -194,6 +194,24 @@ Foam::reactionRate::Qdot() const
     }
     return hSource;
 };
+
+
+void Foam::reactionRate::appendInfo(const string& newData) const
+{
+    infoString_ = infoString_ + "\n" + newData;
+}
+
+
+const char* Foam::reactionRate::getInfo() const
+{
+    return infoString_.c_str();
+}
+
+
+void Foam::reactionRate::clearInfo() const
+{
+    infoString_.clear();
+}
 
 
 // ************************************************************************* //

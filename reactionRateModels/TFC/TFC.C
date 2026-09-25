@@ -95,12 +95,5 @@ void Foam::reactionRateModels::TFC::correct
     }
 }
 
-char const *Foam::reactionRateModels::TFC::getInfo()
-{
-    infoString_.append(turbulentCorrelation_().getInfo());
-    turbulentCorrelation_().clearInfo();
-    return infoString_.c_str();
-}
-
 
 // ************************************************************************* //

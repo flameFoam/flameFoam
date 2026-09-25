@@ -42,7 +42,7 @@ SourceFiles
 #include "volFields.H"
 #include "combustionModel.H"
 #include "fvmSup.H"
-#include "infoPass.H"
+#include "string.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -54,8 +54,6 @@ namespace Foam
 \*---------------------------------------------------------------------------*/
 
 class reactionRate
-:
-    public infoPass
 {
 
 protected:
@@ -84,7 +82,7 @@ protected:
         //- Unburnt temperature correction switch
         const Switch Tu_;
 
-        //- Debug switches
+        //- Debug switches (from flameFoamCoeffs / combustionProperties)
         const Switch debug_;
         const Switch debugFields_;
 
@@ -117,6 +115,9 @@ protected:
         //- Unburnt thermal diffusivity and correction switch
         volScalarField alphaU_;
         const Switch calculateAlphaU_;
+
+        //- Model-selection messages collected during construction
+        mutable string infoString_;
 
 
 
@@ -205,6 +206,18 @@ public:
             return combModel_;
         }
 
+        //- Debug switch from flameFoamCoeffs
+        inline Switch debugSwitch() const
+        {
+            return debug_;
+        }
+
+        //- Debug field write switch from flameFoamCoeffs
+        inline Switch debugFieldsSwitch() const
+        {
+            return debugFields_;
+        }
+
         //- Return progress variable source field
         virtual tmp<volScalarField::Internal> R(const label speciei) const;
 
@@ -213,6 +226,15 @@ public:
 
         //- Return heat release rate [kg/m/s^3]
         virtual tmp<volScalarField> Qdot() const;
+
+        //- Append a model-selection line (used by sub-models)
+        void appendInfo(const string& newData) const;
+
+        //- Return collected model-selection messages
+        const char* getInfo() const;
+
+        //- Clear collected messages
+        void clearInfo() const;
 
 
     // Member Operators

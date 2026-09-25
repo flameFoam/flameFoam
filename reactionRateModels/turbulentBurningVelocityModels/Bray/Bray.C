@@ -53,7 +53,7 @@ Foam::turbulentBurningVelocityModels::Bray::Bray
     turbulentBurningVelocity(reactRate),
     c1_(0.875 * pow(0.157, -0.392) * pow(2.0/3.0, 0.206))
 {
-    appendInfo("\tTBV estimation method: Bray correlation");
+    reactionRate_.appendInfo("\tTBV estimation method: Bray correlation");
 }
 
 
@@ -85,11 +85,4 @@ void Foam::turbulentBurningVelocityModels::Bray::correct()
         Info << "\t\t\tObtained average S_T: "  << average(sTurbulent_).value() << endl;
         Info << "\t\t\tBray correct finished" << endl;
     }
-}
-
-char const *Foam::turbulentBurningVelocityModels::Bray::getInfo()
-{
-    infoString_.append(laminarCorrelation_().getInfo());
-    laminarCorrelation_().clearInfo();
-    return infoString_.c_str();
 }

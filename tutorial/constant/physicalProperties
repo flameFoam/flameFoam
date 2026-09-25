@@ -1,0 +1,94 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      physicalProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+thermoType
+{
+	type		heRhoThermo;
+	mixture		multiComponentMixture;
+	transport	sutherland;
+	thermo		janaf;
+	equationOfState	perfectGas;
+	specie		specie;
+	energy		sensibleEnthalpy;
+}
+
+X_H2_0 0.13;
+X_H2O 0.0;
+
+species
+(
+	c
+	b
+);
+
+defaultSpecie b;
+
+c
+{
+	specie
+	{
+		molWeight	27.2312;
+	}
+	thermodynamics
+	{
+		Tlow	273.15;
+		Tcommon	800;
+		Thigh	3500;
+		highCpCoeffs
+		(
+			2.88484157e+00 1.76219468e-03 -6.65879625e-07 1.26302432e-10 -9.59221203e-15 -4976.554852770128 7.0434127625479235
+		);
+		lowCpCoeffs
+		(
+			3.47727124e+00 3.64132199e-04 -7.37759045e-07 2.12143885e-09 -1.12304446e-12 -5093.830214608335 4.072588096467566
+		);
+	}
+	transport
+	{
+		As	1.69168173e-06;
+		Ts	258.398139;
+	}
+}
+
+b
+{
+	specie
+	{
+		molWeight	25.4611;
+	}
+	thermodynamics
+	{
+		Tlow	273.15;
+		Tcommon	800;
+		Thigh	3500;
+		highCpCoeffs
+		(
+			2.95267652e+00 1.45065027e-03 -5.83398300e-07  1.20460128e-10 -9.91666511e-15 -939.7795655908764 6.004938831887053
+		);
+		lowCpCoeffs
+		(
+			3.25604805e+00 1.44788002e-03 -3.42954198e-06 4.68813455e-09 -2.02845668e-12 -1013.0346835487946 4.367412333540813
+		);
+	}
+	transport
+	{
+		As	1.64661991e-06;
+		Ts	201.001192;
+	}
+}
+
+
+// ************************************************************************* //
