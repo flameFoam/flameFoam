@@ -66,8 +66,10 @@ class aITransport
         //- ADT data table
         HashTable<HashTable<scalar>> dataTable;
 
+        HashSet<word> warnedCases_;    // Track both P and P-T cases we've warned about
+
         //- Debug flag
-        const Switch debug_;
+        const Switch debug_;      
 
 protected:
 
