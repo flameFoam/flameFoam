@@ -28,4 +28,4 @@ reactionRateModels/FSD/FSD.C
 reactionRateModels/DDT/DDT.C
 flameFoam.C
 
-LIB = $(FOAM_USER_LIBBIN)/flameFoam-13.0.0-DDT
+LIB = $(FOAM_USER_LIBBIN)/flameFoam-13.0.0-dev
