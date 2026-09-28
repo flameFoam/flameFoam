@@ -79,10 +79,10 @@ void Foam::turbulentBurningVelocityModels::Zimont::correct()
     laminarCorrelation_->correct();
     sTurbulent_ =
         ACalpha_
-        *pow(2.0/3.0*combModel_.turbulence().k(), 0.75)
-        *pow(saneEpsilon(), -0.25)
-        *pow(laminarCorrelation_->burningVelocity(), 0.5)
-        *pow(reactionRate_.alphaU(), -0.25);
+      * pow(2.0/3.0*combModel_.turbulence().k(), 0.75)
+      * pow(reactionRate_.saneEpsilon(), -0.25)
+      * pow(laminarCorrelation_->burningVelocity(), 0.5)
+      * pow(reactionRate_.alphaU(), -0.25);
 
     if (debug_)
     {

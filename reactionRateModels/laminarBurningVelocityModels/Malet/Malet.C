@@ -92,7 +92,6 @@ void Foam::laminarBurningVelocityModels::Malet::correct
         Info << "\t\t\t\tObtained average S_L: "  << average(sLaminar_).value() << endl;
         Info << "\t\t\t\tMalet correct finished" << endl;
     }
-
 }
 
 

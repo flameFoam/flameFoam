@@ -170,6 +170,9 @@ public:
 
     // Member Functions
 
+        // Sanitized epsilon value for use in divisions
+        const Foam::tmp<Foam::volScalarField> saneEpsilon() const;
+
         //- Correct progress variable source
         virtual void correct() = 0;
 
@@ -194,6 +197,11 @@ public:
         inline const volScalarField& alphaU() const
         {
             return alphaU_;
+        }
+
+        inline const dimensionedScalar& p0() const
+        {
+            return p0_;
         }
 
         inline const fvMesh& mesh() const

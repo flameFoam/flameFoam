@@ -78,7 +78,7 @@ void Foam::turbulentBurningVelocityModels::Bray::correct()
         c1_
         *pow(combModel_.turbulence().k(), 0.5)
         *pow(laminarCorrelation_->burningVelocity(), 0.784)
-        *pow(saneEpsilon()*reactionRate_.muU()/reactionRate_.rhoU(), -0.196);
+        *pow(reactionRate_.saneEpsilon()*reactionRate_.muU()/reactionRate_.rhoU(), -0.196);
 
     if (debug_)
     {

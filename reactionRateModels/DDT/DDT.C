@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2025 Lithuanian Energy Institute
+ Copyright (C) 2021-2024 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -23,7 +23,7 @@ Disclaimer
 
 \*---------------------------------------------------------------------------*/
 
-#include "TFC.H"
+#include "DDT.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -32,11 +32,11 @@ namespace Foam
 {
 namespace reactionRateModels
 {
-    defineTypeNameAndDebug(TFC, 0);
+    defineTypeNameAndDebug(DDT, 0);
     addToRunTimeSelectionTable
     (
         reactionRate,
-        TFC,
+        DDT,
         dictionary
     );
 }
@@ -45,54 +45,66 @@ namespace reactionRateModels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::reactionRateModels::TFC::TFC
+Foam::reactionRateModels::DDT::DDT
 (
     const dictionary& dict,
     const combustionModel& combModel
 )
 :
     reactionRate(combModel),
-    turbulentCorrelation_(
-        turbulentBurningVelocity::New
+    wrinklingCorrelation_(
+        wrinklingFactor::New
         (
             dict,
             *this
         )
-    )
+    ),
+    autoIgnition_(
+        autoIgnition::New
+        (
+            *this,
+            dict
+        )
+
+    ),
+    c_(combModel_.thermo().Y("c")),
+    rho_(combModel_.rho()),
+    tIgn_(dimensionedScalar("tIgn", dimTime, 0.15E-3))
 {
-    appendInfo("Reaction rate model: TFC");
+    appendInfo("Reaction rate model: DDT");
 }
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::reactionRateModels::TFC::~TFC()
+Foam::reactionRateModels::DDT::~DDT()
 {}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-void Foam::reactionRateModels::TFC::correct
+
+void Foam::reactionRateModels::DDT::correct
 (
 )
 {
     if (debug_)
     {
-        Info << "\tTFC correct:" << endl;
+        Info << "\tDDT correct:" << endl;
         Info << "\t\tInitial min/avg/max cSource: " << min(cSource_).value() << " " << average(cSource_).value() << " " << max(cSource_).value() << endl;
     }
 
-    this->correctUnburntProperties();
+    wrinklingCorrelation_->correct();
+    autoIgnition_->correct();
 
-    turbulentCorrelation_->correct();
-    cSource_ = rhoU()*max(turbulentCorrelation_->burningVelocity(), turbulentCorrelation_->getLaminarBurningVelocity())*mag(fvc::grad(combModel_.thermo().Y("c")));
+    cSource_ = rhoU()*wrinklingCorrelation_->burningVelocity()*mag(fvc::grad(c_))
+             + rho_*(1-c_)*max(Zero, autoIgnition_->tau()-1)/tIgn_;
 
     if (debug_)
     {
         Info << "\t\tObtained min/avg/max cSource: " << min(cSource_).value() << " " << average(cSource_).value() << " " << max(cSource_).value() << endl;
-        Info << "\t\tTFC correct finished" << endl;
+        Info << "\t\tDDT correct finished" << endl;
     }
 }
-
 
 // ************************************************************************* //

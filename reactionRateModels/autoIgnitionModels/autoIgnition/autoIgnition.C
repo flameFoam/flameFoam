@@ -23,76 +23,57 @@ Disclaimer
 
 \*---------------------------------------------------------------------------*/
 
-#include "TFC.H"
-#include "addToRunTimeSelectionTable.H"
+
+
+#include "autoIgnition.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace reactionRateModels
-{
-    defineTypeNameAndDebug(TFC, 0);
-    addToRunTimeSelectionTable
+    defineTypeNameAndDebug(autoIgnition, 0);
+    defineRunTimeSelectionTable
     (
-        reactionRate,
-        TFC,
+        autoIgnition,
         dictionary
     );
-}
-}
 
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::reactionRateModels::TFC::TFC
+Foam::autoIgnition::autoIgnition
 (
-    const dictionary& dict,
-    const combustionModel& combModel
+    const word& modelType,
+    const reactionRate& reactRate,
+    const dictionary& dict
 )
 :
-    reactionRate(combModel),
-    turbulentCorrelation_(
-        turbulentBurningVelocity::New
+
+    reactionRate_(reactRate),
+    coeffDict_(dict),
+    mesh_(reactionRate_.mesh()),
+    combModel_(reactionRate_.combModel()),
+    debug_(coeffDict_.lookupOrDefault("debug", false)),
+    tau_
+    (
+        IOobject
         (
-            dict,
-            *this
-        )
+            "tau",
+            mesh_.time().name(),
+            mesh_,
+            IOobject::MUST_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh_
     )
 {
-    appendInfo("Reaction rate model: TFC");
+    Info << "flameFoam autoIgnition object initialized" << endl;
 }
-
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::reactionRateModels::TFC::~TFC()
+Foam::autoIgnition::~autoIgnition()
 {}
-
-
-// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-
-void Foam::reactionRateModels::TFC::correct
-(
-)
-{
-    if (debug_)
-    {
-        Info << "\tTFC correct:" << endl;
-        Info << "\t\tInitial min/avg/max cSource: " << min(cSource_).value() << " " << average(cSource_).value() << " " << max(cSource_).value() << endl;
-    }
-
-    this->correctUnburntProperties();
-
-    turbulentCorrelation_->correct();
-    cSource_ = rhoU()*max(turbulentCorrelation_->burningVelocity(), turbulentCorrelation_->getLaminarBurningVelocity())*mag(fvc::grad(combModel_.thermo().Y("c")));
-
-    if (debug_)
-    {
-        Info << "\t\tObtained min/avg/max cSource: " << min(cSource_).value() << " " << average(cSource_).value() << " " << max(cSource_).value() << endl;
-        Info << "\t\tTFC correct finished" << endl;
-    }
-}
-
 
 // ************************************************************************* //

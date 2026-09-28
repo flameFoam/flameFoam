@@ -1,5 +1,11 @@
 # Changelog
 
+## [dev] - in progress
+### Added
+- Beta version of DDT model added for testing
+### Changed
+- A lot of code cleanup
+
 ## [13.0.0] - 2025-11-19
 ### Changed
 - Ported to OpenFOAM-13 - minor changes, refactoring and improvements
