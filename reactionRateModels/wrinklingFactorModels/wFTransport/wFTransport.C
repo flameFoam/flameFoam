@@ -60,12 +60,12 @@ Foam::wrinklingFactorModels::wFTransport::wFTransport
         IOobject
         (
             "Xi",
-            mesh_.time().name(),
-            mesh_,
+            reactionRate_.mesh().time().name(),
+            reactionRate_.mesh(),
             IOobject::MUST_READ,
             IOobject::AUTO_WRITE
         ),
-        mesh_
+        reactionRate_.mesh()
     ),
     Le_("Le", dimless, dict),
     Sct_("Sct", dimless, 0)
@@ -75,8 +75,8 @@ Foam::wrinklingFactorModels::wFTransport::wFTransport
         IOobject
         (
             "thermophysicalTransport",
-            mesh_.time().constant(),
-            mesh_,
+            reactionRate_.mesh().time().constant(),
+            reactionRate_.mesh(),
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
