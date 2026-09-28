@@ -62,18 +62,6 @@ class wFTransport
         //- Le
         dimensionedScalar Le_;
 
-        //- ReT
-        dimensionedScalar ReT_;
-
-        const volScalarField& rho_;
-        const surfaceScalarField& phi_;
-
-        //- Pressure
-        const volScalarField& p_;
-
-        //- Pressure
-        const dimensionedScalar p0_;
-
         //- Debug flag
         const Switch debug_;
 

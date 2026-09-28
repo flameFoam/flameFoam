@@ -120,6 +120,10 @@ Foam::reactionRate::~reactionRate()
 {}
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+const Foam::tmp<Foam::volScalarField> Foam::reactionRate::saneEpsilon() const
+{
+    return max(combModel_.turbulence().epsilon(), dimensionedScalar(dimVelocity*dimAcceleration, SMALL));
+}
 
 void Foam::reactionRate::correctUnburntProperties()
 {

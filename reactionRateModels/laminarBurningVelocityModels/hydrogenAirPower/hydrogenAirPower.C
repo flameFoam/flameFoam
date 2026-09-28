@@ -59,8 +59,7 @@ Foam::laminarBurningVelocityModels::hydrogenAirPower::hydrogenAirPower
     c0_(dimVelocity, -0.04),
     sLaminar0_((c4_*pow(X_H2_0_, 4)+c3_*pow(X_H2_0_, 3)+c2_*pow(X_H2_0_, 2)+c1_*X_H2_0_+c0_)),
     pRef_(dimensionedScalar(dimPressure, 101300)),
-    TRef_(dimensionedScalar(dimTemperature, 298)),
-    p_(mesh_.lookupObject<volScalarField>("p"))
+    TRef_(dimensionedScalar(dimTemperature, 298))
 {
     reactionRate_.appendInfo("\tLBV estimation method: power law correlation");
     OStringStream os;
@@ -86,7 +85,10 @@ void Foam::laminarBurningVelocityModels::hydrogenAirPower::correct
         Info << "\t\t\t\tInitial average S_L: "  << average(sLaminar_).value() << endl;
     }
 
-    sLaminar_ = sLaminar0_*pow(reactionRate_.TU()/TRef_, 1.75)*pow(p_/pRef_, -0.2);
+    const fvMesh& mesh(reactionRate_.mesh());
+    const volScalarField& p = mesh.lookupObject<volScalarField>("p");
+
+    sLaminar_ = sLaminar0_*pow(reactionRate_.TU()/TRef_, 1.75)*pow(p/pRef_, -0.2);
 
     if (debug_)
     {
