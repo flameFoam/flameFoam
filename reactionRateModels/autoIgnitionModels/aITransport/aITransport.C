@@ -121,7 +121,7 @@ void Foam::autoIgnitionModels::aITransport::correct()
     const volScalarField DT(combModel_.turbulence().nut()/Sct_);
     const volScalarField DTot(DL + DT);
 
-    volScalarField& TU = reactionRate_.TU().ref();
+    const volScalarField& TU = reactionRate_.TU();
     forAll (mesh_.C(), celli)
     {
         ADT_[celli] = lookupADT(p_[celli], TU[celli]);
@@ -152,7 +152,7 @@ void Foam::autoIgnitionModels::aITransport::loadADTData()
 {
     const char* dataPath = "constant/ADT";
     DIR* dir = opendir(dataPath);
-    
+
     if (!dir)
     {
         FatalErrorInFunction
@@ -164,9 +164,9 @@ void Foam::autoIgnitionModels::aITransport::loadADTData()
     while ((entry = readdir(dir)) != nullptr)
     {
         string filename(entry->d_name);
-        
+
         // Skip . and .. directories and non-.ADT files
-        if (filename == "." || filename == ".." || 
+        if (filename == "." || filename == ".." ||
             filename.substr(filename.length() - 4) != ".ADT")
         {
             continue;
@@ -174,32 +174,32 @@ void Foam::autoIgnitionModels::aITransport::loadADTData()
 
         // Use filename without .ADT extension as key
         word pKey = filename.substr(0, filename.length() - 4);
-        
+
         // Create inner table for this pressure
         HashTable<scalar> innerTable;
-        
+
         // Read and parse file
         string fullPath = string(dataPath) + "/" + filename;
         IFstream dataFile(fullPath);
         string line;
-        
+
         // Skip header (first 4 lines)
         for(int j = 0; j < 4; j++)
         {
             dataFile.getLine(line);
         }
-        
+
         // Read data lines
         while (dataFile.good())
         {
             dataFile.getLine(line);
             if (line.empty()) continue;
-            
+
             // Parse temperature and ignition time
             scalar temp, igTime;
             std::istringstream iss(line);
             iss >> temp >> igTime;
-            
+
             if (iss)
             {
                 // Round temperature to nearest integer for table key
@@ -207,17 +207,17 @@ void Foam::autoIgnitionModels::aITransport::loadADTData()
                 innerTable.insert(tempKey, igTime);
             }
         }
-        
+
         // Add to main table
         dataTable.insert(pKey, innerTable);
     }
-    
+
     closedir(dir);
 
     if (debug_)
     {
         Info<< "\nLoaded ADT data for " << dataTable.size() << " pressure values" << endl;
-        
+
         // Print random 10 entries of main table
         Info<< "\nRandom 10 pressure files in main table:" << endl;
         label count = 0;
@@ -226,7 +226,7 @@ void Foam::autoIgnitionModels::aITransport::loadADTData()
             if (count++ >= 10) break;
             Info<< "  " << iter.key() << endl;
         }
-        
+
         // Print random 10 entries of a random inner table
         if (!dataTable.empty())
         {
@@ -239,7 +239,7 @@ void Foam::autoIgnitionModels::aITransport::loadADTData()
                 Info<< "  T = " << innerIter.key() << " K, tau = " << innerIter() << " s" << endl;
             }
         }
-        
+
         Info<< endl;
     }
 }
@@ -252,14 +252,14 @@ Foam::scalar Foam::autoIgnitionModels::aITransport::lookupADT
 {
     word pKey(Foam::name(round(p/10000.0)*10000));
     word TKey(Foam::name(round(T/1.0)*1.0));
-    
+
     if (!dataTable.found(pKey))
     {
         if (!warnedCases_.found(pKey))
         {
             warnedCases_.insert(pKey);
             WarningInFunction
-                << "No ignition delay time data found for pressure p = " << p 
+                << "No ignition delay time data found for pressure p = " << p
                 << " (rounded to " << pKey << ")" << endl;
         }
         return 1e8;
@@ -267,16 +267,16 @@ Foam::scalar Foam::autoIgnitionModels::aITransport::lookupADT
 
     const HashTable<scalar>& tempTable = dataTable[pKey];
     word ptCombo(pKey + "_" + TKey);
-    
+
     if (!tempTable.found(TKey))
     {
         if (!warnedCases_.found(ptCombo))
         {
             warnedCases_.insert(ptCombo);
             WarningInFunction
-                << "No ignition delay time data found for temperature T = " 
-                << T << " at pressure p = " << p 
-                << " (rounded to " << TKey  
+                << "No ignition delay time data found for temperature T = "
+                << T << " at pressure p = " << p
+                << " (rounded to " << TKey
                 << " and " << pKey << ")" << endl;
         }
         return 1e8;
@@ -289,9 +289,9 @@ Foam::scalar Foam::autoIgnitionModels::aITransport::lookupADT
         {
             warnedCases_.insert(ptCombo);
             FatalErrorInFunction
-                << "Zero or negative ignition delay time found for p = " << p 
-                << " and T = " << T 
-                << " (rounded to " << TKey 
+                << "Zero or negative ignition delay time found for p = " << p
+                << " and T = " << T
+                << " (rounded to " << TKey
                 << " and " << pKey << ")" << endl;
             return 1e8;
         }
