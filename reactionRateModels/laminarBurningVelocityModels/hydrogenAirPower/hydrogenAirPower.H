@@ -73,9 +73,8 @@ public:
         //- Construct from dictionary and reaction rate
         hydrogenAirPower
         (
-            const word modelType,
-            const reactionRate& reactRate,
-            const dictionary& dictCoeffs
+            const dictionary& dict,
+            const reactionRate& reactRate
         );
 
         //- Disallow default bitwise copy construction

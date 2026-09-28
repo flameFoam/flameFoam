@@ -90,8 +90,7 @@ public:
         //- Construct from dictionary, mesh and combustion model
         DDT
         (
-            const word modelType,
-            const dictionary& dictCoeffs,
+            const dictionary& dict,
             const combustionModel& combModel
         );
 

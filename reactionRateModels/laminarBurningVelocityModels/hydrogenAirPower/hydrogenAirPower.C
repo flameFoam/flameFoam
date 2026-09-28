@@ -47,11 +47,9 @@ namespace laminarBurningVelocityModels
 
 Foam::laminarBurningVelocityModels::hydrogenAirPower::hydrogenAirPower
 (
-    const word modelType,
-    const reactionRate& reactRate,
-    const dictionary& dict
+    const dictionary& dict,
+    const reactionRate& reactRate
 ):
-    laminarBurningVelocity(modelType, reactRate, dict),
     X_H2_0_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("X_H2_0")),
     sLaminar0_
     (
@@ -65,6 +63,7 @@ Foam::laminarBurningVelocityModels::hydrogenAirPower::hydrogenAirPower
          - 0.04
         )
     ),
+    laminarBurningVelocity(reactRate),
     pRef_(dimensionedScalar(dimPressure, 101300)),
     TRef_(dimensionedScalar(dimTemperature, 298)),
     p_(mesh_.lookupObject<volScalarField>("p"))

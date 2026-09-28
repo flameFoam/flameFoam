@@ -47,17 +47,16 @@ namespace reactionRateModels
 
 Foam::reactionRateModels::DDT::DDT
 (
-    const word modelType,
     const dictionary& dict,
     const combustionModel& combModel
 )
 :
-    reactionRate(modelType, dict, combModel),
+    reactionRate(combModel),
     wrinklingCorrelation_(
         wrinklingFactor::New
         (
-            *this,
-            dict
+            dict,
+            *this
         )
     ),
     autoIgnition_(

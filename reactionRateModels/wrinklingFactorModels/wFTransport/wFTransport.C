@@ -50,21 +50,11 @@ namespace wrinklingFactorModels
 
 Foam::wrinklingFactorModels::wFTransport::wFTransport
 (
-    const word modelType,
-    const reactionRate& reactRate,
-    const dictionary& dict
+    const dictionary& dict,
+    const reactionRate& reactRate
 
 ):
-    wrinklingFactor(modelType, reactRate, dict),
-    laminarCorrelation_
-    (
-        laminarBurningVelocity::New
-        (
-            reactRate,
-            combModel_.coeffs()
-        )
-    ),
-
+    wrinklingFactor(reactRate),
     Xi_
     (
         IOobject

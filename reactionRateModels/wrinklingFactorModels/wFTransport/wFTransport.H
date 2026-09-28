@@ -56,8 +56,6 @@ class wFTransport
 {
     // Private Data
 
-        autoPtr<laminarBurningVelocity> laminarCorrelation_;
-
         //subgrid scale flame wrinkling factor
         volScalarField Xi_;
 
@@ -99,9 +97,8 @@ public:
         //- Construct from dictionary, mesh and combustion model
         wFTransport
         (
-            const word modelType,
-            const reactionRate& reactRate,
-            const dictionary& dict
+            const dictionary& dict,
+            const reactionRate& reactRate
         );
 
         //- Disallow default bitwise copy construction
