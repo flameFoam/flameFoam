@@ -42,7 +42,6 @@ SourceFiles
 #include "volFields.H"
 #include "combustionModel.H"
 #include "fvmSup.H"
-#include "infoPass.H"
 #include "reactionRate.H"
 
 namespace Foam
@@ -53,13 +52,12 @@ namespace Foam
 \*---------------------------------------------------------------------------*/
 
 class autoIgnition
-:
-    public infoPass
 {
+
 protected:
     // Protected data
     const reactionRate& reactionRate_;
-    
+
     //- Dictionary
     dictionary coeffDict_;
 
@@ -131,4 +129,4 @@ public:
 
 #endif
 
-// ************************************************************************* // 
+// ************************************************************************* //

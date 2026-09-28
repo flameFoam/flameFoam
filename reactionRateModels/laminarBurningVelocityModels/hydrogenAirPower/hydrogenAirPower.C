@@ -68,10 +68,10 @@ Foam::laminarBurningVelocityModels::hydrogenAirPower::hydrogenAirPower
     TRef_(dimensionedScalar(dimTemperature, 298)),
     p_(mesh_.lookupObject<volScalarField>("p"))
 {
-    appendInfo("\tLBV estimation method: power law correlation");
+    reactionRate_.appendInfo("\tLBV estimation method: power law correlation");
     OStringStream os;
     os << "Obtained SL_0: " << sLaminar0_;
-    appendInfo(os.str());
+    reactionRate_.appendInfo(os.str());
 }
 
 

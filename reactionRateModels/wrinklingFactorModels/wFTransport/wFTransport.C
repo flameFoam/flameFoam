@@ -89,7 +89,7 @@ Foam::wrinklingFactorModels::wFTransport::wFTransport
     );
     Sct_ = thermophysicalwFTransportDict.lookup<scalar>("Sct");
 
-    appendInfo("\tWrinkling factor estimation method: wFTransport equation");
+    reactionRate_.appendInfo("\tWrinkling factor estimation method: wFTransport equation");
 }
 
 
@@ -157,13 +157,6 @@ void Foam::wrinklingFactorModels::wFTransport::correct()
             << " " << max(Xi_).value() << endl;
         Info << "\t\t\twFTransport correct finished" << endl;
     }
-}
-
-char const *Foam::wrinklingFactorModels::wFTransport::getInfo()
-{
-    infoString_.append(laminarCorrelation_().getInfo());
-    laminarCorrelation_().clearInfo();
-    return infoString_.c_str();
 }
 
 // ************************************************************************* //

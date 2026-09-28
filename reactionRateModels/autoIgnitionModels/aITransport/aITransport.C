@@ -93,7 +93,7 @@ Foam::autoIgnitionModels::aITransport::aITransport
         )
     );
     Sct_ = thermophysicalTransportDict.lookup<scalar>("Sct");
-    appendInfo("\tAutoignition estimation method: aITransport equation");
+    reactionRate_.appendInfo("\tAutoignition estimation method: aITransport equation");
 
       // Load the ADT data
     loadADTData();
@@ -298,11 +298,6 @@ Foam::scalar Foam::autoIgnitionModels::aITransport::lookupADT
     }
 
     return value;
-}
-
-char const *Foam::autoIgnitionModels::aITransport::getInfo()
-{
-    return infoString_.c_str();
 }
 
 // ************************************************************************* //
