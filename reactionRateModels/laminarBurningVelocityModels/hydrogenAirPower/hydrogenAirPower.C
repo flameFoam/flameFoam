@@ -50,20 +50,14 @@ Foam::laminarBurningVelocityModels::hydrogenAirPower::hydrogenAirPower
     const dictionary& dict,
     const reactionRate& reactRate
 ):
-    X_H2_0_(dict.optionalSubDict(modelType + "Coeffs").lookup<scalar>("X_H2_0")),
-    sLaminar0_
-    (
-        dimensionedScalar
-        (
-            dimVelocity,
-          - 488.9*pow(X_H2_0_, 4)
-          + 285.0*pow(X_H2_0_, 3)
-          - 21.92*pow(X_H2_0_, 2)
-          + 1.351*X_H2_0_
-         - 0.04
-        )
-    ),
     laminarBurningVelocity(reactRate),
+    X_H2_0_("X_H2_0", dimless, combustionProperties_),
+    c4_(dimVelocity, -488.9),
+    c3_(dimVelocity, 285.0),
+    c2_(dimVelocity, -21.92),
+    c1_(dimVelocity, 1.351),
+    c0_(dimVelocity, -0.04),
+    sLaminar0_((c4_*pow(X_H2_0_, 4)+c3_*pow(X_H2_0_, 3)+c2_*pow(X_H2_0_, 2)+c1_*X_H2_0_+c0_)),
     pRef_(dimensionedScalar(dimPressure, 101300)),
     TRef_(dimensionedScalar(dimTemperature, 298)),
     p_(mesh_.lookupObject<volScalarField>("p"))

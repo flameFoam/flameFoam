@@ -55,12 +55,22 @@ class hydrogenAirPower
 
     // Private data
 
-        //- Fraction of steam
-        const scalar X_H2_0_;
+        const dimensionedScalar X_H2_0_;
+
+        //- Polynomial coefficients for sLaminar0
+        const dimensionedScalar c4_;
+        const dimensionedScalar c3_;
+        const dimensionedScalar c2_;
+        const dimensionedScalar c1_;
+        const dimensionedScalar c0_;
+
+        //- Laminar burning velocity at pRef and TRef
         const dimensionedScalar sLaminar0_;
+
+
+        //- Reference pressure and temperature
         const dimensionedScalar pRef_;
         const dimensionedScalar TRef_;
-        const volScalarField& p_;
 
 public:
 
