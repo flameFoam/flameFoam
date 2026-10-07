@@ -93,7 +93,9 @@ To use the ANN laminar burning velocity, set `model ANN`. Training-scale constan
 
 Critical startup lines are written both to the solver log (`Info`) and to `flameFoam.<region>.combustionInfo`.
 
-ETFC reads `Sct` from the already-registered `thermophysicalTransport` object (RAS or LES sub-dictionary).
+ETFC and aITransport read `Sct` from the already-registered `thermophysicalTransport` object (RAS or LES sub-dictionary).
+
+ADT tables (`constant/ADT/*.ADT`) are interpolated bilinearly in (p, T). One file per pressure, filename = pressure (e.g. `100000.ADT`), 4 header lines then `T  tau` columns.
 
 ## Tutorial / test case
 
