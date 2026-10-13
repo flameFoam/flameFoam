@@ -95,7 +95,7 @@ Critical startup lines are written both to the solver log (`Info`) and to `flame
 
 ETFC and aITransport read `Sct` from the already-registered `thermophysicalTransport` object (RAS or LES sub-dictionary).
 
-ADT tables (`constant/ADT/*.ADT`) are interpolated bilinearly in (p, T). One file per pressure, filename = pressure (e.g. `100000.ADT`), 4 header lines then `T  tau` columns.
+ADT tables (`constant/ADT/*.ADT`) are interpolated bilinearly in (p, T). One file per pressure, filename = pressure (e.g. `100000.ADT`), then `T  tau` columns. Optional `nHeaderLines` (default 4, use 0 for no header).
 
 ## Tutorial / test case
 

@@ -117,9 +117,6 @@ public:
         //- Update properties from given dictionary
         // virtual bool read(const dictionary& dictProperties);
 
-        //- Return infoString_
-        virtual char const *getInfo();
-
 
     // Member Operators
 

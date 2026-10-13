@@ -3,6 +3,24 @@
  flameFoam
  Copyright (C) 2021-2026 Lithuanian Energy Institute
 
+ -------------------------------------------------------------------------------
+License
+    This file is part of flameFoam, derivative work of OpenFOAM.
+
+    flameFoam is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    flameFoam is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    <http://www.gnu.org/licenses/> for more details.
+
+Disclaimer
+    flameFoam is not approved or endorsed by neither the OpenFOAM Foundation
+    Limited nor OpenCFD Limited.
+
 \*---------------------------------------------------------------------------*/
 
 #include "scalarTable2D.H"
@@ -20,20 +38,23 @@ Foam::scalarTable2D::scalarTable2D()
     x_(),
     y_(),
     values_(),
-    missingValue_(1e9)
+    missingValue_(1e9),
+    nHeaderLines_(4)
 {}
 
 
 Foam::scalarTable2D::scalarTable2D
 (
     const fileName& directory,
+    const label nHeaderLines,
     const scalar missingValue
 )
 :
     x_(),
     y_(),
     values_(),
-    missingValue_(missingValue)
+    missingValue_(missingValue),
+    nHeaderLines_(nHeaderLines)
 {
     loadAdtDirectory(directory);
 }
@@ -149,7 +170,7 @@ void Foam::scalarTable2D::loadAdtDirectory(const fileName& directory)
         }
 
         string line;
-        for (label header = 0; header < 4 && is.good(); ++header)
+        for (label header = 0; header < nHeaderLines_ && is.good(); ++header)
         {
             is.getLine(line);
         }

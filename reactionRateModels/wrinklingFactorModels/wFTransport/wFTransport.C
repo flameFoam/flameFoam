@@ -112,7 +112,7 @@ void Foam::wrinklingFactorModels::wFTransport::correct()
     const dimensionedScalar& p0 = reactionRate_.p0();
 
     const volScalarField uPrime(sqrt((2.0/3.0)*k));
-    const volScalarField tauEta(sqrt(reactionRate_.muU()/reactionRate_.rhoU()*reactionRate_.saneEpsilon()));
+    const volScalarField tauEta(sqrt(reactionRate_.muU()/reactionRate_.rhoU()/reactionRate_.saneEpsilon()));
 
     // TODO: also used in Bradley and elsewhere, probably should be in the reactionRate
     const volScalarField lT(pow(k, 1.5)/reactionRate_.saneEpsilon());

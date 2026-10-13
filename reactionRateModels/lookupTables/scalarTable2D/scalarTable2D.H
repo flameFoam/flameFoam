@@ -3,6 +3,24 @@
  flameFoam
  Copyright (C) 2021-2026 Lithuanian Energy Institute
 
+ -------------------------------------------------------------------------------
+License
+    This file is part of flameFoam, derivative work of OpenFOAM.
+
+    flameFoam is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    flameFoam is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    <http://www.gnu.org/licenses/> for more details.
+
+Disclaimer
+    flameFoam is not approved or endorsed by neither the OpenFOAM Foundation
+    Limited nor OpenCFD Limited.
+
 Class
     Foam::scalarTable2D
 
@@ -47,6 +65,9 @@ class scalarTable2D
         //- Missing-data sentinel
         scalar missingValue_;
 
+        //- Header lines skipped at the start of each .ADT file (0 = none)
+        label nHeaderLines_;
+
 
     // Private member functions
 
@@ -71,6 +92,7 @@ public:
         explicit scalarTable2D
         (
             const fileName& directory,
+            const label nHeaderLines = 4,
             const scalar missingValue = 1e9
         );
 

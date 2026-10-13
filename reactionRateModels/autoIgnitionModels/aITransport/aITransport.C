@@ -3,14 +3,30 @@
  flameFoam
  Copyright (C) 2021-2026 Lithuanian Energy Institute
 
+ -------------------------------------------------------------------------------
+License
+    This file is part of flameFoam, derivative work of OpenFOAM.
+
+    flameFoam is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    flameFoam is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    <http://www.gnu.org/licenses/> for more details.
+
+Disclaimer
+    flameFoam is not approved or endorsed by neither the OpenFOAM Foundation
+    Limited nor OpenCFD Limited.
+
 \*---------------------------------------------------------------------------*/
 
 #include "aITransport.H"
 #include "addToRunTimeSelectionTable.H"
 #include "lookupSct.H"
-#include "fvmDdt.H"
 #include "fvmDiv.H"
-#include "fvmLaplacian.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -57,7 +73,8 @@ Foam::autoIgnitionModels::aITransport::aITransport
     ),
     adtTable_
     (
-        dict.lookupOrDefault<fileName>("ADTDir", fileName("constant/ADT"))
+        dict.lookupOrDefault<fileName>("ADTDir", fileName("constant/ADT")),
+        dict.lookupOrDefault<label>("nHeaderLines", 4)
     ),
     Sct_("Sct", dimless, -1)
 {
@@ -68,6 +85,11 @@ Foam::autoIgnitionModels::aITransport::aITransport
     reactionRate_.appendInfo
     (
         "\t\tADT table pressure samples: " + Foam::name(adtTable_.nX())
+    );
+    reactionRate_.appendInfo
+    (
+        "\t\tADT header lines skipped: "
+      + Foam::name(dict.lookupOrDefault<label>("nHeaderLines", 4))
     );
 }
 
