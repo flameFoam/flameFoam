@@ -87,8 +87,6 @@ public:
 
     // Constructors
 
-        scalarTable2D();
-
         explicit scalarTable2D
         (
             const fileName& directory,

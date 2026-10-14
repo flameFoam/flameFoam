@@ -33,16 +33,6 @@ Disclaimer
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::scalarTable2D::scalarTable2D()
-:
-    x_(),
-    y_(),
-    values_(),
-    missingValue_(1e9),
-    nHeaderLines_(4)
-{}
-
-
 Foam::scalarTable2D::scalarTable2D
 (
     const fileName& directory,
