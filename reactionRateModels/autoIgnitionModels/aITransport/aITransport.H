@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
 
  flameFoam
- Copyright (C) 2021-2024 Lithuanian Energy Institute
+ Copyright (C) 2021-2026 Lithuanian Energy Institute
 
  -------------------------------------------------------------------------------
 License
@@ -22,10 +22,11 @@ Disclaimer
     Limited nor OpenCFD Limited.
 
 Class
-    Foam::wrinklingFactorModels::aITransport
+    Foam::autoIgnitionModels::aITransport
 
 Description
-    transport equation for autoignition delay
+    Transport equation for autoignition delay.
+    ADT is interpolated from a sorted 2-D (p, T) table.
 
 SourceFiles
     aITransport.C
@@ -35,9 +36,8 @@ SourceFiles
 #ifndef aITransport_H
 #define aITransport_H
 
-#include "reactionRate.H"
 #include "autoIgnition.H"
-#include "UniformTable2.H"
+#include "scalarTable2D.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -55,6 +55,7 @@ class aITransport
     public autoIgnition
 {
     // Private Data
+
         const volScalarField& rho_;
         const surfaceScalarField& phi_;
 
@@ -63,22 +64,12 @@ class aITransport
 
         volScalarField ADT_;
 
-        //- ADT data table
-        HashTable<HashTable<scalar>> dataTable;
+        //- Sorted ADT table, bilinear in (p, T)
+        scalarTable2D adtTable_;
 
-        HashSet<word> warnedCases_;    // Track both P and P-T cases we've warned about
+        //- Turbulent Schmidt number (read from registry on first correct)
+        dimensionedScalar Sct_;
 
-        //- Debug flag
-        const Switch debug_;      
-
-protected:
-
-    // Protected data
-
-        // Model coefficients
-
-            //- Turbulent Schmidt number []
-            dimensionedScalar Sct_;
 
 public:
 
@@ -88,7 +79,7 @@ public:
 
     // Constructors
 
-        //- Construct from dictionary, mesh and combustion model
+        //- Construct from dictionary and reaction rate
         aITransport
         (
             const word modelType,
@@ -100,28 +91,20 @@ public:
         aITransport(const aITransport&) = delete;
 
 
-    // Destructor
-
-        virtual ~aITransport();
+    //- Destructor
+    virtual ~aITransport();
 
 
     // Member Functions
 
-        //- Correct TBV
+        //- Correct auto-ignition delay
         virtual void correct();
 
-        //- Load ADT data from files
-        void loadADTData();
-
-        //- Lookup ADT data
-        scalar lookupADT(const scalar p, const scalar T);
 
     // Member Operators
 
         //- Disallow default bitwise assignment
         void operator=(const aITransport&) = delete;
-        //- Return infoString_
-        virtual char const *getInfo();
 };
 
 

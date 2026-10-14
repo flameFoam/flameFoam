@@ -107,8 +107,6 @@ public:
 
         //- Disallow default bitwise assignment
         void operator=(const wFTransport&) = delete;
-        //- Return infoString_
-        virtual char const *getInfo();
 };
 
 

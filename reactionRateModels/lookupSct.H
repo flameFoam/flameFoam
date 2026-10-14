@@ -11,7 +11,7 @@ namespace Foam
 
 // Read Sct from the already-registered thermophysicalTransport dictionary.
 // Combustion is constructed before the transport model, so this must be
-// called from correct(), not from the ETFC constructor.
+// called from correct(), not from the ETFC/aITransport constructors.
 inline dimensionedScalar lookupSctFromRegistry(const fvMesh& mesh)
 {
     const objectRegistry* obr = &mesh;
